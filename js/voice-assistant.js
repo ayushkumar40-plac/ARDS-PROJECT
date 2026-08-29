@@ -60,6 +60,21 @@ class ARDSVoiceAssistant {
         name: 'Arabic',
         flag: '🇸🇦',
         voices: ['ar-SA']
+      },
+      'hi-IN': {
+        name: 'Hindi',
+        flag: '🇮🇳',
+        voices: ['hi-IN']
+      },
+      'ta-IN': {
+        name: 'Tamil',
+        flag: '🇮🇳',
+        voices: ['ta-IN']
+      },
+      'te-IN': {
+        name: 'Telugu',
+        flag: '🇮🇳',
+        voices: ['te-IN']
       }
     };
 
@@ -216,6 +231,57 @@ class ARDSVoiceAssistant {
         pressureQuery: 'نبّهني عند تغيرات الضغط',
         recommendationQuery: 'أعطني توصية سريرية',
         searchPatient: 'ابحث عن مريض'
+      },
+      'hi-IN': {
+        title: 'वॉइस असिस्टेंट',
+        toggleListening: 'सुनना शुरू करें',
+        stopListening: 'सुनना बंद करें',
+        selectLanguage: 'भाषा चुनें',
+        voiceEnabled: 'वॉइस सक्षम',
+        voiceDisabled: 'वॉइस अक्षम',
+        micPermissionDenied: 'माइक्रोफ़ोन की अनुमति अस्वीकृत',
+        noSpeechDetected: 'कोई आवाज़ नहीं मिली',
+        listeningIndicator: 'सुन रहा है...',
+        sessionQuery: 'वर्तमान सत्र के बारे में बताएं',
+        scoreQuery: 'पुनर्वास स्कोर क्या है?',
+        fatigueQuery: 'थकान का स्तर जांचें',
+        pressureQuery: 'दबाव परिवर्तनों पर मुझे सचेत करें',
+        recommendationQuery: 'मुझे एक नैदानिक सिफारिश दें',
+        searchPatient: 'एक रोगी खोजें'
+      },
+      'ta-IN': {
+        title: 'குரல் உதவியாளர்',
+        toggleListening: 'கேட்கத் தொடங்கு',
+        stopListening: 'கேட்பதை நிறுத்து',
+        selectLanguage: 'மொழியைத் தேர்ந்தெடுக்கவும்',
+        voiceEnabled: 'குரல் இயக்கப்பட்டது',
+        voiceDisabled: 'குரல் முடக்கப்பட்டது',
+        micPermissionDenied: 'மைக்ரோஃபோன் அனுமதி மறுக்கப்பட்டது',
+        noSpeechDetected: 'பேச்சு கண்டறியப்படவில்லை',
+        listeningIndicator: 'கேட்கிறது...',
+        sessionQuery: 'தற்போதைய அமர்வைப் பற்றி எனக்குச் சொல்லுங்கள்',
+        scoreQuery: 'மறுவாழ்வு மதிப்பெண் என்ன?',
+        fatigueQuery: 'சோர்வு நிலையைச் சரிபார்க்கவும்',
+        pressureQuery: 'அழுத்த மாற்றங்கள் குறித்து என்னை எச்சரிக்கவும்',
+        recommendationQuery: 'எனக்கு ஒரு மருத்துவ பரிந்துரையைத் தாருங்கள்',
+        searchPatient: 'ஒரு நோயாளியைத் தேடு'
+      },
+      'te-IN': {
+        title: 'వాయిస్ అసిస్టెంట్',
+        toggleListening: 'వినడం ప్రారంభించు',
+        stopListening: 'వినడం ఆపు',
+        selectLanguage: 'భాషను ఎంచుకోండి',
+        voiceEnabled: 'వాయిస్ ప్రారంభించబడింది',
+        voiceDisabled: 'వాయిస్ నిలిపివేయబడింది',
+        micPermissionDenied: 'మైక్రోఫోన్ అనుమతి తిరస్కరించబడింది',
+        noSpeechDetected: 'మాట గుర్తించబడలేదు',
+        listeningIndicator: 'వింటున్నాను...',
+        sessionQuery: 'ప్రస్తుత సెషన్ గురించి చెప్పండి',
+        scoreQuery: 'పునరావాస స్కోరు ఎంత?',
+        fatigueQuery: 'అలసట స్థాయిని తనిఖీ చేయండి',
+        pressureQuery: 'ఒత్తిడి మార్పుల గురించి నన్ను హెచ్చరించండి',
+        recommendationQuery: 'నాకు ఒక క్లినికల్ సిఫారసు ఇవ్వండి',
+        searchPatient: 'రోగిని వెతకండి'
       }
     };
 
