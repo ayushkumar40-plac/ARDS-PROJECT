@@ -11,52 +11,52 @@ class ARDSVoiceAssistant {
     this.recognition = null;
     this.isListening = false;
     this.languages = {
-      'en-US': { 
+      'en-US': {
         name: 'English (US)',
         flag: '🇺🇸',
         voices: ['en-US']
       },
-      'en-GB': { 
+      'en-GB': {
         name: 'English (UK)',
         flag: '🇬🇧',
         voices: ['en-GB', 'en-UK']
       },
-      'es-ES': { 
+      'es-ES': {
         name: 'Spanish',
         flag: '🇪🇸',
         voices: ['es-ES']
       },
-      'fr-FR': { 
+      'fr-FR': {
         name: 'French',
         flag: '🇫🇷',
         voices: ['fr-FR']
       },
-      'de-DE': { 
+      'de-DE': {
         name: 'German',
         flag: '🇩🇪',
         voices: ['de-DE']
       },
-      'pt-BR': { 
+      'pt-BR': {
         name: 'Portuguese (BR)',
         flag: '🇧🇷',
         voices: ['pt-BR']
       },
-      'it-IT': { 
+      'it-IT': {
         name: 'Italian',
         flag: '🇮🇹',
         voices: ['it-IT']
       },
-      'ja-JP': { 
+      'ja-JP': {
         name: 'Japanese',
         flag: '🇯🇵',
         voices: ['ja-JP']
       },
-      'zh-CN': { 
+      'zh-CN': {
         name: 'Simplified Chinese',
         flag: '🇨🇳',
         voices: ['zh-CN', 'zh']
       },
-      'ar-SA': { 
+      'ar-SA': {
         name: 'Arabic',
         flag: '🇸🇦',
         voices: ['ar-SA']
@@ -148,6 +148,74 @@ class ARDSVoiceAssistant {
         pressureQuery: 'Alerte-me sobre mudanças de pressão',
         recommendationQuery: 'Dê-me uma recomendação clínica',
         searchPatient: 'Procurar um paciente'
+      },
+      'it-IT': {
+        title: 'Assistente Vocale',
+        toggleListening: 'Inizia ad Ascoltare',
+        stopListening: 'Smetti di Ascoltare',
+        selectLanguage: 'Seleziona Lingua',
+        voiceEnabled: 'Voce Abilitata',
+        voiceDisabled: 'Voce Disabilitata',
+        micPermissionDenied: 'Permesso del microfono negato',
+        noSpeechDetected: 'Nessun parlato rilevato',
+        listeningIndicator: 'Ascolto...',
+        sessionQuery: 'Parlami della sessione attuale',
+        scoreQuery: 'Qual è il punteggio di riabilitazione?',
+        fatigueQuery: 'Controlla il livello di fatica',
+        pressureQuery: 'Avvisami dei cambiamenti di pressione',
+        recommendationQuery: 'Dammi una raccomandazione clinica',
+        searchPatient: 'Cerca un paziente'
+      },
+      'ja-JP': {
+        title: '音声アシスタント',
+        toggleListening: '聴取を開始',
+        stopListening: '聴取を停止',
+        selectLanguage: '言語を選択',
+        voiceEnabled: '音声有効',
+        voiceDisabled: '音声無効',
+        micPermissionDenied: 'マイクの権限が拒否されました',
+        noSpeechDetected: '音声が検出されません',
+        listeningIndicator: '聴取中...',
+        sessionQuery: '現在のセッションについて教えてください',
+        scoreQuery: 'リハビリテーションスコアは何ですか？',
+        fatigueQuery: '疲労レベルを確認してください',
+        pressureQuery: '圧力の変化を通知してください',
+        recommendationQuery: '臨床推奨を教えてください',
+        searchPatient: '患者を検索'
+      },
+      'zh-CN': {
+        title: '语音助手',
+        toggleListening: '开始聆听',
+        stopListening: '停止聆听',
+        selectLanguage: '选择语言',
+        voiceEnabled: '语音已启用',
+        voiceDisabled: '语音已禁用',
+        micPermissionDenied: '麦克风权限被拒绝',
+        noSpeechDetected: '未检测到语音',
+        listeningIndicator: '聆听中...',
+        sessionQuery: '告诉我当前训练的情况',
+        scoreQuery: '康复评分是多少？',
+        fatigueQuery: '检查疲劳程度',
+        pressureQuery: '压力变化时提醒我',
+        recommendationQuery: '给我一个临床建议',
+        searchPatient: '搜索患者'
+      },
+      'ar-SA': {
+        title: 'المساعد الصوتي',
+        toggleListening: 'بدء الاستماع',
+        stopListening: 'إيقاف الاستماع',
+        selectLanguage: 'اختر اللغة',
+        voiceEnabled: 'الصوت مُمكّن',
+        voiceDisabled: 'الصوت مُعطّل',
+        micPermissionDenied: 'تم رفض إذن الميكروفون',
+        noSpeechDetected: 'لم يتم اكتشاف أي كلام',
+        listeningIndicator: 'جارٍ الاستماع...',
+        sessionQuery: 'أخبرني عن الجلسة الحالية',
+        scoreQuery: 'ما هي درجة التأهيل؟',
+        fatigueQuery: 'تحقق من مستوى التعب',
+        pressureQuery: 'نبّهني عند تغيرات الضغط',
+        recommendationQuery: 'أعطني توصية سريرية',
+        searchPatient: 'ابحث عن مريض'
       }
     };
 
@@ -160,7 +228,7 @@ class ARDSVoiceAssistant {
 
   setupSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+
     if (!SpeechRecognition) {
       console.warn('Speech Recognition API not supported in this browser');
       return;
@@ -250,7 +318,7 @@ class ARDSVoiceAssistant {
   processVoiceCommand(transcript) {
     const commandLower = transcript.toLowerCase();
     const response = this.matchVoiceCommand(commandLower);
-    
+
     if (response) {
       this.speak(response.text);
       if (response.action) {
@@ -384,7 +452,7 @@ class ARDSVoiceAssistant {
 
   handleRecognitionError(error) {
     let errorMessage = error;
-    
+
     if (error === 'no-speech') {
       errorMessage = this.translate('noSpeechDetected');
     } else if (error === 'network') {
