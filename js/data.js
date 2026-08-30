@@ -1,5 +1,5 @@
 /**
- * ARDS - Adaptive Rehabilitation Decision Support System
+ * Adaptive Rehabilitation Decision Support System
  * Core Mock Data & Storage Layer
  */
 

@@ -845,7 +845,7 @@ class ARDSApp {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", "ards_sample_session_data.csv");
+        link.setAttribute("download", "adaptive_rehab_sample_session_data.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1511,7 +1511,7 @@ class ARDSApp {
         const session = window.dataStore.getActiveSession();
         const baseline = patient.sessions[0];
         const reportData = {
-          system: "Adaptive Rehabilitation Decision Support System (ARDS)",
+          system: "Adaptive Rehabilitation Decision Support System",
           version: "1.0-prototype",
           exportedAt: new Date().toISOString(),
           patient: patient,
@@ -1526,7 +1526,7 @@ class ARDSApp {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `ARDS_Report_${patient.id}.json`);
+        link.setAttribute("download", `AdaptiveRehab_Report_${patient.id}.json`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1558,7 +1558,7 @@ class ARDSApp {
           <div>
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
-              <h2 class="text-xl font-extrabold tracking-tight text-slate-100">Adaptive Rehabilitation Decision Support System (ARDS)</h2>
+              <h2 class="text-xl font-extrabold tracking-tight text-slate-100">Adaptive Rehabilitation Decision Support System</h2>
             </div>
             <p class="text-xs text-slate-400 mt-1">Lower-Limb Amputee Biomechanical Evaluation & Decision Log</p>
           </div>
@@ -1698,9 +1698,9 @@ function initARDSApp() {
   if (!window.ardsApp) {
     try {
       window.ardsApp = new ARDSApp();
-      console.log("ARDS Dashboard App initialized successfully.");
+      console.log("Adaptive Rehabilitation Decision Support System initialized successfully.");
     } catch(e) {
-      console.error("Error initializing ARDS Dashboard:", e);
+      console.error("Error initializing Adaptive Rehabilitation Decision Support System:", e);
     }
   }
 }
