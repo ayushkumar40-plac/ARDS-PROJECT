@@ -1403,6 +1403,51 @@ body.auth-locked .ards-chatbot-root { display: none; }
   30% { transform: translateY(-4px); opacity: 1; }
 }
 
+.ards-chatbot-heading {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  color: #38bdf8;
+  margin-top: 0.55rem;
+  margin-bottom: 0.25rem;
+}
+
+.ards-chatbot-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 0.45rem 0;
+  border-radius: 0.55rem;
+  border: 1px solid var(--border-card);
+}
+
+.ards-chatbot-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.ards-chatbot-table th,
+.ards-chatbot-table td {
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ards-chatbot-table th {
+  background: rgba(15, 23, 42, 0.6);
+  color: #94a3b8;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ards-chatbot-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.ards-chatbot-table td {
+  color: var(--text-main);
+}
+
 @media (max-width: 640px) {
   .ards-chatbot-root { right: 0.8rem; bottom: 0.8rem; }
   .ards-chatbot-panel {

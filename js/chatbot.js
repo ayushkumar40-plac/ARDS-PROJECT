@@ -8,19 +8,19 @@
   'use strict';
 
   var SUGGESTIONS = [
+    'Evaluate telemetry',
     'What is the rehab score?',
     'Tell me about this patient',
     'Check fatigue level',
     'Socket pressure status',
     'Clinical recommendation',
     'Show open alerts',
-    'How is progress trending?',
-    'Open decision log'
+    'How is progress trending?'
   ];
 
   var HELP_TEXT =
-    'I can help with the active patient and session. Try asking about rehab score, ' +
-    'fatigue, socket pressure, gait/symmetry, clinical recommendation, alerts, ' +
+    'I can help with the active patient and session. Try asking to "evaluate telemetry" against clinical reference standards, ' +
+    'or ask about rehab score, fatigue, socket pressure, gait/symmetry, clinical recommendation, alerts, ' +
     'progress trends, or say "open alerts / reports / XAI / decision log".';
 
   function ARDSChatbot() {
@@ -289,7 +289,55 @@
   };
 
   ARDSChatbot.prototype.formatMessage = function (text) {
-    var html = this.escapeHtml(String(text || ''));
+    var str = String(text || '');
+    var lines = str.split('\n');
+    var inTable = false;
+    var tableHtml = '';
+    var outLines = [];
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (line.startsWith('|') && line.endsWith('|')) {
+        var cells = line.split('|').map(function(c) { return c.trim(); }).filter(function(c, idx, arr) { return idx > 0 && idx < arr.length; });
+        if (cells.every(function(c) { return /^:?-+:?$/.test(c); })) {
+          continue;
+        }
+        if (!inTable) {
+          inTable = true;
+          tableHtml = '<div class="ards-chatbot-table-wrap"><table class="ards-chatbot-table"><thead><tr>' +
+            cells.map(function(c) { return '<th>' + c + '</th>'; }).join('') +
+            '</tr></thead><tbody>';
+        } else {
+          tableHtml += '<tr>' + cells.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+        }
+      } else {
+        if (inTable) {
+          inTable = false;
+          tableHtml += '</tbody></table></div>';
+          outLines.push(tableHtml);
+          tableHtml = '';
+        }
+        outLines.push(lines[i]);
+      }
+    }
+    if (inTable) {
+      tableHtml += '</tbody></table></div>';
+      outLines.push(tableHtml);
+    }
+
+    var html = this.escapeHtml(outLines.join('\n'));
+    html = html.replace(/&lt;div class=&quot;ards-chatbot-table-wrap&quot;&gt;&lt;table class=&quot;ards-chatbot-table&quot;&gt;/g, '<div class="ards-chatbot-table-wrap"><table class="ards-chatbot-table">');
+    html = html.replace(/&lt;\/tbody&gt;&lt;\/table&gt;&lt;\/div&gt;/g, '</tbody></table></div>');
+    html = html.replace(/&lt;thead&gt;&lt;tr&gt;/g, '<thead><tr>');
+    html = html.replace(/&lt;\/tr&gt;&lt;\/thead&gt;&lt;tbody&gt;/g, '</tr></thead><tbody>');
+    html = html.replace(/&lt;tr&gt;/g, '<tr>');
+    html = html.replace(/&lt;\/tr&gt;/g, '</tr>');
+    html = html.replace(/&lt;th&gt;/g, '<th>');
+    html = html.replace(/&lt;\/th&gt;/g, '</th>');
+    html = html.replace(/&lt;td&gt;/g, '<td>');
+    html = html.replace(/&lt;\/td&gt;/g, '</td>');
+
+    html = html.replace(/### (.+?)(?:\n|<br>|$)/g, '<div class="ards-chatbot-heading"><strong>$1</strong></div>');
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
     html = html.replace(/\n/g, '<br>');
@@ -484,6 +532,9 @@
           'Improving 61\u201380 \u00b7 Good 81\u2013100. Safety governor can still override progression when pressure/fatigue breach limits.',
         actions: [{ label: 'About & formula', tab: 'about' }]
       };
+    }
+    if (this.matches(q, ['evaluat', 'clinical evaluation', 'reference standard', 'normative', 'benchmark', 'threshold', 'biomechanical eval', 'age bracket', 'standards', 'age norms'])) {
+      return this.replyClinicalEvaluation(ctx);
     }
 
     return this.replyFallback(ctx, text);
@@ -801,6 +852,25 @@
       navigate: 'xai',
       actions: [{ label: 'Open XAI panel', tab: 'xai' }]
     };
+  };
+
+  ARDSChatbot.prototype.replyClinicalEvaluation = function (ctx) {
+    if (!ctx.patient || !ctx.session) {
+      return { text: 'No active patient and session telemetry loaded to evaluate against clinical thresholds.' };
+    }
+    var refs = window.ardsClinicalRefs;
+    if (refs && typeof refs.evaluateSessionTelemetry === 'function') {
+      var evalResult = refs.evaluateSessionTelemetry(ctx.patient, ctx.session);
+      return {
+        text: evalResult.formattedMarkdown,
+        actions: [
+          { label: 'Printable Clinical Report', tab: 'reports' },
+          { label: 'Decision & Safety Log', tab: 'decision' },
+          { label: 'AI Interpretability (XAI)', tab: 'xai' }
+        ]
+      };
+    }
+    return { text: 'Clinical reference evaluation engine is currently unavailable.' };
   };
 
   ARDSChatbot.prototype.replyFallback = function (ctx, original) {
