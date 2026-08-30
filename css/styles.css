@@ -1553,3 +1553,101 @@ body.auth-locked .ards-chatbot-root { display: none; }
 @media (max-width: 768px) {
   .printable-report { padding: 1.5rem; }
 }
+
+
+/* ==========================================================================
+   DESKTOP-FIDELITY MOBILE — phones & tablets keep the exact desktop design.
+   The layout renders at a desktop width and pans horizontally on small
+   screens, matching the desktop build. Combined with the auto sign-in in
+   auth.js, visitors land directly on the Session Overview page.
+   ========================================================================== */
+
+/* Keep the full desktop layout on every screen width below the desktop breakpoint */
+@media (max-width: 1024px) {
+  html,
+  body {
+    min-width: 1180px;
+    width: 1180px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-container {
+    flex-direction: row !important;
+    min-width: 1180px;
+    width: 1180px;
+  }
+
+  .app-sidebar {
+    width: 270px !important;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    border-right: 1px solid var(--border-subtle);
+    border-bottom: none;
+  }
+
+  .sidebar-logo {
+    padding: 1.5rem 1.25rem;
+    justify-content: flex-start;
+  }
+  .sidebar-logo .ards-wordmark {
+    font-size: 0.8125rem;
+    max-width: none;
+    white-space: normal;
+  }
+  .sidebar-logo .min-w-0 { display: flex !important; }
+  .sidebar-logo .min-w-0 .truncate { display: block; }
+
+  .sidebar-nav {
+    flex-direction: column;
+    overflow: hidden;
+    padding: 1rem 0.75rem;
+  }
+  .sidebar-nav::-webkit-scrollbar { display: block; }
+
+  .nav-btn {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.65rem 0.85rem;
+  }
+  .nav-btn span { display: inline; font-size: 0.8125rem; }
+  .nav-btn-active { border: 1px solid var(--border-glow); }
+  .nav-btn-active::before { display: block; }
+  .sidebar-footer { display: block; }
+
+  .app-header {
+    flex-wrap: nowrap;
+    padding: 0.85rem 1.75rem;
+  }
+  .app-header label { display: inline; }
+  .app-header .flex.items-center.gap-2 { flex: none; min-width: 0; }
+  .app-header #globalPatientSelect,
+  .app-header #globalSessionSelect { width: auto; min-width: 210px; }
+  .app-header .flex.items-center.gap-3 { gap: 0.75rem; }
+
+  .content-wrapper { padding: 2rem 2.25rem; }
+}
+
+@media (max-width: 768px) {
+  #modalAddPatient,
+  #modalAddSession { align-items: center; padding: 1rem; }
+  .printable-report { padding: 2rem !important; }
+}
+
+@media (max-width: 480px) {
+  #modalAddPatient .grid.grid-cols-2,
+  #modalAddSession .grid.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  #loginFormRegister .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .tab-section h2 { font-size: 1.5rem; }
+  .ards-card.p-8 { padding: 2rem; }
+  .ards-card.p-6 { padding: 1.5rem; }
+  .ards-card.p-5 { padding: 1.25rem; }
+  .login-brand .ards-wordmark { font-size: 1.125rem; }
+  .login-demo-box { flex-wrap: nowrap; }
+  .form-select,
+  .form-input { font-size: 0.8125rem; }
+}

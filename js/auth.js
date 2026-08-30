@@ -3,6 +3,8 @@
  * Authentication Module (Prototype)
  *
  * Simulated client-side authentication for the research prototype.
+ * - AUTO SIGN-IN: visitors are signed in automatically with the demo
+ *   clinician profile and land directly on the Session Overview page.
  * - Accounts are persisted in localStorage (NOT secure — demo only).
  * - Session persistence: sessionStorage by default, localStorage if
  *   "Keep me signed in" is checked.
@@ -369,14 +371,24 @@
             });
         }
 
-        // Restore session or lock the dashboard
-        const session = getStoredSession();
-        if (session && session.email) {
-            renderUserChip(session);
-            unlockDashboard();
+        // AUTO SIGN-IN: skip the login gate so visitors land straight on
+        // the dashboard (first page = Session Overview) without entering
+        // credentials. An existing saved session is honoured when present;
+        // otherwise an automatic demo-clinician session is created locally.
+        const saved = getStoredSession();
+        if (saved && saved.email) {
+            renderUserChip(saved);
         } else {
-            lockDashboard();
+            const guestSession = {
+                name: DEMO_ACCOUNT.name,
+                email: DEMO_ACCOUNT.email,
+                role: DEMO_ACCOUNT.role,
+                loginAt: new Date().toISOString()
+            };
+            storeSession(guestSession, false);
+            renderUserChip(guestSession);
         }
+        unlockDashboard();
 
         refreshIcons();
     }
