@@ -182,9 +182,16 @@
         refreshIcons();
     }
 
-    function unlockDashboard() {
+    function unlockDashboard(instant) {
         document.body.classList.remove('auth-locked');
         if (loginScreen) {
+            if (instant) {
+                // Auto-login path: never show the login overlay at all — hide
+                // it immediately so the app opens straight onto the dashboard.
+                loginScreen.classList.add('hidden');
+                loginScreen.classList.remove('login-screen-leaving', 'login-screen-entering');
+                return;
+            }
             loginScreen.classList.add('login-screen-leaving');
             setTimeout(() => {
                 loginScreen.classList.add('hidden');
@@ -388,7 +395,7 @@
             storeSession(guestSession, false);
             renderUserChip(guestSession);
         }
-        unlockDashboard();
+        unlockDashboard(true);
 
         refreshIcons();
     }

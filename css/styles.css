@@ -429,7 +429,7 @@ body.auth-locked {
   position: fixed;
   inset: 0;
   z-index: 100;
-  display: flex;
+  display: none; /* hidden by default; shown only when the dashboard is locked */
   align-items: center;
   justify-content: center;
   padding: 1.25rem;
@@ -438,6 +438,12 @@ body.auth-locked {
     radial-gradient(ellipse 60% 50% at 10% 110%, rgba(13, 148, 136, 0.15), transparent 60%),
     var(--bg-app);
   overflow-y: auto;
+}
+
+/* The login overlay renders only while auth is locked. With auto sign-in
+   enabled, it never flashes — the app opens straight onto the dashboard. */
+body.auth-locked .login-screen {
+  display: flex;
 }
 
 .login-screen.hidden {
