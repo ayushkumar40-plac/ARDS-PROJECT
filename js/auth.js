@@ -3,8 +3,8 @@
  * Authentication Module (Prototype)
  *
  * Simulated client-side authentication for the research prototype.
- * - AUTO SIGN-IN: visitors are signed in automatically with the demo
- *   clinician profile and land directly on the Session Overview page.
+ * - AUTO SIGN-IN: the login screen remains visible; demo credentials
+ *   are auto-filled and the form auto-submits after 2 seconds.
  * - Accounts are persisted in localStorage (NOT secure — demo only).
  * - Session persistence: sessionStorage by default, localStorage if
  *   "Keep me signed in" is checked.
@@ -382,7 +382,6 @@
         // the dashboard (first page = Session Overview) without entering
         // credentials. An existing saved session is honoured when present;
         // otherwise an automatic demo-clinician session is created locally.
-        const saved = getStoredSession();
         if (saved && saved.email) {
             renderUserChip(saved);
         } else {
@@ -395,8 +394,13 @@
             storeSession(guestSession, false);
             renderUserChip(guestSession);
         }
-        unlockDashboard(true);
-
+        // keep login screen visible, auto-fill demo creds, auto-submit
+        const passInput = el('loginPassword');
+        if (emailInput) emailInput.value = DEMO_ACCOUNT.email;
+        if (passInput) passInput.value = DEMO_ACCOUNT.password;
+        setTimeout(function() {
+            if (formSignin) formSignin.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }, 2000);
         refreshIcons();
     }
 
