@@ -20,7 +20,60 @@ class ARDSEngine {
       maxSafePressure: 55.0,     // kPa - distal socket pressure limit
       criticalPressure: 65.0,    // kPa - immediate skin breakdown danger
       maxSafeFatigue: 55.0,      // %
-      minAcceptableSymmetry: 50.0 // %
+            minAcceptableSymmetry: 50.0 // %
+    };
+
+    // Age-stratified clinical reference ranges (loaded by clinical-reference.js).
+    // Pure context — the static SAFETY_THRESHOLDS above remain authoritative
+    // for hard safety-governor decisions.
+    this.clinicalRefs = (typeof window !== 'undefined' && window.ardsClinicalRefs)
+      ? window.ardsClinicalRefs
+      : null;
+  }
+
+  /**
+   * Returns the age-band label (e.g. "50-59") for a given patient age.
+   * Uses the gait table (finest granularity: 20-29…90+) as the canonical band.
+   */
+  getAgeBand(age) {
+    if (this.clinicalRefs && typeof this.clinicalRefs.getReferenceFor === 'function') {
+      const ref = this.clinicalRefs.getReferenceFor('gait_velocity_mps', age);
+      return ref ? ref.ageBand : null;
+    }
+    return null;
+  }
+
+  /**
+   * Returns age-stratified reference bounds for a clinical metric.
+   * Metric keys: gait_velocity_mps | stance_asymmetry_pct |
+   * step_width_variability_cm | force_control_error_pct | fatigue_durability_mpa |
+   * interface_pressure_kpa | distal_socket_pressure_kpa.
+   */
+  getReferenceFor(metric, age) {
+    if (this.clinicalRefs && typeof this.clinicalRefs.getReferenceFor === 'function') {
+      return this.clinicalRefs.getReferenceFor(metric, age);
+    }
+    return null;
+  }
+
+  /**
+   * Builds age-stratified reference ranges for the current session's metrics,
+   * pairing live telemetry against age-appropriate baselines. Returns null
+   * when no patient age is available or references are not loaded.
+   */
+  buildReferenceRanges(session, age) {
+    if (!this.clinicalRefs || age == null || age === '') return null;
+    return {
+      ageBand: this.getAgeBand(age),
+      gaitVelocity_mps: this.getReferenceFor('gait_velocity_mps', age),
+      stanceAsymmetry_pct: this.getReferenceFor('stance_asymmetry_pct', age),
+      distalSocketPressure_kpa: this.getReferenceFor('distal_socket_pressure_kpa', age),
+      interfacePressure_kpa: this.getReferenceFor('interface_pressure_kpa', age),
+      current: {
+        gaitVelocity_mps: session ? session.gaitSpeed : null,
+        stanceAsymmetry_pct: session && session.symmetry != null ? 100 - session.symmetry : null,
+        distalSocketPressure_kpa: session ? session.pressure : null
+      }
     };
   }
 
@@ -369,6 +422,23 @@ class ARDSEngine {
       finalRecommendation = "🔴 Increase assistance: Revert to parallel bar stability drills and dual-cane weight transfer exercises.";
     }
 
+        // Age-stratified clinical reference context (non-authoritative; enriches
+    // XAI/reporting with age-appropriate baselines). Optional — failures are
+    // silently ignored so decisions never break when age data is absent.
+    let ageBand = null;
+    let referenceRanges = null;
+    try {
+      const store = typeof window !== 'undefined' ? window.dataStore : null;
+      const patient = store && typeof store.getActivePatient === 'function'
+        ? store.getActivePatient()
+        : null;
+      const age = patient ? patient.age : null;
+      if (age != null) {
+        ageBand = this.getAgeBand(age);
+        referenceRanges = this.buildReferenceRanges(session, age);
+      }
+    } catch (e) { /* references are optional context */ }
+
     return {
       condition,
       fatigue,
@@ -382,7 +452,9 @@ class ARDSEngine {
       governorDetails: {
         rawMLTarget: condition.state === "IMPROVING" ? "+20% Difficulty" : "0% Maintain",
         safetyGovernorCapped: condition.state === "IMPROVING" && safetyFlag === "SAFE" ? "+5% Graduated Difficulty" : (overrideTriggered ? "Clamped / Reduced" : "Approved as proposed"),
-        limitingConstraint: safetyFlag === "SAFE" ? "Standard gradual overload ceiling (max +10%/week)" : safetyReason
+        limitingConstraint: safetyFlag === "SAFE" ? "Standard gradual overload ceiling (max +10%/week)" : safetyReason,
+        ageBand: ageBand,
+        referenceRanges: referenceRanges
       }
     };
   }
