@@ -20,7 +20,8 @@ class ARDSEngine {
       maxSafePressure: 55.0,     // kPa - distal socket pressure limit
       criticalPressure: 65.0,    // kPa - immediate skin breakdown danger
       maxSafeFatigue: 55.0,      // %
-            minAcceptableSymmetry: 50.0 // %
+      minAcceptableSymmetry: 50.0, // %
+      maxSafeGaitSpeed: 1.40     // m/s - gait speed safety ceiling (prosthetic / fall-risk limit)
     };
 
     // Age-stratified clinical reference ranges (loaded by clinical-reference.js).
@@ -87,7 +88,8 @@ class ARDSEngine {
 
     // Normalize gait speed (typically 0.40 - 1.20 m/s mapped to 0 - 100)
     // Here: gaitSpeed * 100 gives an intuitive 0-100 scale (e.g. 0.60 m/s -> 60.0, 0.74 m/s -> 74.0)
-    const gaitComponent = Math.min(100, Math.max(0, session.gaitSpeed * 100));
+    // Safety ceiling: gait speed is clamped at 1.40 m/s (prosthetic / fall-risk limit)
+    const gaitComponent = Math.min(100, Math.max(0, Math.min(session.gaitSpeed, this.SAFETY_THRESHOLDS.maxSafeGaitSpeed) * 100));
     const stabilityComponent = Math.min(100, Math.max(0, session.stability));
     const forceComponent = Math.min(100, Math.max(0, session.force));
     const symmetryComponent = Math.min(100, Math.max(0, session.symmetry));
@@ -237,8 +239,9 @@ class ARDSEngine {
     const base = baseline || { gaitSpeed: 0.60, symmetry: 60, force: 55, pressure: 48, stability: 58, fatigue: 25 };
     
     // Normalized score scale conversions
-    const gaitPtsCurr = Math.min(100, Math.max(0, (session.gaitSpeed || 0.60) * 100));
-    const gaitPtsBase = Math.min(100, Math.max(0, (base.gaitSpeed || 0.60) * 100));
+    // Normalized score scale conversions (gait speed clamped at 1.40 m/s safety ceiling)
+    const gaitPtsCurr = Math.min(100, Math.max(0, Math.min((session.gaitSpeed || 0.60), this.SAFETY_THRESHOLDS.maxSafeGaitSpeed) * 100));
+    const gaitPtsBase = Math.min(100, Math.max(0, Math.min((base.gaitSpeed || 0.60), this.SAFETY_THRESHOLDS.maxSafeGaitSpeed) * 100));
     const gaitDelta = gaitPtsCurr - gaitPtsBase;
 
     const stabDelta = (session.stability || 58) - (base.stability || 58);
@@ -254,11 +257,13 @@ class ARDSEngine {
         icon: "gauge",
         value: session.gaitSpeed.toFixed(2),
         unit: "m/s",
-        refNorm: "0.70 – 1.20 m/s",
+        refNorm: "0.70 – 1.40 m/s",
         contribution: Number((gaitDelta * 0.30).toFixed(1)),
         impact: gaitDelta >= 0 ? "positive" : "negative",
         desc: session.gaitSpeed >= 0.75 
-          ? "Forward propulsion cadence meets functional K3 ambulation target (0.75+ m/s)"
+          ? (session.gaitSpeed > this.SAFETY_THRESHOLDS.maxSafeGaitSpeed
+            ? "Velocity exceeds the 1.40 m/s prosthetic safety ceiling — Safety Governor will clamp progression"
+            : "Forward propulsion cadence meets functional K3 ambulation target (0.75+ m/s)")
           : (gaitDelta >= 0 ? "Cadence improving toward target" : "Walking velocity below target cadence")
       },
       {
@@ -399,23 +404,30 @@ class ARDSEngine {
       overrideTriggered = true;
       safetyAction = "Safety Governor clamped AI progression request to -15% recovery duration.";
       finalRecommendation = "🟡 Reduce training session difficulty by 15% and enforce active rest intervals.";
+    } else if (session.gaitSpeed > this.SAFETY_THRESHOLDS.maxSafeGaitSpeed) {
+      safetyFlag = "GAIT_SPEED_CEILING";
+      matchedRuleId = "RULE_WARN_04";
+      safetyReason = `Gait speed (${session.gaitSpeed.toFixed(2)} m/s) exceeded prosthetic safety ceiling (1.40 m/s). Fall-risk / socket-stress hazard.`;
+      overrideTriggered = true;
+      safetyAction = "Safety Governor clamped gait velocity at 1.40 m/s and capped progression. Reduced load to prevent prosthetic overload.";
+      finalRecommendation = "🟡 Gait velocity capped at 1.40 m/s: Reduce treadmill speed, enforce controlled cadence, and assess socket fit at elevated velocity.";
     } else if (condition.state === "IMPROVING" && fatigue.level === "LOW") {
       safetyFlag = "SAFE";
-      matchedRuleId = "RULE_OPT_04";
+      matchedRuleId = "RULE_OPT_05";
       safetyReason = "Gait symmetry, force balance, and metabolic fatigue satisfy green-tier progression criteria.";
       overrideTriggered = true; // Safety governor moderates +20% raw AI to safe +5%~+10%
       safetyAction = "Safety Governor moderated raw AI +20% leap to safe, graduated +5%~+10% stepped progression.";
       finalRecommendation = "🟢 Increase difficulty slightly: Progress to Stage 2 resistance band gait training and outdoor pavement trials.";
     } else if (condition.state === "MODERATE") {
       safetyFlag = "SAFE";
-      matchedRuleId = "RULE_STD_05";
+      matchedRuleId = "RULE_STD_06";
       safetyReason = "Metrics stable; no safety boundary violations detected.";
       overrideTriggered = false;
       safetyAction = "Safety Governor verified ML suggestion without modification.";
       finalRecommendation = "🟡 Maintain current training protocol: Continue Level 1 indoor treadmill walking with mirror biofeedback.";
     } else {
       safetyFlag = "UNSTABLE_ASSIST";
-      matchedRuleId = "RULE_AST_06";
+      matchedRuleId = "RULE_AST_07";
       safetyReason = "Decreased gait stability and asymmetric force distribution observed.";
       overrideTriggered = false;
       safetyAction = "Safety Governor endorsed assistive protocol.";

@@ -69,7 +69,7 @@ try {
   check('score intent returns the active-session score',
     scoreReply.text.includes('74.4/100') && scoreReply.text.includes('Improving'));
   check('recommendation intent returns an engine recommendation',
-    recommendationReply.text.includes('Clinical recommendation') && recommendationReply.text.includes('RULE_OPT_04'));
+    recommendationReply.text.includes('Clinical recommendation') && recommendationReply.text.includes('RULE_OPT_05'));
   check('patient intent returns active patient context',
     patientReply.text.includes('Alex Mercer') && patientReply.text.includes('P001'));
   check('navigation intent targets decision tab', navigationReply.navigate === 'decision');

@@ -732,11 +732,11 @@
                   <div class="flex justify-between items-center text-slate-300 mb-1">
                     <div>
                       <label for="simGait" class="font-medium text-slate-200">Gait Velocity:</label>
-                      <span class="text-[10px] text-slate-500 ml-1.5">(Target: 0.75+ m/s | Norm: 0.70–1.20)</span>
+                      <span class="text-[10px] text-slate-500 ml-1.5">(Target: 0.75+ m/s | Ceiling: 1.40)</span>
                     </div>
                     <span id="simGaitVal" class="font-mono font-bold text-sky-400">0.74 m/s</span>
                   </div>
-                  <input type="range" id="simGait" min="0.30" max="1.30" step="0.01" value="0.74">
+                  <input type="range" id="simGait" min="0.30" max="1.50" step="0.01" value="0.74">
                 </div>
 
                 <!-- Symmetry Slider -->
@@ -893,7 +893,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-800 text-slate-300">
                   <tr class="hover:bg-slate-800/30">
-                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_OPT_04</td>
+                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_OPT_05</td>
                     <td class="p-3"><span
                         class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">IMPROVING</span>
                     </td>
@@ -903,7 +903,7 @@
                     <td class="p-3 font-semibold text-emerald-400">Increase difficulty slightly (+5%~10% load)</td>
                   </tr>
                   <tr class="hover:bg-slate-800/30">
-                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_STD_05</td>
+                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_STD_06</td>
                     <td class="p-3"><span
                         class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">MODERATE</span>
                     </td>
@@ -924,6 +924,16 @@
                     <td class="p-3 font-semibold text-amber-400">Reduce/maintain difficulty; add recovery breaks</td>
                   </tr>
                   <tr class="hover:bg-slate-800/30">
+                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_WARN_04</td>
+                    <td class="p-3"><span
+                        class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">ANY</span>
+                    </td>
+                    <td class="p-3 text-slate-300">ANY</td>
+                    <td class="p-3 text-amber-400 font-bold">GAIT &gt;1.40 m/s</td>
+                    <td class="p-3 text-slate-400">+10% Load</td>
+                    <td class="p-3 font-semibold text-amber-400">Cap gait velocity at 1.40 m/s; reduce treadmill speed</td>
+                  </tr>
+                  <tr class="hover:bg-slate-800/30">
                     <td class="p-3 font-mono text-sky-400 font-bold">RULE_CRIT_01</td>
                     <td class="p-3"><span
                         class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30">UNSTABLE</span>
@@ -934,7 +944,7 @@
                     <td class="p-3 font-semibold text-rose-400">🔴 Emergency Pause: Reduce difficulty + Warning</td>
                   </tr>
                   <tr class="hover:bg-slate-800/30">
-                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_AST_06</td>
+                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_AST_07</td>
                     <td class="p-3"><span
                         class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30">UNSTABLE</span>
                     </td>
