@@ -206,9 +206,11 @@
   </div>
 
   <div class="app-container">
+    <!-- Off-canvas sidebar backdrop (mobile/tablet) -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
     <!-- Sidebar Navigation -->
-    <aside class="app-sidebar">
+    <aside class="app-sidebar" id="appSidebar">
       <!-- Logo & Title -->
       <div class="sidebar-logo">
         <div class="ards-logo ards-logo-sm w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0"
@@ -295,6 +297,12 @@
 
       <!-- Top Application Header -->
       <header class="app-header">
+        <!-- Mobile Navigation Toggle -->
+        <button type="button" id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle navigation menu"
+          aria-expanded="false" aria-controls="appSidebar">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+
         <div class="flex items-center gap-4 flex-wrap">
           <!-- Patient Selector -->
           <div class="flex items-center gap-2">
@@ -826,7 +834,7 @@
             </div>
 
             <!-- Filter Tabs -->
-            <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+            <div id="alertFilterBar" class="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
               <button class="alert-filter-btn px-3 py-1.5 rounded-lg bg-sky-600 text-white font-medium transition"
                 data-filter="all">All Alerts</button>
               <button
@@ -1457,6 +1465,42 @@
   <script src="js/voice-assistant.js"></script>
   <script src="js/voice-ui.js"></script>
   <script src="js/chatbot.js"></script>
+
+  <!-- Responsive navigation glue (UI-only: off-canvas sidebar open/close) -->
+  <script>
+    (function () {
+      var body = document.body;
+      var toggle = document.getElementById('mobileMenuToggle');
+      var backdrop = document.getElementById('sidebarBackdrop');
+
+      function setSidebar(open) {
+        body.classList.toggle('sidebar-open', open);
+        if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          setSidebar(!body.classList.contains('sidebar-open'));
+        });
+      }
+      if (backdrop) {
+        backdrop.addEventListener('click', function () { setSidebar(false); });
+      }
+
+      // Close the drawer after choosing a section (mobile/tablet only)
+      document.addEventListener('click', function (e) {
+        if (e.target && e.target.closest && e.target.closest('.nav-btn') &&
+            window.matchMedia('(max-width: 1024px)').matches) {
+          setSidebar(false);
+        }
+      });
+
+      // Reset drawer state when returning to desktop widths
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 1024) setSidebar(false);
+      });
+    })();
+  </script>
 </body>
 
 </html>
