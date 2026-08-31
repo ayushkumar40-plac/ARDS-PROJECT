@@ -8,7 +8,7 @@ const pipelineCode = fs.readFileSync(path.join(__dirname, "js", "pipeline.js"), 
 global.window = {};
 global.localStorage = {
   getItem: () => null,
-  setItem: () => {}
+  setItem: () => { }
 };
 
 eval(dataCode);

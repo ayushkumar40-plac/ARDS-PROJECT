@@ -13,6 +13,7 @@ class ARDSApp {
 
   init() {
     this.setupTheme();
+    this.setupAuth();
     this.setupNavigation();
     this.setupPatientSelectors();
     this.setupModalHandlers();
@@ -48,9 +49,287 @@ class ARDSApp {
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('ards_theme', next);
         this.updateThemeToggleIcon(next);
-        window.ardsCharts.updateAllCharts(window.dataStore.getActivePatient());
+        if (window.ardsCharts && window.dataStore) {
+          window.ardsCharts.updateAllCharts(window.dataStore.getActivePatient());
+        }
       });
     }
+  }
+
+  /* ----------------------------------------------------
+   * AUTHENTICATION & WORKSTATION SECURITY
+   * -------------------------------------------------- */
+  setupAuth() {
+    if (!window.ardsAuth) return;
+
+    // Listen to auth state changes
+    window.ardsAuth.onAuthStateChanged((state) => {
+      this.handleAuthStateChange(state);
+    });
+
+    // Toggle password visibility
+    const btnTogglePass = document.getElementById('btnToggleAuthPassword');
+    const authPasswordInput = document.getElementById('authPassword');
+    if (btnTogglePass && authPasswordInput) {
+      btnTogglePass.addEventListener('click', () => {
+        const isPass = authPasswordInput.type === 'password';
+        authPasswordInput.type = isPass ? 'text' : 'password';
+        btnTogglePass.innerHTML = isPass 
+          ? '<i data-lucide="eye-off" class="w-4 h-4 text-sky-400"></i>'
+          : '<i data-lucide="eye" class="w-4 h-4"></i>';
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          lucide.createIcons();
+        }
+      });
+    }
+
+    // Demo credentials modal info
+    const btnForgotPass = document.getElementById('btnForgotPass');
+    if (btnForgotPass) {
+      btnForgotPass.addEventListener('click', () => {
+        alert("ARDS Clinical Demo Accounts:\n\n1. Dr. Rachel Thorne (Senior PT): rachel.thorne@ards.clinic\n2. Dr. Samuel Vance (CPO): samuel.vance@ards.clinic\n3. Dr. Kevin Patel (Physiatrist MD): kevin.patel@ards.clinic\n4. Dr. Elena Woods (Auditor): admin@ards.clinic\n\nDefault Password: password123\nDefault PIN: 1234 (or 2345/3456/4567)\n\nTip: You can also click any of the 1-Click Clinician Quick-Fill buttons!");
+      });
+    }
+
+    // Login Form Submit
+    const authForm = document.getElementById('authLoginForm');
+    if (authForm) {
+      authForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('authEmail')?.value;
+        const pass = document.getElementById('authPassword')?.value;
+        const remember = document.getElementById('authRememberMe')?.checked;
+
+        const res = window.ardsAuth.login(email, pass, remember);
+        if (!res.success) {
+          this.showAuthAlert(res.message);
+        } else {
+          this.hideAuthAlert();
+          this.syncClinicianContext(res.user);
+        }
+      });
+    }
+
+    // Header User Widget & Dropdown
+    const userWidget = document.getElementById('headerUserWidget');
+    const userDropdown = document.getElementById('userDropdownMenu');
+    if (userWidget && userDropdown) {
+      userWidget.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!userWidget.contains(e.target) && !userDropdown.contains(e.target)) {
+          userDropdown.classList.remove('active');
+        }
+      });
+    }
+
+    // Dropdown Actions
+    const btnLock = document.getElementById('btnLockWorkstation');
+    if (btnLock) {
+      btnLock.addEventListener('click', () => {
+        if (userDropdown) userDropdown.classList.remove('active');
+        window.ardsAuth.lockSession();
+      });
+    }
+
+    const btnSwitch = document.getElementById('btnSwitchClinician');
+    if (btnSwitch) {
+      btnSwitch.addEventListener('click', () => {
+        if (userDropdown) userDropdown.classList.remove('active');
+        window.ardsAuth.logout();
+      });
+    }
+
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout) {
+      btnLogout.addEventListener('click', () => {
+        if (userDropdown) userDropdown.classList.remove('active');
+        window.ardsAuth.logout();
+      });
+    }
+
+    // Unlock Form Submit
+    const unlockForm = document.getElementById('formUnlockWorkstation');
+    if (unlockForm) {
+      unlockForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pin = document.getElementById('lockPinInput')?.value;
+        const res = window.ardsAuth.unlockSession(pin);
+        if (!res.success) {
+          this.showLockAlert(res.message);
+        } else {
+          this.hideLockAlert();
+        }
+      });
+    }
+
+    // Lock Screen Actions
+    const btnLockSwitch = document.getElementById('btnLockSwitchUser');
+    if (btnLockSwitch) {
+      btnLockSwitch.addEventListener('click', () => {
+        window.ardsAuth.logout();
+      });
+    }
+
+    const btnLockSignOut = document.getElementById('btnLockSignOut');
+    if (btnLockSignOut) {
+      btnLockSignOut.addEventListener('click', () => {
+        window.ardsAuth.logout();
+      });
+    }
+  }
+
+  handleAuthStateChange(state) {
+    const loginScreen = document.getElementById('loginScreen');
+    const lockModal = document.getElementById('lockScreenModal');
+
+    if (!state.isAuthenticated) {
+      // Show login overlay
+      if (loginScreen) loginScreen.classList.remove('hidden');
+      if (lockModal) lockModal.classList.add('hidden');
+      this.renderAuthPresets();
+      this.hideAuthAlert();
+    } else if (state.isLocked) {
+      // Show lock screen
+      if (loginScreen) loginScreen.classList.add('hidden');
+      if (lockModal) {
+        lockModal.classList.remove('hidden');
+        const user = state.user;
+        if (user) {
+          const lockUserName = document.getElementById('lockUserName');
+          const lockUserRole = document.getElementById('lockUserRole');
+          const lockUserAvatar = document.getElementById('lockUserAvatar');
+          const pinInput = document.getElementById('lockPinInput');
+          if (lockUserName) lockUserName.textContent = user.name;
+          if (lockUserRole) lockUserRole.textContent = `${user.role} (${user.badgeLabel})`;
+          if (lockUserAvatar) lockUserAvatar.src = user.avatar;
+          if (pinInput) {
+            pinInput.value = '';
+            setTimeout(() => pinInput.focus(), 100);
+          }
+        }
+        this.hideLockAlert();
+      }
+    } else {
+      // Authenticated and unlocked
+      if (loginScreen) loginScreen.classList.add('hidden');
+      if (lockModal) lockModal.classList.add('hidden');
+      this.updateUserProfileDisplay(state.user);
+      if (this.currentTab === 'reports') {
+        this.renderReport();
+      }
+    }
+
+    try {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+    } catch(e) {}
+  }
+
+  renderAuthPresets() {
+    const container = document.getElementById('authPresetContainer');
+    if (!container || !window.ardsAuth) return;
+
+    const users = window.ardsAuth.getAllUsers();
+    const colorMap = {
+      sky: { border: 'border-sky-500/30', bg: 'bg-sky-500/10', text: 'text-sky-400', imgBorder: 'border-sky-400' },
+      teal: { border: 'border-teal-500/30', bg: 'bg-teal-500/10', text: 'text-teal-400', imgBorder: 'border-teal-400' },
+      indigo: { border: 'border-indigo-500/30', bg: 'bg-indigo-500/10', text: 'text-indigo-400', imgBorder: 'border-indigo-400' },
+      purple: { border: 'border-purple-500/30', bg: 'bg-purple-500/10', text: 'text-purple-400', imgBorder: 'border-purple-400' }
+    };
+
+    container.innerHTML = users.map(u => {
+      const c = colorMap[u.badgeColor] || colorMap.sky;
+      return `
+        <button 
+          type="button" 
+          class="auth-preset-btn group" 
+          onclick="window.quickLogin('${u.id}')"
+          title="1-Click Login as ${u.name}"
+        >
+          <img src="${u.avatar}" class="w-9 h-9 rounded-full object-cover border ${c.imgBorder} flex-shrink-0 group-hover:scale-105 transition-transform" alt="${u.name}">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-bold text-xs text-slate-200 group-hover:text-sky-300 truncate">${u.name.split(',')[0]}</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${c.bg} ${c.text} border ${c.border} flex-shrink-0">${u.badgeLabel}</span>
+            </div>
+            <p class="text-[10px] text-slate-400 truncate">${u.role}</p>
+          </div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  updateUserProfileDisplay(user) {
+    if (!user) return;
+
+    // Header Profile
+    const headerAvatar = document.getElementById('headerUserAvatar');
+    const headerName = document.getElementById('headerUserName');
+    const headerRole = document.getElementById('headerUserRole');
+    if (headerAvatar) headerAvatar.src = user.avatar;
+    if (headerName) headerName.textContent = user.name.split(',')[0];
+    if (headerRole) headerRole.textContent = user.role;
+
+    // Dropdown Profile Info
+    const ddName = document.getElementById('dropdownUserFullName');
+    const ddEmail = document.getElementById('dropdownUserEmail');
+    const ddDept = document.getElementById('dropdownUserDept');
+    if (ddName) ddName.textContent = user.name;
+    if (ddEmail) ddEmail.textContent = user.email;
+    if (ddDept) ddDept.textContent = user.department;
+
+    // Sidebar Badge
+    const sideAvatar = document.getElementById('sidebarUserAvatar');
+    const sideName = document.getElementById('sidebarUserName');
+    const sideRole = document.getElementById('sidebarUserRole');
+    if (sideAvatar) sideAvatar.src = user.avatar;
+    if (sideName) sideName.textContent = user.name.split(',')[0];
+    if (sideRole) sideRole.textContent = user.badgeLabel;
+  }
+
+  syncClinicianContext(user) {
+    if (!user || !window.dataStore) return;
+    if (user.assignedPatients && user.assignedPatients.length > 0) {
+      const activePatientId = window.dataStore.activePatientId;
+      if (!user.assignedPatients.includes(activePatientId)) {
+        window.dataStore.setActivePatient(user.assignedPatients[0]);
+        this.populatePatientDropdown();
+        this.populateSessionDropdown();
+        this.renderAll();
+      }
+    }
+  }
+
+  showAuthAlert(msg) {
+    const box = document.getElementById('authAlertBox');
+    const txt = document.getElementById('authAlertText');
+    if (box && txt) {
+      txt.textContent = msg;
+      box.classList.remove('hidden');
+    }
+  }
+
+  hideAuthAlert() {
+    const box = document.getElementById('authAlertBox');
+    if (box) box.classList.add('hidden');
+  }
+
+  showLockAlert(msg) {
+    const box = document.getElementById('lockAlertBox');
+    if (box) {
+      box.textContent = msg;
+      box.classList.remove('hidden');
+    }
+  }
+
+  hideLockAlert() {
+    const box = document.getElementById('lockAlertBox');
+    if (box) box.classList.add('hidden');
   }
 
   updateThemeToggleIcon(theme) {
@@ -1679,13 +1958,13 @@ class ARDSApp {
         <div class="mt-8 pt-6 border-t border-slate-800 grid grid-cols-2 gap-8 text-xs text-slate-400">
           <div>
             <div class="font-semibold uppercase text-slate-500 mb-6">Physiotherapist Digital Signature</div>
-            <div class="border-b border-slate-700 pb-1 text-slate-200 font-serif italic">${patient.clinician}</div>
-            <div class="text-[10px] text-slate-500 mt-1">Certified Prosthetist & Physical Therapist (DPT)</div>
+            <div class="border-b border-slate-700 pb-1 text-slate-200 font-serif italic">${window.ardsAuth?.getCurrentUser()?.name || patient.clinician}</div>
+            <div class="text-[10px] text-slate-500 mt-1">${window.ardsAuth?.getCurrentUser()?.title || "Certified Prosthetist & Physical Therapist (DPT)"} &bull; ${window.ardsAuth?.getCurrentUser()?.licenseNo || "PT-DPT-88921-US"}</div>
           </div>
           <div>
             <div class="font-semibold uppercase text-slate-500 mb-6">Date of Clinical Sign-Off</div>
             <div class="border-b border-slate-700 pb-1 text-slate-200 font-mono">${new Date().toISOString().split('T')[0]}</div>
-            <div class="text-[10px] text-slate-500 mt-1">ARDS Session Record Synced</div>
+            <div class="text-[10px] text-slate-500 mt-1">ARDS Session Record Synced &bull; Verified ID: ${window.ardsAuth?.getCurrentUser()?.id || "USR-001"}</div>
           </div>
         </div>
       </div>
@@ -1723,6 +2002,20 @@ window.viewSessionDetails = function(sessionNum) {
 };
 window.acknowledgeAlert = function(alertId) {
   if (window.ardsApp) window.ardsApp.acknowledgeAlert(alertId);
+};
+window.quickLogin = function(userId) {
+  if (window.ardsAuth) {
+    const res = window.ardsAuth.quickLogin(userId);
+    if (res.success && window.ardsApp) {
+      window.ardsApp.syncClinicianContext(res.user);
+    }
+  }
+};
+window.logout = function() {
+  if (window.ardsAuth) window.ardsAuth.logout();
+};
+window.lockWorkstation = function() {
+  if (window.ardsAuth) window.ardsAuth.lockSession();
 };
 
 // Ensure execution on DOM ready or immediate if already loaded
