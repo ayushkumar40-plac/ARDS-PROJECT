@@ -25,7 +25,9 @@
         name: 'Dr. Rachel Thorne',
         email: 'clinician@ards.demo',
         password: 'ards123',
-        role: 'Clinician'
+        role: 'Clinician',
+        doctorId: 'ARDS-D-1001',
+        createdAt: '2026-01-05T09:00:00.000Z'
     };
 
     /* ---------------------------------------------------------
@@ -58,6 +60,57 @@
     }
 
     /* ---------------------------------------------------------
+     * Doctor Profile: Doctor ID + general info management
+     * ------------------------------------------------------- */
+    const PROFILE_FIELDS = ['phone', 'specialization', 'qualification', 'licenseNo',
+        'organization', 'city', 'experienceYears'];
+
+    function emptyProfile() {
+        return {
+            phone: '', specialization: '', qualification: '', licenseNo: '',
+            organization: '', city: '', experienceYears: ''
+        };
+    }
+
+    // Doctor IDs are sequential: ARDS-D-1001 (demo), ARDS-D-1002, ARDS-D-1003, ...
+    function nextDoctorId(users) {
+        let max = 1000;
+        users.forEach(u => {
+            const m = /^ARDS-D-(\d+)$/.exec(String(u.doctorId || ''));
+            if (m) max = Math.max(max, parseInt(m[1], 10));
+        });
+        return 'ARDS-D-' + (max + 1);
+    }
+
+    // One-time migration: legacy accounts get a Doctor ID + profile defaults
+    function migrateUsers(users) {
+        let changed = false;
+        users.forEach(u => {
+            if (!u.doctorId) { u.doctorId = nextDoctorId(users); changed = true; }
+            if (!u.createdAt) { u.createdAt = new Date().toISOString(); changed = true; }
+            PROFILE_FIELDS.forEach(f => {
+                if (u[f] === undefined) { u[f] = ''; changed = true; }
+            });
+        });
+        if (changed) saveUsers(users);
+        return users;
+    }
+
+    // Full account payload (used for the header chip and the session store)
+    function accountPayload(user) {
+        const payload = {
+            name: user.name || '',
+            email: user.email || '',
+            role: user.role || 'Clinician',
+            doctorId: user.doctorId || '',
+            createdAt: user.createdAt || '',
+            lastLoginAt: user.lastLoginAt || ''
+        };
+        PROFILE_FIELDS.forEach(f => { payload[f] = user[f] !== undefined ? user[f] : ''; });
+        return payload;
+    }
+
+    /* ---------------------------------------------------------
      * Session Helpers
      * ------------------------------------------------------- */
     function getStoredSession() {
@@ -75,9 +128,7 @@
 
     function storeSession(user, remember) {
         const payload = JSON.stringify({
-            name: user.name,
-            email: user.email,
-            role: user.role,
+            ...accountPayload(user),
             loginAt: new Date().toISOString()
         });
         if (remember) {
@@ -110,6 +161,7 @@
     const userAvatar = el('userAvatar');
     const userName = el('userName');
     const userRole = el('userRole');
+    const userDoctorId = el('userDoctorId');
 
     /* ---------------------------------------------------------
      * UI Helpers
@@ -208,6 +260,7 @@
         if (userAvatar) userAvatar.textContent = initials(user.name);
         if (userName) userName.textContent = user.name;
         if (userRole) userRole.textContent = user.role;
+        if (userDoctorId) userDoctorId.textContent = user.doctorId || 'ARDS-D-----';
     }
 
     /* ---------------------------------------------------------
@@ -299,7 +352,15 @@
         setBusy(submitBtn, true, 'Creating account…', idleHTML);
 
         setTimeout(() => {
-            const newUser = { name, email, password, role };
+            const newUser = {
+                name,
+                email,
+                password,
+                role,
+                doctorId: nextDoctorId(users),
+                createdAt: new Date().toISOString(),
+                ...emptyProfile()
+            };
             users.push(newUser);
             saveUsers(users);
 
@@ -369,6 +430,12 @@
         const logoutBtn = el('btnLogout');
         if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
+        // One-time migration: ensure every account has a Doctor ID + profile defaults
+        loadUsers();
+
+        // Doctor profile modal (view / edit general info)
+        setupProfileModal();
+
         // Remember last-used email
         const emailInput = el('loginEmail');
         if (emailInput) {
@@ -385,7 +452,7 @@
         // interface remains interactive (no silent auto-submit of credentials).
         const saved = getStoredSession();
         if (saved && saved.email) {
-            renderUserChip(saved);
+            renderUserChip(currentAccount() || saved);
             unlockDashboard();
         } else {
             lockDashboard();
@@ -403,6 +470,9 @@
     // Expose minimal API for other modules (e.g., voice assistant)
     window.ardsAuth = {
         getCurrentUser: () => getStoredSession(),
+        getAccount: currentAccount,
+        updateProfile: updateProfile,
+        openProfile: openProfileModal,
         logout: handleLogout
     };
 })();

@@ -19,18 +19,18 @@ class ARDSCharts {
   getThemeColors() {
     const isDark = this.isDarkTheme();
     return {
-      text: isDark ? '#94a3b8' : '#64748b',
-      textHeading: isDark ? '#f1f5f9' : '#0f172a',
-      grid: isDark ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.06)',
-      cardBg: isDark ? '#1e293b' : '#ffffff',
-      primary: '#0284c7',
-      primaryAlpha: 'rgba(2, 132, 199, 0.15)',
-      emerald: '#10b981',
-      emeraldAlpha: 'rgba(16, 185, 129, 0.15)',
-      amber: '#f59e0b',
-      rose: '#f43f5e',
-      cyan: '#06b6d4',
-      purple: '#8b5cf6'
+      text: isDark ? '#93a5bd' : '#47586e',
+      textHeading: isDark ? '#ffffff' : '#0b1220',
+      grid: isDark ? 'rgba(255, 255, 255, 0.07)' : 'rgba(15, 30, 60, 0.06)',
+      cardBg: isDark ? '#131b2c' : '#ffffff',
+      primary: '#0ea5e9',
+      primaryAlpha: 'rgba(14, 165, 233, 0.15)',
+      emerald: '#34d399',
+      emeraldAlpha: 'rgba(52, 211, 153, 0.15)',
+      amber: '#fbbf24',
+      rose: '#fb7185',
+      cyan: '#22d3ee',
+      purple: '#a78bfa'
     };
   }
 
