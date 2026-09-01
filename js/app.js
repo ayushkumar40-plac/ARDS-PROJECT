@@ -20,6 +20,7 @@ class ARDSApp {
     this.setupSimulatorHandlers();
     this.setupAlertFilters();
     this.setupReportHandlers();
+    this.setupFeedbackModal();
     this.renderAll();
 
     // Re-render charts on window resize
@@ -345,6 +346,122 @@ class ARDSApp {
     if (modal) modal.classList.remove('hidden');
   }
 
+  /* ----------------------------------------------------
+   * FEEDBACK FORM (stored locally in the browser)
+   * -------------------------------------------------- */
+  setupFeedbackModal() {
+    const modal = document.getElementById('modalFeedback');
+    const form = document.getElementById('formFeedback');
+    const btnOpen = document.getElementById('btnOpenFeedback');
+    const btnClose = document.getElementById('btnCloseFeedbackModal');
+    const btnCancel = document.getElementById('btnCancelFeedback');
+    const btnSuccessClose = document.getElementById('btnCloseFeedbackSuccess');
+    const btnSubmitAnother = document.getElementById('btnSubmitAnotherFeedback');
+    const btnClear = document.getElementById('btnClearFeedback');
+    const ratingWrap = document.getElementById('feedbackRating');
+
+    this.feedbackRatingValue = 0;
+
+    if (btnOpen) btnOpen.addEventListener('click', () => this.openFeedbackModal());
+    if (btnClose) btnClose.addEventListener('click', () => this.closeFeedbackModal());
+    if (btnCancel) btnCancel.addEventListener('click', () => this.closeFeedbackModal());
+    if (btnSuccessClose) btnSuccessClose.addEventListener('click', () => this.closeFeedbackModal());
+    if (btnSubmitAnother) btnSubmitAnother.addEventListener('click', () => this.resetFeedbackFormView());
+
+    if (btnClear) {
+      btnClear.addEventListener('click', () => {
+        if (this.getFeedbackEntries().length === 0) return;
+        if (confirm("Delete all locally stored feedback entries? This cannot be undone.")) {
+          this.saveFeedbackEntries([]);
+          this.renderFeedbackHistory();
+        }
+      });
+    }
+
+    // Clickable 5-star rating
+    if (ratingWrap && typeof ratingWrap.querySelectorAll === 'function') {
+      ratingWrap.querySelectorAll('.feedback-star').forEach(starBtn => {
+        starBtn.addEventListener('click', () => {
+          this.feedbackRatingValue = parseInt(starBtn.dataset.value, 10) || 0;
+          this.paintFeedbackStars();
+        });
+      });
+    }
+
+    // Click on the dark backdrop closes the modal
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeFeedbackModal();
+      });
+    }
+
+    // Escape key closes the modal while it is open
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+        this.closeFeedbackModal();
+      }
+    });
+
+    // Submit handler with inline validation
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const messageEl = document.getElementById('feedbackMessage');
+        const nameEl = document.getElementById('feedbackName');
+        const emailEl = document.getElementById('feedbackEmail');
+        const typeEl = document.getElementById('feedbackType');
+        const msgError = document.getElementById('feedbackError');
+        const emailError = document.getElementById('feedbackEmailError');
+
+        const message = messageEl ? messageEl.value.trim() : '';
+        const email = emailEl ? emailEl.value.trim() : '';
+
+        let isValid = true;
+        if (msgError) msgError.classList.toggle('hidden', message.length >= 3);
+        if (message.length < 3) isValid = false;
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          if (emailError) emailError.classList.remove('hidden');
+          isValid = false;
+        } else if (emailError) {
+          emailError.classList.add('hidden');
+        }
+        if (!isValid) return;
+
+        const sessionUser = (window.ardsAuth && typeof window.ardsAuth.getCurrentUser === 'function')
+          ? window.ardsAuth.getCurrentUser() : null;
+        const activePatient = (window.dataStore && typeof window.dataStore.getActivePatient === 'function')
+          ? window.dataStore.getActivePatient() : null;
+
+        const entry = {
+          id: `fb-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          type: typeEl ? typeEl.value : 'General',
+          rating: this.feedbackRatingValue,
+          message: message,
+          name: (nameEl && nameEl.value.trim()) || (sessionUser && sessionUser.name) || 'Anonymous',
+          email: email,
+          patientContext: activePatient ? `${activePatient.id} - ${activePatient.name}` : null
+        };
+
+        const entries = this.getFeedbackEntries();
+        entries.unshift(entry);
+        this.saveFeedbackEntries(entries);
+
+        // Reset fields and show success confirmation
+        form.reset();
+        this.feedbackRatingValue = 0;
+        this.paintFeedbackStars();
+        form.classList.add('hidden');
+        const introNote = document.getElementById('feedbackIntroNote');
+        if (introNote) introNote.classList.add('hidden');
+        const successView = document.getElementById('feedbackSuccess');
+        if (successView) successView.classList.remove('hidden');
+
+        this.renderFeedbackHistory();
+      });
+    }
+  }
+
   resetSampleData() {
     if (confirm("Reset all patient data to initial pre-loaded clinical sample cases (P001 to P004)?")) {
       window.dataStore.resetToDefault();
@@ -352,6 +469,74 @@ class ARDSApp {
       this.populateSessionDropdown();
       this.renderAll();
     }
+  }
+
+  openFeedbackModal() {
+    const modal = document.getElementById('modalFeedback');
+    if (!modal) return;
+
+    this.resetFeedbackFormView();
+
+    // Prefill contact details from the signed-in user (when available)
+    const sessionUser = (window.ardsAuth && typeof window.ardsAuth.getCurrentUser === 'function')
+      ? window.ardsAuth.getCurrentUser() : null;
+    const nameInput = document.getElementById('feedbackName');
+    const emailInput = document.getElementById('feedbackEmail');
+    if (sessionUser) {
+      if (nameInput && !nameInput.value) nameInput.value = sessionUser.name || '';
+      if (emailInput && !emailInput.value) emailInput.value = sessionUser.email || '';
+    }
+
+    this.renderFeedbackHistory();
+    modal.classList.remove('hidden');
+
+    try {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+    } catch (e) { }
+
+    const messageEl = document.getElementById('feedbackMessage');
+    if (messageEl && typeof messageEl.focus === 'function') messageEl.focus();
+  }
+
+  closeFeedbackModal() {
+    const modal = document.getElementById('modalFeedback');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  resetFeedbackFormView() {
+    const form = document.getElementById('formFeedback');
+    const introNote = document.getElementById('feedbackIntroNote');
+    const successView = document.getElementById('feedbackSuccess');
+    const msgError = document.getElementById('feedbackError');
+    const emailError = document.getElementById('feedbackEmailError');
+
+    if (form) { form.classList.remove('hidden'); form.reset(); }
+    if (introNote) introNote.classList.remove('hidden');
+    if (successView) successView.classList.add('hidden');
+    if (msgError) msgError.classList.add('hidden');
+    if (emailError) emailError.classList.add('hidden');
+
+    this.feedbackRatingValue = 0;
+    this.paintFeedbackStars();
+  }
+
+  paintFeedbackStars() {
+    const ratingWrap = document.getElementById('feedbackRating');
+    if (!ratingWrap || typeof ratingWrap.querySelectorAll !== 'function') return;
+    ratingWrap.querySelectorAll('.feedback-star').forEach(starBtn => {
+      const value = parseInt(starBtn.dataset.value, 10) || 0;
+      const icon = typeof starBtn.querySelector === 'function' ? starBtn.querySelector('svg, i') : null;
+      if (!icon) return;
+      if (value <= this.feedbackRatingValue) {
+        icon.classList.remove('text-slate-600');
+        icon.classList.add('text-amber-400', 'fill-amber-400');
+      } else {
+        icon.classList.remove('text-amber-400', 'fill-amber-400');
+        icon.classList.add('text-slate-600');
+      }
+    });
   }
 
   /* ----------------------------------------------------
@@ -420,6 +605,70 @@ class ARDSApp {
   /* ----------------------------------------------------
    * MAIN RENDERING CONTROLLER
    * -------------------------------------------------- */
+  getFeedbackEntries() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('ards_feedback_entries') || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  saveFeedbackEntries(entries) {
+    try {
+      localStorage.setItem('ards_feedback_entries', JSON.stringify(entries));
+    } catch (e) { /* storage unavailable — keep feedback in-memory only */ }
+  }
+
+  escapeFeedbackHtml(text) {
+    return String(text == null ? '' : text)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  renderFeedbackHistory() {
+    const section = document.getElementById('feedbackHistorySection');
+    const list = document.getElementById('feedbackHistoryList');
+    const count = document.getElementById('feedbackHistoryCount');
+    if (!section || !list || !count) return;
+
+    const entries = this.getFeedbackEntries();
+    count.textContent = entries.length;
+    section.classList.toggle('hidden', entries.length === 0);
+    if (entries.length === 0) { list.innerHTML = ''; return; }
+
+    const typeColors = {
+      General: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+      Bug: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+      Feature: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+      Clinical: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+      Usability: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+    };
+
+    list.innerHTML = entries.map(entry => {
+      const badge = typeColors[entry.type] || typeColors.General;
+      const stars = entry.rating > 0
+        ? `<span class="text-amber-400 text-[10px] tracking-wide">${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}</span>`
+        : '';
+      const when = new Date(entry.timestamp).toLocaleString();
+      const contact = entry.email ? ` · ${this.escapeFeedbackHtml(entry.email)}` : '';
+      const context = entry.patientContext
+        ? `<span class="text-slate-600">Re: ${this.escapeFeedbackHtml(entry.patientContext)}</span>` : '';
+      return `
+        <div class="p-2.5 rounded-lg bg-slate-900/70 border border-slate-800 space-y-1">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold border ${badge}">${this.escapeFeedbackHtml(entry.type)}</span>
+              ${stars}
+            </div>
+            <span class="text-[10px] text-slate-500 font-mono">${when}</span>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-relaxed break-words">${this.escapeFeedbackHtml(entry.message)}</p>
+          <div class="text-[10px] text-slate-500 flex items-center gap-2 flex-wrap">— ${this.escapeFeedbackHtml(entry.name || 'Anonymous')}${contact} ${context}</div>
+        </div>`;
+    }).join('');
+  }
+
   renderAll() {
     const patient = window.dataStore.getActivePatient();
     const session = window.dataStore.getActiveSession();
@@ -1790,6 +2039,9 @@ window.openAddPatientModal = function() {
 };
 window.openAddSessionModal = function() {
   if (window.ardsApp) window.ardsApp.openAddSessionModal();
+};
+window.openFeedbackModal = function() {
+  if (window.ardsApp) window.ardsApp.openFeedbackModal();
 };
 window.resetSampleData = function() {
   if (window.ardsApp) window.ardsApp.resetSampleData();
