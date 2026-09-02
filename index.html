@@ -187,22 +187,41 @@
             <span>Sensor Sync Active</span>
           </div>
 
-          <!-- User Account Chip (managed by js/auth.js) -->
+          <!-- User Account Chip (managed by js/auth.js) — click to view / edit profile -->
           <div id="userChip" class="hidden items-center gap-2.5 pl-3 border-l border-slate-700/60">
-            <div id="userAvatar"
-              class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white text-[11px] font-bold shadow-md shadow-sky-500/20 flex-shrink-0">
-              --
-            </div>
-            <div class="hidden md:flex flex-col leading-tight">
-              <span id="userName" class="text-xs font-bold text-slate-100 max-w-[150px] truncate">—</span>
-              <span id="userRole" class="text-[10px] text-slate-400">—</span>
-            </div>
+            <button id="btnProfileChip" type="button"
+              class="flex items-center gap-2.5 rounded-xl hover:bg-slate-800/60 transition p-1 pr-2 text-left"
+              title="View &amp; edit my doctor profile">
+              <div id="userAvatar"
+                class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white text-[11px] font-bold shadow-md shadow-sky-500/20 flex-shrink-0">
+                --
+              </div>
+              <div class="hidden md:flex flex-col leading-tight">
+                <span id="userName" class="text-xs font-bold text-slate-100 max-w-[150px] truncate">—</span>
+                <span id="userRole" class="text-[10px] text-slate-400">—</span>
+                <span id="userDoctorId" class="text-[9px] font-mono text-teal-300/80 tracking-wide">—</span>
+              </div>
+            </button>
+
+            <button id="btnOpenProfile"
+              class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+              title="My Profile &amp; Doctor ID">
+              <i data-lucide="user-pen" class="w-4 h-4"></i>
+            </button>
+
             <button id="btnLogout"
               class="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-500/15 text-slate-300 hover:text-rose-400 border border-slate-700 transition"
               title="Sign Out">
               <i data-lucide="log-out" class="w-4 h-4"></i>
             </button>
           </div>
+
+          <!-- Send Feedback -->
+          <button id="btnOpenFeedback"
+            class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+            title="Send Feedback">
+            <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+          </button>
 
           <!-- Theme Toggle -->
           <button id="themeToggleBtn"
@@ -1604,6 +1623,125 @@
       <div class="pt-2 border-t border-slate-800 flex justify-between text-xs">
         <button type="button" id="btnLockSwitchUser" class="text-slate-400 hover:text-slate-200">Switch Clinician</button>
         <button type="button" id="btnLockSignOut" class="text-rose-400 hover:text-rose-300">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Send Feedback (stored locally in the browser) -->
+  <div id="modalFeedback"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="ards-card bg-slate-900 border border-slate-700 w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="message-square-heart" class="w-5 h-5 text-teal-400"></i>
+          <h3 class="text-lg font-bold text-slate-100">Send Feedback</h3>
+        </div>
+        <button id="btnCloseFeedbackModal" class="p-1 rounded-lg text-slate-400 hover:text-slate-200"
+          aria-label="Close feedback form">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p id="feedbackIntroNote" class="text-xs text-slate-400 leading-relaxed">
+        Help us improve the ARDS research prototype. Feedback is stored <span
+          class="text-teal-300 font-semibold">locally in this browser only</span> — no data leaves this device.
+      </p>
+
+      <form id="formFeedback" class="space-y-3 text-xs" novalidate>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="feedbackType" class="font-semibold text-slate-300 block mb-1">Feedback Type</label>
+            <select id="feedbackType" class="form-select w-full">
+              <option value="General">General Feedback</option>
+              <option value="Bug">Bug Report</option>
+              <option value="Feature">Feature Request</option>
+              <option value="Clinical">Clinical Accuracy</option>
+              <option value="Usability">UI / Usability</option>
+            </select>
+          </div>
+          <div>
+            <span class="font-semibold text-slate-300 block mb-1">Overall Rating
+              <span class="text-slate-500 font-normal">(optional)</span></span>
+            <div id="feedbackRating" class="flex items-center gap-1 pt-1" role="radiogroup"
+              aria-label="Overall rating out of 5 stars">
+              <button type="button" class="feedback-star p-0.5 rounded hover:scale-110 transition" data-value="1"
+                aria-label="1 star" title="1 - Poor"><i data-lucide="star" class="w-4 h-4 text-slate-600"></i></button>
+              <button type="button" class="feedback-star p-0.5 rounded hover:scale-110 transition" data-value="2"
+                aria-label="2 stars" title="2 - Fair"><i data-lucide="star" class="w-4 h-4 text-slate-600"></i></button>
+              <button type="button" class="feedback-star p-0.5 rounded hover:scale-110 transition" data-value="3"
+                aria-label="3 stars" title="3 - Good"><i data-lucide="star" class="w-4 h-4 text-slate-600"></i></button>
+              <button type="button" class="feedback-star p-0.5 rounded hover:scale-110 transition" data-value="4"
+                aria-label="4 stars" title="4 - Very Good"><i data-lucide="star" class="w-4 h-4 text-slate-600"></i></button>
+              <button type="button" class="feedback-star p-0.5 rounded hover:scale-110 transition" data-value="5"
+                aria-label="5 stars" title="5 - Excellent"><i data-lucide="star" class="w-4 h-4 text-slate-600"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="feedbackMessage" class="font-semibold text-slate-300 block mb-1">Your Feedback <span
+              class="text-rose-400">*</span></label>
+          <textarea id="feedbackMessage" rows="4" class="form-input w-full resize-y"
+            placeholder="What worked well? What could be improved?" required></textarea>
+          <p id="feedbackError" class="hidden text-rose-400 mt-1 font-semibold">
+            <i data-lucide="alert-circle" class="w-3 h-3 inline"></i>
+            Please enter your feedback (at least 3 characters) before submitting.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="feedbackName" class="font-semibold text-slate-300 block mb-1">Name
+              <span class="text-slate-500 font-normal">(optional)</span></label>
+            <input type="text" id="feedbackName" class="form-input w-full" placeholder="Dr. Jane Doe">
+          </div>
+          <div>
+            <label for="feedbackEmail" class="font-semibold text-slate-300 block mb-1">Email
+              <span class="text-slate-500 font-normal">(optional)</span></label>
+            <input type="email" id="feedbackEmail" class="form-input w-full" placeholder="clinician@hospital.org">
+            <p id="feedbackEmailError" class="hidden text-rose-400 mt-1 font-semibold">Please enter a valid email
+              address.</p>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 flex justify-end gap-2">
+          <button type="button" id="btnCancelFeedback"
+            class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Cancel</button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold shadow-md shadow-sky-500/20">Submit
+            Feedback</button>
+        </div>
+      </form>
+
+      <!-- Success Confirmation -->
+      <div id="feedbackSuccess"
+        class="hidden p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-2 text-center">
+        <i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-400 mx-auto"></i>
+        <h4 class="text-sm font-bold text-emerald-300">Thank you — your feedback was recorded!</h4>
+        <p class="text-xs text-slate-400">Saved locally on this device. You can review it in the feedback history
+          below.</p>
+        <div class="flex justify-center gap-2 pt-1">
+          <button type="button" id="btnSubmitAnotherFeedback"
+            class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs">Submit
+            Another</button>
+          <button type="button" id="btnCloseFeedbackSuccess"
+            class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">Done</button>
+        </div>
+      </div>
+
+      <!-- Previously Submitted Feedback -->
+      <div id="feedbackHistorySection" class="hidden pt-3 border-t border-slate-800 space-y-2">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="history" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Previously Submitted (<span id="feedbackHistoryCount">0</span>)</span>
+          </h4>
+          <button type="button" id="btnClearFeedback"
+            class="text-[11px] font-semibold text-rose-400 hover:text-rose-300 transition">Clear History</button>
+        </div>
+        <div id="feedbackHistoryList" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+          <!-- Rendered by app.js -->
+        </div>
       </div>
     </div>
   </div>
