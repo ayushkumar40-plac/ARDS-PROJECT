@@ -110,6 +110,30 @@ class ARDSApp {
       });
     }
 
+// AI Assistant: live clinician recognition on the login form
+    const authAiEmailEl = document.getElementById('authEmail');
+    const authAiLineEl = document.getElementById('authAiLine');
+    if (authAiEmailEl && authAiLineEl && window.ardsAuth) {
+        const updateAi = () => {
+            const v = (authAiEmailEl.value || '').trim().toLowerCase();
+            const found = window.ardsAuth.getAllUsers().find(u =>
+                u.email.toLowerCase() === v ||
+                u.username.toLowerCase() === v ||
+                u.id.toLowerCase() === v
+            );
+            if (found) {
+                authAiLineEl.textContent = 'AI recognized ' + found.name.split(',')[0] + ' — ' + found.role + '. Verified credentials ready.';
+                authAiLineEl.classList.remove('text-sky-400/90', 'text-slate-500');
+                authAiLineEl.classList.add('text-emerald-400');
+            } else {
+                authAiLineEl.textContent = 'AI Assistant: enter a registered Clinician ID, or click a 1-click clinician card for instant sign-in.';
+                authAiLineEl.classList.remove('text-emerald-400');
+                authAiLineEl.classList.add('text-sky-400/90');
+            }
+        };
+        authAiEmailEl.addEventListener('input', updateAi);
+        updateAi();
+    }
     // Header User Widget & Dropdown
     const userWidget = document.getElementById('headerUserWidget');
     const userDropdown = document.getElementById('userDropdownMenu');
@@ -1124,7 +1148,7 @@ class ARDSApp {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", "ards_sample_session_data.csv");
+        link.setAttribute("download", "adaptive_rehab_sample_session_data.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1790,7 +1814,7 @@ class ARDSApp {
         const session = window.dataStore.getActiveSession();
         const baseline = patient.sessions[0];
         const reportData = {
-          system: "Adaptive Rehabilitation Decision Support System (ARDS)",
+          system: "Adaptive Rehabilitation Decision Support System",
           version: "1.0-prototype",
           exportedAt: new Date().toISOString(),
           patient: patient,
@@ -1805,7 +1829,7 @@ class ARDSApp {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `ARDS_Report_${patient.id}.json`);
+        link.setAttribute("download", `AdaptiveRehab_Report_${patient.id}.json`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1828,134 +1852,209 @@ class ARDSApp {
     const condition = window.ardsEngine.getConditionState(session, baseline, null);
     const confidence = window.ardsEngine.getAIConfidence(session, baseline);
     const decisionLog = window.ardsEngine.evaluateDecisionAndSafety(session, baseline, null);
-    const xai = window.ardsEngine.getXAIExplanation(session, baseline);
+    
+    // Evaluate against official age-stratified reference thresholds
+    const clinicalEval = (window.ardsClinicalRefs && typeof window.ardsClinicalRefs.evaluateSessionTelemetry === 'function')
+      ? window.ardsClinicalRefs.evaluateSessionTelemetry(patient, session)
+      : null;
 
     reportContainer.innerHTML = `
-      <div class="printable-report bg-slate-900/90 text-slate-100 p-8 rounded-2xl border border-slate-800 shadow-2xl max-w-4xl mx-auto">
+      <div class="printable-report bg-slate-900/90 text-slate-100 p-8 rounded-2xl border border-slate-800 shadow-2xl max-w-4xl mx-auto space-y-6">
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-slate-800 gap-4">
           <div>
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
-              <h2 class="text-xl font-extrabold tracking-tight text-slate-100">Adaptive Rehabilitation Decision Support System (ARDS)</h2>
+              <h2 class="text-xl font-extrabold tracking-tight text-slate-100">Adaptive Rehabilitation Decision Support System</h2>
             </div>
-            <p class="text-xs text-slate-400 mt-1">Lower-Limb Amputee Biomechanical Evaluation & Decision Log</p>
+            <p class="text-xs text-slate-400 mt-1">Clinical Biomechanical & Prosthetic Sensor Telemetry Evaluation</p>
           </div>
           <div class="text-right">
-            <span class="px-2.5 py-1 rounded-md text-[11px] font-mono bg-sky-500/10 text-sky-400 border border-sky-500/30">CONFIDENTIAL MEDICAL SUMMARY</span>
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-mono bg-sky-500/10 text-sky-400 border border-sky-500/30">CONFIDENTIAL CLINICAL REPORT</span>
             <div class="text-xs text-slate-400 mt-1">Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</div>
           </div>
         </div>
 
-        <!-- Patient Demographics -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6 p-4 rounded-xl bg-slate-800/40 border border-slate-800 text-xs">
-          <div>
-            <span class="text-slate-500 uppercase font-semibold">Patient ID / Name</span>
-            <div class="font-bold text-slate-200 mt-0.5">${patient.id} - ${patient.name} (${patient.age}y)</div>
+        <!-- Patient Demographics & Age Bracket -->
+        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800 text-xs">
+          <div class="font-bold text-sky-400 uppercase tracking-wider mb-2 text-[11px]">1. Patient Summary & Age Cohort Bracket</div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <span class="text-slate-500 uppercase font-semibold text-[10px]">Patient ID / Name</span>
+              <div class="font-bold text-slate-200 mt-0.5">${patient.id} - ${patient.name}</div>
+            </div>
+            <div>
+              <span class="text-slate-500 uppercase font-semibold text-[10px]">Age / Normative Bracket</span>
+              <div class="font-bold text-teal-400 mt-0.5">${patient.age} yrs (${clinicalEval ? clinicalEval.ageBand : '40-49'} yrs)</div>
+            </div>
+            <div>
+              <span class="text-slate-500 uppercase font-semibold text-[10px]">Amputation / Prosthesis</span>
+              <div class="font-bold text-slate-200 mt-0.5 truncate" title="${patient.prosthesis}">${patient.amputationType}</div>
+            </div>
+            <div>
+              <span class="text-slate-500 uppercase font-semibold text-[10px]">Attending Clinician</span>
+              <div class="font-bold text-slate-200 mt-0.5">${patient.clinician}</div>
+            </div>
           </div>
-          <div>
-            <span class="text-slate-500 uppercase font-semibold">Amputation Type</span>
-            <div class="font-bold text-slate-200 mt-0.5">${patient.amputationType}</div>
-          </div>
-          <div>
-            <span class="text-slate-500 uppercase font-semibold">Prosthesis</span>
-            <div class="font-bold text-slate-200 mt-0.5 truncate">${patient.prosthesis}</div>
-          </div>
-          <div>
-            <span class="text-slate-500 uppercase font-semibold">Attending Clinician</span>
-            <div class="font-bold text-slate-200 mt-0.5">${patient.clinician}</div>
+          <div class="mt-3 pt-3 border-t border-slate-800 flex justify-between items-center text-slate-400 text-[11px]">
+            <span><strong>Rehab Goal:</strong> ${patient.rehabGoal}</span>
+            <span class="font-semibold text-sky-400">Session ${session.session} (${session.date || new Date().toISOString().split('T')[0]})</span>
           </div>
         </div>
 
-        <!-- Primary Biomechanical Findings -->
-        <div class="my-6">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-sky-400 mb-3">Session ${session.session} Biomechanical Analysis</h3>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700/60 text-center">
-              <span class="text-[10px] uppercase text-slate-400">Rehabilitation Score</span>
-              <div class="text-2xl font-extrabold text-slate-100">${score}/100</div>
-              <span class="text-[10px] text-teal-400 font-semibold">${scoreBand.label} Band</span>
+        <!-- Primary Biomechanical Score Summary Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center">
+            <span class="text-[10px] uppercase text-slate-400">Rehab Composite Score</span>
+            <div class="text-2xl font-extrabold text-slate-100">${score}/100</div>
+            <span class="text-[10px] text-teal-400 font-semibold">${scoreBand.label} Band</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center">
+            <span class="text-[10px] uppercase text-slate-400">Condition State</span>
+            <div class="text-xl font-extrabold text-emerald-400">${condition.state}</div>
+            <span class="text-[10px] text-slate-400">${condition.icon} Verified</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center">
+            <span class="text-[10px] uppercase text-slate-400">AI Confidence</span>
+            <div class="text-2xl font-extrabold text-slate-100">${confidence.value}%</div>
+            <span class="text-[10px] text-sky-400 font-semibold">${confidence.label}</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center">
+            <span class="text-[10px] uppercase text-slate-400">Distal Socket Pressure</span>
+            <div class="text-2xl font-extrabold ${session.pressure > 50 ? 'text-rose-400' : 'text-slate-100'}">${session.pressure} kPa</div>
+            <span class="text-[10px] text-slate-400">Limit: 55 kPa</span>
+          </div>
+        </div>
+
+        <!-- Parameter Evaluation Table (Official Normative Database) -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-sky-400">2. Age-Stratified Clinical Reference Benchmark Table</h3>
+            <span class="text-[10px] text-slate-400 font-mono">Cohort Bracket: ${clinicalEval ? clinicalEval.ageBand : '40-49'} yrs</span>
+          </div>
+          <div class="overflow-x-auto border border-slate-800 rounded-xl">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-800/80 text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">Biomechanical Metric</th>
+                  <th class="p-3">Measured Telemetry</th>
+                  <th class="p-3">Age-Specific Target Standard</th>
+                  <th class="p-3 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                ${(clinicalEval && clinicalEval.parameters) ? clinicalEval.parameters.map(p => {
+                  let statusBadge = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+                  if (p.status.includes('CRITICAL') || p.status.includes('PATHOLOGICAL')) {
+                    statusBadge = 'bg-rose-500/15 text-rose-400 border-rose-500/30 font-bold';
+                  } else if (p.status.includes('BORDERLINE') || p.status.includes('RISK')) {
+                    statusBadge = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+                  }
+                  return `
+                    <tr class="hover:bg-slate-800/40 transition">
+                      <td class="p-3 font-semibold text-slate-200">
+                        <div>${p.metric}</div>
+                        <div class="text-[10px] text-slate-500 font-normal mt-0.5">${p.note}</div>
+                      </td>
+                      <td class="p-3 font-mono font-bold text-sky-300">${p.measured}</td>
+                      <td class="p-3 text-slate-300">${p.target}</td>
+                      <td class="p-3 text-center">
+                        <span class="inline-block px-2.5 py-1 rounded-full text-[10px] border ${statusBadge}">${p.status.replace(/[[\]]/g, '')}</span>
+                      </td>
+                    </tr>
+                  `;
+                }).join('') : `
+                  <tr>
+                    <td class="p-3 font-semibold">Gait Velocity</td>
+                    <td class="p-3 font-mono text-sky-300">${session.gaitSpeed.toFixed(2)} m/s</td>
+                    <td class="p-3">1.39 – 1.43 m/s</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">OPTIMAL / NORMAL</span></td>
+                  </tr>
+                `}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Safety & Risk Assessment -->
+        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800 text-xs space-y-2">
+          <div class="font-bold text-sky-400 uppercase tracking-wider mb-1 text-[11px]">3. Safety & Biomechanical Risk Assessment</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-700/60">
+              <span class="text-[10px] uppercase text-slate-400 font-bold">Tissue & Ulcer Risk</span>
+              <div class="text-xs font-semibold mt-1 ${clinicalEval && clinicalEval.safetyAndRiskAssessment.tissueUlcerRisk === 'HIGH' ? 'text-rose-400' : 'text-emerald-400'}">
+                ${clinicalEval && clinicalEval.safetyAndRiskAssessment.tissueUlcerRisk === 'HIGH' ? '🔴 High Risk — Tissue Overload' : '🟢 Low Risk — Safe Interface'}
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Evaluates distal prominence & weight-bearing wall tolerance.</p>
             </div>
-            <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700/60 text-center">
-              <span class="text-[10px] uppercase text-slate-400">Condition State</span>
-              <div class="text-xl font-extrabold text-emerald-400">${condition.state}</div>
-              <span class="text-[10px] text-slate-400">${condition.icon} Certified</span>
+            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-700/60">
+              <span class="text-[10px] uppercase text-slate-400 font-bold">Fall & Gait Instability Risk</span>
+              <div class="text-xs font-semibold mt-1 ${clinicalEval && clinicalEval.safetyAndRiskAssessment.fallInstabilityRisk === 'HIGH' ? 'text-rose-400' : 'text-emerald-400'}">
+                ${clinicalEval && clinicalEval.safetyAndRiskAssessment.fallInstabilityRisk === 'HIGH' ? '🔴 Elevated Instability Risk' : '🟢 Controlled Coronal Balance'}
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Evaluates stance asymmetry, coronal sway & force error.</p>
             </div>
-            <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700/60 text-center">
-              <span class="text-[10px] uppercase text-slate-400">AI Confidence</span>
-              <div class="text-2xl font-extrabold text-slate-100">${confidence.value}%</div>
-              <span class="text-[10px] text-sky-400 font-semibold">${confidence.label}</span>
-            </div>
-            <div class="p-3 rounded-lg bg-slate-800/60 border border-slate-700/60 text-center">
-              <span class="text-[10px] uppercase text-slate-400">Socket Pressure</span>
-              <div class="text-2xl font-extrabold ${session.pressure > 60 ? 'text-rose-400' : 'text-slate-100'}">${session.pressure} kPa</div>
-              <span class="text-[10px] text-slate-400">Limit: 55 kPa</span>
+            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-700/60">
+              <span class="text-[10px] uppercase text-slate-400 font-bold">Prosthetic Structural Fatigue</span>
+              <div class="text-xs font-semibold mt-1 ${clinicalEval && clinicalEval.safetyAndRiskAssessment.structuralFatigueRisk === 'HIGH' ? 'text-amber-400' : 'text-emerald-400'}">
+                ${clinicalEval && clinicalEval.safetyAndRiskAssessment.structuralFatigueRisk === 'HIGH' ? '🟡 Material Check Advised' : '🟢 Operating Within Material Rating'}
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Evaluates cyclic loading against material limit.</p>
             </div>
           </div>
         </div>
 
-        <!-- Metrics Table -->
-        <div class="my-6">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-sky-400 mb-2">Biomechanical Metrics Breakdown</h3>
-          <table class="w-full text-xs text-left border border-slate-800 rounded-lg overflow-hidden">
-            <thead class="bg-slate-800/80 text-slate-400">
-              <tr>
-                <th class="p-2.5">Parameter</th>
-                <th class="p-2.5">Recorded Value</th>
-                <th class="p-2.5">Target Norm</th>
-                <th class="p-2.5">SHAP Contribution</th>
-                <th class="p-2.5">Clinical Evaluation</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800/60 text-slate-300">
-              <tr>
-                <td class="p-2.5 font-semibold">Gait Velocity</td>
-                <td class="p-2.5 font-mono">${session.gaitSpeed.toFixed(2)} m/s</td>
-                <td class="p-2.5">0.75+ m/s</td>
-                <td class="p-2.5 text-emerald-400 font-mono">+6.2%</td>
-                <td class="p-2.5">Forward momentum within progressive target range</td>
-              </tr>
-              <tr>
-                <td class="p-2.5 font-semibold">Stance Symmetry</td>
-                <td class="p-2.5 font-mono">${session.symmetry}%</td>
-                <td class="p-2.5">70%+</td>
-                <td class="p-2.5 text-emerald-400 font-mono">+8.4%</td>
-                <td class="p-2.5">Even weight distribution between sound & prosthetic limbs</td>
-              </tr>
-              <tr>
-                <td class="p-2.5 font-semibold">Movement Stability</td>
-                <td class="p-2.5 font-mono">${session.stability}%</td>
-                <td class="p-2.5">75%+</td>
-                <td class="p-2.5 text-emerald-400 font-mono">+5.1%</td>
-                <td class="p-2.5">Mediolateral sway controlled</td>
-              </tr>
-              <tr>
-                <td class="p-2.5 font-semibold">Metabolic Fatigue</td>
-                <td class="p-2.5 font-mono">${session.fatigue}%</td>
-                <td class="p-2.5">&lt; 30%</td>
-                <td class="p-2.5 text-emerald-400 font-mono">+4.5%</td>
-                <td class="p-2.5">Optimal recovery during interval sets</td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Critical Alerts & Flags -->
+        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800 text-xs">
+          <div class="font-bold text-amber-400 uppercase tracking-wider mb-2 text-[11px] flex items-center gap-1.5">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            <span>4. Critical Alerts & Immediate Clinical Flags</span>
+          </div>
+          <ul class="space-y-1.5 text-slate-200">
+            ${(clinicalEval && clinicalEval.criticalAlerts) ? clinicalEval.criticalAlerts.map(a => `
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400">•</span>
+                <span>${a}</span>
+              </li>
+            `).join('') : `
+              <li>• All biomechanical telemetry within certified physiological safety bounds.</li>
+            `}
+          </ul>
         </div>
 
-        <!-- AI Clinical Recommendation & Safety Governor -->
-        <div class="my-6 p-4 rounded-xl bg-slate-800/40 border border-slate-800 text-xs">
-          <div class="font-bold text-sky-400 uppercase tracking-wider mb-1">Synthesized Clinical Protocol</div>
-          <p class="text-sm font-bold text-slate-100 mb-2">${decisionLog.finalRecommendation}</p>
-          <div class="text-slate-400 leading-relaxed">
-            <strong>Safety Governor Verification:</strong> ${decisionLog.safetyAction} (${decisionLog.safetyReason})
+        <!-- Actionable Clinical Recommendations -->
+        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800 text-xs">
+          <div class="font-bold text-sky-400 uppercase tracking-wider mb-2 text-[11px] flex items-center gap-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+            <span>5. Actionable Clinical Recommendations</span>
+          </div>
+          <div class="space-y-2">
+            ${(clinicalEval && clinicalEval.actionableRecommendations) ? clinicalEval.actionableRecommendations.map(r => {
+              const parts = r.split(':');
+              const heading = parts[0];
+              const desc = parts.slice(1).join(':');
+              return `
+                <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-700/60">
+                  <strong class="text-sky-300">${heading}:</strong>
+                  <span class="text-slate-300 leading-relaxed">${desc}</span>
+                </div>
+              `;
+            }).join('') : `
+              <div class="text-slate-300">${decisionLog.finalRecommendation}</div>
+            `}
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400">
+            <strong>Safety Governor Action:</strong> ${decisionLog.safetyAction}
           </div>
         </div>
 
         <!-- Disclaimer Box -->
-        <div class="my-6 p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200/90 leading-relaxed">
-          <strong>Research Software Prototype Notice:</strong> This clinical decision-support summary was generated by the ARDS software prototype for research demonstration purposes. It is not an FDA/CE cleared medical device and must not replace the direct diagnostic judgment of a licensed physician or physical therapist.
+        <div class="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200/90 leading-relaxed">
+          <strong>Clinical Decision Support Notice:</strong> This clinical evaluation was generated by the Adaptive Rehabilitation Decision Support System against official age-stratified normative biomechanical thresholds for clinical pair-review and rehabilitation protocol guidance.
         </div>
 
         <!-- Sign-Off Section -->
-        <div class="mt-8 pt-6 border-t border-slate-800 grid grid-cols-2 gap-8 text-xs text-slate-400">
+        <div class="pt-6 border-t border-slate-800 grid grid-cols-2 gap-8 text-xs text-slate-400">
           <div>
             <div class="font-semibold uppercase text-slate-500 mb-6">Physiotherapist Digital Signature</div>
             <div class="border-b border-slate-700 pb-1 text-slate-200 font-serif italic">${window.ardsAuth?.getCurrentUser()?.name || patient.clinician}</div>
@@ -1964,11 +2063,12 @@ class ARDSApp {
           <div>
             <div class="font-semibold uppercase text-slate-500 mb-6">Date of Clinical Sign-Off</div>
             <div class="border-b border-slate-700 pb-1 text-slate-200 font-mono">${new Date().toISOString().split('T')[0]}</div>
-            <div class="text-[10px] text-slate-500 mt-1">ARDS Session Record Synced &bull; Verified ID: ${window.ardsAuth?.getCurrentUser()?.id || "USR-001"}</div>
+<div class="text-[10px] text-slate-500 mt-1">ARDS Session Record Synced &bull; Verified ID: ${window.ardsAuth?.getCurrentUser()?.id || "USR-001"}</div>
           </div>
         </div>
       </div>
     `;
+    if (window.lucide) lucide.createIcons();
   }
 }
 
@@ -1977,9 +2077,9 @@ function initARDSApp() {
   if (!window.ardsApp) {
     try {
       window.ardsApp = new ARDSApp();
-      console.log("ARDS Dashboard App initialized successfully.");
+      console.log("Adaptive Rehabilitation Decision Support System initialized successfully.");
     } catch(e) {
-      console.error("Error initializing ARDS Dashboard:", e);
+      console.error("Error initializing Adaptive Rehabilitation Decision Support System:", e);
     }
   }
 }

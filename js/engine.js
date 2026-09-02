@@ -20,7 +20,61 @@ class ARDSEngine {
       maxSafePressure: 55.0,     // kPa - distal socket pressure limit
       criticalPressure: 65.0,    // kPa - immediate skin breakdown danger
       maxSafeFatigue: 55.0,      // %
-      minAcceptableSymmetry: 50.0 // %
+      minAcceptableSymmetry: 50.0, // %
+      maxSafeGaitSpeed: 1.40     // m/s - gait speed safety ceiling (prosthetic / fall-risk limit)
+    };
+
+    // Age-stratified clinical reference ranges (loaded by clinical-reference.js).
+    // Pure context — the static SAFETY_THRESHOLDS above remain authoritative
+    // for hard safety-governor decisions.
+    this.clinicalRefs = (typeof window !== 'undefined' && window.ardsClinicalRefs)
+      ? window.ardsClinicalRefs
+      : null;
+  }
+
+  /**
+   * Returns the age-band label (e.g. "50-59") for a given patient age.
+   * Uses the gait table (finest granularity: 20-29…90+) as the canonical band.
+   */
+  getAgeBand(age) {
+    if (this.clinicalRefs && typeof this.clinicalRefs.getReferenceFor === 'function') {
+      const ref = this.clinicalRefs.getReferenceFor('gait_velocity_mps', age);
+      return ref ? ref.ageBand : null;
+    }
+    return null;
+  }
+
+  /**
+   * Returns age-stratified reference bounds for a clinical metric.
+   * Metric keys: gait_velocity_mps | stance_asymmetry_pct |
+   * step_width_variability_cm | force_control_error_pct | fatigue_durability_mpa |
+   * interface_pressure_kpa | distal_socket_pressure_kpa.
+   */
+  getReferenceFor(metric, age) {
+    if (this.clinicalRefs && typeof this.clinicalRefs.getReferenceFor === 'function') {
+      return this.clinicalRefs.getReferenceFor(metric, age);
+    }
+    return null;
+  }
+
+  /**
+   * Builds age-stratified reference ranges for the current session's metrics,
+   * pairing live telemetry against age-appropriate baselines. Returns null
+   * when no patient age is available or references are not loaded.
+   */
+  buildReferenceRanges(session, age) {
+    if (!this.clinicalRefs || age == null || age === '') return null;
+    return {
+      ageBand: this.getAgeBand(age),
+      gaitVelocity_mps: this.getReferenceFor('gait_velocity_mps', age),
+      stanceAsymmetry_pct: this.getReferenceFor('stance_asymmetry_pct', age),
+      distalSocketPressure_kpa: this.getReferenceFor('distal_socket_pressure_kpa', age),
+      interfacePressure_kpa: this.getReferenceFor('interface_pressure_kpa', age),
+      current: {
+        gaitVelocity_mps: session ? session.gaitSpeed : null,
+        stanceAsymmetry_pct: session && session.symmetry != null ? 100 - session.symmetry : null,
+        distalSocketPressure_kpa: session ? session.pressure : null
+      }
     };
   }
 
@@ -34,7 +88,8 @@ class ARDSEngine {
 
     // Normalize gait speed (typically 0.40 - 1.20 m/s mapped to 0 - 100)
     // Here: gaitSpeed * 100 gives an intuitive 0-100 scale (e.g. 0.60 m/s -> 60.0, 0.74 m/s -> 74.0)
-    const gaitComponent = Math.min(100, Math.max(0, session.gaitSpeed * 100));
+    // Safety ceiling: gait speed is clamped at 1.40 m/s (prosthetic / fall-risk limit)
+    const gaitComponent = Math.min(100, Math.max(0, Math.min(session.gaitSpeed, this.SAFETY_THRESHOLDS.maxSafeGaitSpeed) * 100));
     const stabilityComponent = Math.min(100, Math.max(0, session.stability));
     const forceComponent = Math.min(100, Math.max(0, session.force));
     const symmetryComponent = Math.min(100, Math.max(0, session.symmetry));
@@ -184,8 +239,9 @@ class ARDSEngine {
     const base = baseline || { gaitSpeed: 0.60, symmetry: 60, force: 55, pressure: 48, stability: 58, fatigue: 25 };
     
     // Normalized score scale conversions
-    const gaitPtsCurr = Math.min(100, Math.max(0, (session.gaitSpeed || 0.60) * 100));
-    const gaitPtsBase = Math.min(100, Math.max(0, (base.gaitSpeed || 0.60) * 100));
+    // Normalized score scale conversions (gait speed clamped at 1.40 m/s safety ceiling)
+    const gaitPtsCurr = Math.min(100, Math.max(0, Math.min((session.gaitSpeed || 0.60), this.SAFETY_THRESHOLDS.maxSafeGaitSpeed) * 100));
+    const gaitPtsBase = Math.min(100, Math.max(0, Math.min((base.gaitSpeed || 0.60), this.SAFETY_THRESHOLDS.maxSafeGaitSpeed) * 100));
     const gaitDelta = gaitPtsCurr - gaitPtsBase;
 
     const stabDelta = (session.stability || 58) - (base.stability || 58);
@@ -201,11 +257,13 @@ class ARDSEngine {
         icon: "gauge",
         value: session.gaitSpeed.toFixed(2),
         unit: "m/s",
-        refNorm: "0.70 – 1.20 m/s",
+        refNorm: "0.70 – 1.40 m/s",
         contribution: Number((gaitDelta * 0.30).toFixed(1)),
         impact: gaitDelta >= 0 ? "positive" : "negative",
         desc: session.gaitSpeed >= 0.75 
-          ? "Forward propulsion cadence meets functional K3 ambulation target (0.75+ m/s)"
+          ? (session.gaitSpeed > this.SAFETY_THRESHOLDS.maxSafeGaitSpeed
+            ? "Velocity exceeds the 1.40 m/s prosthetic safety ceiling — Safety Governor will clamp progression"
+            : "Forward propulsion cadence meets functional K3 ambulation target (0.75+ m/s)")
           : (gaitDelta >= 0 ? "Cadence improving toward target" : "Walking velocity below target cadence")
       },
       {
@@ -346,28 +404,52 @@ class ARDSEngine {
       overrideTriggered = true;
       safetyAction = "Safety Governor clamped AI progression request to -15% recovery duration.";
       finalRecommendation = "🟡 Reduce training session difficulty by 15% and enforce active rest intervals.";
+    } else if (session.gaitSpeed > this.SAFETY_THRESHOLDS.maxSafeGaitSpeed) {
+      safetyFlag = "GAIT_SPEED_CEILING";
+      matchedRuleId = "RULE_WARN_04";
+      safetyReason = `Gait speed (${session.gaitSpeed.toFixed(2)} m/s) exceeded prosthetic safety ceiling (1.40 m/s). Fall-risk / socket-stress hazard.`;
+      overrideTriggered = true;
+      safetyAction = "Safety Governor clamped gait velocity at 1.40 m/s and capped progression. Reduced load to prevent prosthetic overload.";
+      finalRecommendation = "🟡 Gait velocity capped at 1.40 m/s: Reduce treadmill speed, enforce controlled cadence, and assess socket fit at elevated velocity.";
     } else if (condition.state === "IMPROVING" && fatigue.level === "LOW") {
       safetyFlag = "SAFE";
-      matchedRuleId = "RULE_OPT_04";
+      matchedRuleId = "RULE_OPT_05";
       safetyReason = "Gait symmetry, force balance, and metabolic fatigue satisfy green-tier progression criteria.";
       overrideTriggered = true; // Safety governor moderates +20% raw AI to safe +5%~+10%
       safetyAction = "Safety Governor moderated raw AI +20% leap to safe, graduated +5%~+10% stepped progression.";
       finalRecommendation = "🟢 Increase difficulty slightly: Progress to Stage 2 resistance band gait training and outdoor pavement trials.";
     } else if (condition.state === "MODERATE") {
       safetyFlag = "SAFE";
-      matchedRuleId = "RULE_STD_05";
+      matchedRuleId = "RULE_STD_06";
       safetyReason = "Metrics stable; no safety boundary violations detected.";
       overrideTriggered = false;
       safetyAction = "Safety Governor verified ML suggestion without modification.";
       finalRecommendation = "🟡 Maintain current training protocol: Continue Level 1 indoor treadmill walking with mirror biofeedback.";
     } else {
       safetyFlag = "UNSTABLE_ASSIST";
-      matchedRuleId = "RULE_AST_06";
+      matchedRuleId = "RULE_AST_07";
       safetyReason = "Decreased gait stability and asymmetric force distribution observed.";
       overrideTriggered = false;
       safetyAction = "Safety Governor endorsed assistive protocol.";
       finalRecommendation = "🔴 Increase assistance: Revert to parallel bar stability drills and dual-cane weight transfer exercises.";
     }
+
+        // Age-stratified clinical reference context (non-authoritative; enriches
+    // XAI/reporting with age-appropriate baselines). Optional — failures are
+    // silently ignored so decisions never break when age data is absent.
+    let ageBand = null;
+    let referenceRanges = null;
+    try {
+      const store = typeof window !== 'undefined' ? window.dataStore : null;
+      const patient = store && typeof store.getActivePatient === 'function'
+        ? store.getActivePatient()
+        : null;
+      const age = patient ? patient.age : null;
+      if (age != null) {
+        ageBand = this.getAgeBand(age);
+        referenceRanges = this.buildReferenceRanges(session, age);
+      }
+    } catch (e) { /* references are optional context */ }
 
     return {
       condition,
@@ -382,7 +464,9 @@ class ARDSEngine {
       governorDetails: {
         rawMLTarget: condition.state === "IMPROVING" ? "+20% Difficulty" : "0% Maintain",
         safetyGovernorCapped: condition.state === "IMPROVING" && safetyFlag === "SAFE" ? "+5% Graduated Difficulty" : (overrideTriggered ? "Clamped / Reduced" : "Approved as proposed"),
-        limitingConstraint: safetyFlag === "SAFE" ? "Standard gradual overload ceiling (max +10%/week)" : safetyReason
+        limitingConstraint: safetyFlag === "SAFE" ? "Standard gradual overload ceiling (max +10%/week)" : safetyReason,
+        ageBand: ageBand,
+        referenceRanges: referenceRanges
       }
     };
   }

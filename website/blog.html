@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog &amp; Updates &mdash; ARDS | Clinical Insights &amp; Product News</title>
+  <meta name="description" content="Latest clinical insights, product updates, and research highlights from the ARDS team.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='48' y2='48' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%230284c7'/%3E%3Cstop offset='1' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='48' height='48' rx='14' fill='url(%23g)'/%3E%3Cpath d='M9 26h8l4-11 6 18 5-13 3 6h4' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="page-transition">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="header" id="siteHeader">
+    <div class="container header-inner">
+      <a href="index.html" class="logo" aria-label="ARDS Home">
+        <div class="logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 36 36" fill="none">
+            <path d="M5 19h6l3-8 4 14 3.5-9.5L23 19h8" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="logo-text">ARDS<span>.</span></span>
+      </a>
+
+      <nav class="nav-desktop" aria-label="Primary navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <div class="nav-dropdown">
+          <button class="nav-dropdown-toggle" aria-haspopup="true">
+            Services
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="nav-dropdown-menu">
+            <a href="services.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Analytics Dashboard</a>
+            <a href="services.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Safety Governor</a>
+            <a href="services.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>XAI Explanations</a>
+            <a href="services.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Voice Assistant</a>
+          </div>
+        </div>
+        <a href="blog.html" class="nav-link">Blog</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="contact.html" class="btn btn-primary btn-sm">Get Started</a>
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MOBILE MENU ==================== -->
+  <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+    <a href="index.html" class="mobile-nav-link">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Home
+    </a>
+    <a href="about.html" class="mobile-nav-link">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+      About
+    </a>
+    <a href="services.html" class="mobile-nav-link">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Services
+    </a>
+    <a href="blog.html" class="mobile-nav-link">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Blog
+    </a>
+    <a href="contact.html" class="mobile-nav-link">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+      Contact
+    </a>
+    <div class="mobile-menu-actions">
+      <a href="contact.html" class="btn btn-primary btn-lg btn-full">Get Started</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ==================== BLOG HERO ==================== -->
+    <section class="about-hero">
+      <div class="container">
+        <h1 class="heading-lg reveal visible">Blog &amp; Updates</h1>
+        <p class="text-lg text-muted">Clinical insights, product announcements, and research highlights from the ARDS team.</p>
+      </div>
+    </section>
+
+    <!-- ==================== BLOG LIST + SIDEBAR ==================== -->
+    <section class="section">
+      <div class="container">
+        <div class="blog-layout">
+          <!-- Blog Posts -->
+          <div class="blog-grid">
+            <article class="blog-card reveal" data-title="Predictive Analytics in Amputee Rehabilitation" data-category="research">
+              <div class="blog-thumb">
+                <span class="blog-category">Research</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+              </div>
+              <div class="blog-body">
+                <div class="blog-meta">
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Aug 12, 2026</span>
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 6 min read</span>
+                </div>
+                <h3>Predictive Analytics in Amputee Rehabilitation: What the Data Shows</h3>
+                <p>A deep dive into 1,200 patient sessions reveals early mobility indicators that predict 6-week outcomes with 94% accuracy.</p>
+                <a href="#" class="blog-read-more">Read Article
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </article>
+
+            <article class="blog-card reveal" data-title="ARDS 2.4 Safety Governor Release" data-category="product">
+              <div class="blog-thumb" style="background: linear-gradient(135deg, #10b981, #0284c7);">
+                <span class="blog-category">Product</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+              </div>
+              <div class="blog-body">
+                <div class="blog-meta">
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Aug 5, 2026</span>
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 4 min read</span>
+                </div>
+                <h3>ARDS 2.4: Smarter Safety Governor &amp; Real-Time Triage Feed</h3>
+                <p>The latest release introduces adaptive alert thresholds, multi-patient triage views, and faster XAI computation.</p>
+                <a href="#" class="blog-read-more">Read Article
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </article>
+
+            <article class="blog-card reveal" data-title="Explainable AI Builds Clinician Trust" data-category="clinical">
+              <div class="blog-thumb" style="background: linear-gradient(135deg, #8b5cf6, #0284c7);">
+                <span class="blog-category">Clinical</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              </div>
+              <div class="blog-body">
+                <div class="blog-meta">
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Jul 28, 2026</span>
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 8 min read</span>
+                </div>
+                <h3>Why Explainable AI Builds Clinician Trust in Critical Care</h3>
+                <p>Interview findings from 45 clinicians show transparent contribution breakdowns increase AI adoption rates threefold.</p>
+                <a href="#" class="blog-read-more">Read Article
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </article>
+
+            <article class="blog-card reveal" data-title="Voice Interface in Clinical Workflows" data-category="product">
+              <div class="blog-thumb" style="background: linear-gradient(135deg, #f59e0b, #f43f5e);">
+                <span class="blog-category">Product</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+              </div>
+              <div class="blog-body">
+                <div class="blog-meta">
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Jul 15, 2026</span>
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 5 min read</span>
+                </div>
+                <h3>Hands-Free Clinical Workflows: Voice Interface Now in Beta</h3>
+                <p>Ask ARDS about patient status, alerts, and recommendations without touching a screen &mdash; designed for sterile environments.</p>
+                <a href="#" class="blog-read-more">Read Article
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </article>
+
+            <article class="blog-card reveal" data-title="ISO 13485 Certification Milestone" data-category="clinical">
+              <div class="blog-thumb" style="background: linear-gradient(135deg, #0d9488, #10b981);">
+                <span class="blog-category">Clinical</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              </div>
+              <div class="blog-body">
+                <div class="blog-meta">
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Jun 30, 2026</span>
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 3 min read</span>
+                </div>
+                <h3>ARDS Achieves ISO 13485 Certification for Medical Devices</h3>
+                <p>A major milestone in our commitment to quality management and patient safety across all clinical deployments.</p>
+                <a href="#" class="blog-read-more">Read Article
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </article>
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="sidebar">
+            <div class="sidebar-widget">
+              <h4>Search</h4>
+              <form class="sidebar-search" id="blogSearchForm">
+                <input type="text" id="blogSearch" placeholder="Search articles..." aria-label="Search articles">
+                <button type="submit" id="blogSearchBtn" aria-label="Search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                </button>
+              </form>
+            </div>
+
+            <div class="sidebar-widget">
+              <h4>Categories</h4>
+              <div class="sidebar-categories">
+                <a href="#" data-category="all">All Posts <span>5</span></a>
+                <a href="#" data-category="research">Research <span>1</span></a>
+                <a href="#" data-category="product">Product Updates <span>2</span></a>
+                <a href="#" data-category="clinical">Clinical Insights <span>2</span></a>
+              </div>
+            </div>
+
+            <div class="sidebar-widget">
+              <h4>Popular Tags</h4>
+              <div class="sidebar-tags">
+                <a href="#">#AI</a>
+                <a href="#">#Rehabilitation</a>
+                <a href="#">#XAI</a>
+                <a href="#">#Clinical</a>
+                <a href="#">#Safety</a>
+                <a href="#">#Analytics</a>
+                <a href="#">#Amputee</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <div class="logo-icon" aria-hidden="true">
+              <svg viewBox="0 0 36 36" fill="none">
+                <path d="M5 19h6l3-8 4 14 3.5-9.5L23 19h8" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="logo-text" style="color: white;">ARDS<span>.</span></span>
+          </a>
+          <p>Adaptive Rehabilitation Decision Support System &mdash; AI-assisted clinical intelligence for lower-limb amputee rehabilitation.</p>
+          <form id="newsletterForm" style="margin-top: var(--space-lg); display: flex; gap: 8px; max-width: 320px;">
+            <input type="email" placeholder="Your email" required style="flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #1e293b; background: #0f172a; color: white; font-size: 0.85rem;">
+            <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
+          </form>
+        </div>
+
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="about.html">About Us</a>
+          <a href="about.html">Our Team</a>
+          <a href="blog.html">Blog</a>
+          <a href="contact.html">Contact</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Services</h4>
+          <a href="services.html">Analytics Dashboard</a>
+          <a href="services.html">Safety Governor</a>
+          <a href="services.html">XAI Explanations</a>
+          <a href="services.html">Voice Assistant</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a href="blog.html">Clinical Updates</a>
+          <a href="services.html">Documentation</a>
+          <a href="contact.html">Support</a>
+          <a href="contact.html">FAQ</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 ARDS &mdash; Adaptive Rehabilitation Decision Support System. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">HIPAA Compliance</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

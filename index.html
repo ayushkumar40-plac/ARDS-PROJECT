@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARDS — Adaptive Rehabilitation Decision Support System</title>
-  <meta name="description" content="AI-assisted clinical decision-support dashboard for lower-limb amputee rehabilitation.">
-  
+  <title>Adaptive Rehabilitation Decision Support System</title>
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='48' y2='48' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%230284c7'/%3E%3Cstop offset='1' stop-color='%2334d399'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='48' height='48' rx='14' fill='url(%23g)'/%3E%3Cpath d='M9 26h8l4-11 6 18 5-13 3 6h4' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <meta name="description"
+    content="AI-assisted clinical decision-support dashboard for lower-limb amputee rehabilitation.">
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
   <!-- Tailwind CSS CDN for utility grid/flex classes -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -38,23 +44,34 @@
   <!-- Custom Clinical Stylesheet -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
+  <!-- ============================================================== -->
+  <!-- LOGIN / AUTHENTICATION SCREEN (Prototype — simulated locally)  -->
+  <!-- ============================================================== -->
   <div class="app-container">
-    
+    <!-- Off-canvas sidebar backdrop (mobile/tablet) -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
     <!-- Sidebar Navigation -->
-    <aside class="app-sidebar">
+    <aside class="app-sidebar" id="appSidebar">
       <!-- Logo & Title -->
       <div class="sidebar-logo">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20 flex-shrink-0">
-          <i data-lucide="activity" class="w-5 h-5"></i>
+        <div class="ards-logo ards-logo-sm w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0"
+          aria-hidden="true">
+          <svg class="ards-logo-ecg" viewBox="0 0 36 36" fill="none">
+            <path d="M5 19h6l3-8 4 14 3.5-9.5L23 19h8"></path>
+          </svg>
         </div>
         <div class="flex flex-col min-w-0">
           <div class="flex items-center gap-1.5">
-            <span class="font-extrabold text-base tracking-tight text-slate-100 font-['Outfit']">ARDS</span>
-            <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30">PROTOTYPE</span>
+            <span class="ards-wordmark text-sm leading-tight">Adaptive Rehabilitation</span>
+            <span
+              class="flex-shrink-0 px-1.5 py-0.2 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30">PROTOTYPE</span>
           </div>
-          <span class="text-[11px] text-slate-400 truncate">Rehab Decision Support</span>
+          <span class="ards-wordmark text-sm leading-tight">Decision Support System</span>
+          <span class="text-[11px] text-slate-400 truncate mt-0.5">Prosthetic Rehabilitation Intelligence</span>
         </div>
       </div>
 
@@ -83,7 +100,8 @@
         <button class="nav-btn" data-tab="alerts" id="nav-btn-alerts" onclick="window.switchTab('alerts')">
           <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
           <span>5. Alerts & Feed</span>
-          <span id="navAlertBadge" class="ml-auto px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-rose-500 text-white hidden">0</span>
+          <span id="navAlertBadge"
+            class="ml-auto px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-rose-500 text-white hidden">0</span>
         </button>
 
         <button class="nav-btn" data-tab="decision" id="nav-btn-decision" onclick="window.switchTab('decision')">
@@ -96,9 +114,14 @@
           <span>7. Clinical Reports</span>
         </button>
 
+        <button class="nav-btn" data-tab="voice" id="nav-btn-voice" onclick="window.switchTab('voice')">
+          <i data-lucide="mic" class="w-4 h-4 text-fuchsia-400"></i>
+          <span>8. Voice & Language</span>
+        </button>
+
         <button class="nav-btn" data-tab="about" id="nav-btn-about" onclick="window.switchTab('about')">
           <i data-lucide="info" class="w-4 h-4 text-slate-400"></i>
-          <span>8. About & Disclaimer</span>
+          <span>9. About & Disclaimer</span>
         </button>
       </nav>
 
@@ -112,20 +135,28 @@
       </div>
 
       <!-- Sidebar Footer / Disclaimer Badge -->
-      <div class="p-3.5 m-3 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-slate-400 sidebar-footer">
+      <div
+        class="p-3.5 m-3 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-slate-400 sidebar-footer">
         <div class="flex items-center gap-1.5 text-amber-400 font-semibold mb-1">
           <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
           <span>Research Prototype</span>
         </div>
-        <p class="text-[10px] text-slate-500 leading-tight">Software decision-support prototype. Not for primary diagnosis.</p>
+        <p class="text-[10px] text-slate-500 leading-tight">Software decision-support prototype. Not for primary
+          diagnosis.</p>
       </div>
     </aside>
 
     <!-- Main Content Area -->
     <main class="app-main">
-      
+
       <!-- Top Application Header -->
       <header class="app-header">
+        <!-- Mobile Navigation Toggle -->
+        <button type="button" id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle navigation menu"
+          aria-expanded="false" aria-controls="appSidebar">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+
         <div class="flex items-center gap-4 flex-wrap">
           <!-- Patient Selector -->
           <div class="flex items-center gap-2">
@@ -150,13 +181,33 @@
 
         <div class="flex items-center gap-3">
           <!-- Live Telemetry Status Pill -->
-          <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+          <div
+            class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>Sensor Sync Active</span>
           </div>
 
+          <!-- User Account Chip (managed by js/auth.js) -->
+          <div id="userChip" class="hidden items-center gap-2.5 pl-3 border-l border-slate-700/60">
+            <div id="userAvatar"
+              class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white text-[11px] font-bold shadow-md shadow-sky-500/20 flex-shrink-0">
+              --
+            </div>
+            <div class="hidden md:flex flex-col leading-tight">
+              <span id="userName" class="text-xs font-bold text-slate-100 max-w-[150px] truncate">—</span>
+              <span id="userRole" class="text-[10px] text-slate-400">—</span>
+            </div>
+            <button id="btnLogout"
+              class="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-500/15 text-slate-300 hover:text-rose-400 border border-slate-700 transition"
+              title="Sign Out">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+
           <!-- Theme Toggle -->
-          <button id="themeToggleBtn" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="Toggle Theme">
+          <button id="themeToggleBtn"
+            class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+            title="Toggle Theme">
             <span id="themeToggleIcon"><i data-lucide="sun" class="w-4 h-4 text-amber-400"></i></span>
           </button>
 
@@ -202,7 +253,7 @@
         <!-- SECTION 1: HOME / SESSION OVERVIEW                              -->
         <!-- ============================================================== -->
         <section id="section-home" class="tab-section active-tab space-y-6">
-          
+
           <!-- Dedicated Patient Profile & Session Control Header -->
           <div id="homePatientContextCard" class="ards-card p-6">
             <!-- Rendered by app.js -->
@@ -220,7 +271,7 @@
 
           <!-- Biomechanical Progress & Vitals Grid -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
             <!-- Left 2 Cols: Progress Bars -->
             <div class="lg:col-span-2 ards-card p-6 space-y-4">
               <div class="flex items-center justify-between border-b border-slate-800/60 pb-3">
@@ -272,14 +323,16 @@
         <!-- SECTION 2: DATA UPLOAD & 9-STAGE PIPELINE                      -->
         <!-- ============================================================== -->
         <section id="section-upload" class="tab-section hidden space-y-6">
-          
+
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h2 class="text-2xl font-bold text-slate-100">Data Ingestion & ML Processing Pipeline</h2>
-              <p class="text-sm text-slate-400 mt-1">Upload session telemetry CSV or load clinical presets to execute the animated 9-stage analysis pipeline.</p>
+              <p class="text-sm text-slate-400 mt-1">Upload session telemetry CSV or load clinical presets to execute
+                the animated 9-stage analysis pipeline.</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-              <button id="btnDownloadSampleCSV" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition flex items-center gap-1.5">
+              <button id="btnDownloadSampleCSV"
+                class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition flex items-center gap-1.5">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
                 <span>Download Sample CSV</span>
               </button>
@@ -288,29 +341,36 @@
 
           <!-- Drag & Drop Area -->
           <div class="ards-card p-8">
-            <div id="csvDropzone" class="border-2 border-dashed border-slate-700/80 hover:border-sky-500 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center bg-slate-900/30">
+            <div id="csvDropzone"
+              class="border-2 border-dashed border-slate-700/80 hover:border-sky-500 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center bg-slate-900/30">
               <input type="file" id="csvFileInput" accept=".csv" class="hidden">
               <div class="w-16 h-16 rounded-2xl bg-sky-500/10 text-sky-400 flex items-center justify-center mb-3">
                 <i data-lucide="file-up" class="w-8 h-8"></i>
               </div>
               <h4 class="text-base font-bold text-slate-200">Drag and drop your Session CSV here</h4>
-              <p class="text-xs text-slate-400 mt-1">Required columns: <code class="text-sky-300 font-mono">Patient, Session, Gait Speed, Symmetry, Force, Pressure, Stability, Fatigue</code></p>
+              <p class="text-xs text-slate-400 mt-1">Required columns: <code
+                  class="text-sky-300 font-mono">Patient, Session, Gait Speed, Symmetry, Force, Pressure, Stability, Fatigue</code>
+              </p>
               <div class="mt-4 flex items-center gap-2">
                 <span class="px-3 py-1 text-xs font-semibold rounded-lg bg-sky-600 text-white">Browse Files</span>
               </div>
             </div>
 
             <!-- Quick Preset Loaders -->
-            <div class="mt-6 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div
+              class="mt-6 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Quick Presets:</span>
               <div class="flex items-center gap-2 flex-wrap">
-                <button id="btnPresetP1" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                <button id="btnPresetP1"
+                  class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
                   Load P001 Normal Progression
                 </button>
-                <button id="btnPresetP2" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition">
+                <button id="btnPresetP2"
+                  class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition">
                   Load P002 Fatigue Scenario
                 </button>
-                <button id="btnPresetP3" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 transition">
+                <button id="btnPresetP3"
+                  class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 transition">
                   Load P003 Stump Pressure Warning
                 </button>
               </div>
@@ -327,11 +387,13 @@
                 <h3 class="text-base font-bold text-slate-100">Uploaded Data Rows Preview</h3>
               </div>
               <div class="flex items-center gap-2 flex-wrap">
-                <button id="btnImportAllCsvPatients" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 transition flex items-center gap-1.5 shadow-sm">
+                <button id="btnImportAllCsvPatients"
+                  class="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 transition flex items-center gap-1.5 shadow-sm">
                   <i data-lucide="user-check" class="w-4 h-4"></i>
                   <span>Import / Register Patient from CSV</span>
                 </button>
-                <button id="btnRunPipeline" class="px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-sky-600 to-teal-500 hover:from-sky-500 hover:to-teal-400 text-white shadow-lg shadow-sky-500/25 transition flex items-center gap-2">
+                <button id="btnRunPipeline"
+                  class="px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-sky-600 to-teal-500 hover:from-sky-500 hover:to-teal-400 text-white shadow-lg shadow-sky-500/25 transition flex items-center gap-2">
                   <i data-lucide="play" class="w-4 h-4"></i>
                   <span>Analyze Session (Run 9-Stage Pipeline)</span>
                 </button>
@@ -340,7 +402,8 @@
 
             <div class="overflow-x-auto">
               <table class="w-full text-left">
-                <thead class="bg-slate-800/80 text-[11px] font-semibold uppercase text-slate-400 border-b border-slate-700">
+                <thead
+                  class="bg-slate-800/80 text-[11px] font-semibold uppercase text-slate-400 border-b border-slate-700">
                   <tr>
                     <th class="px-4 py-2.5">Patient</th>
                     <th class="px-4 py-2.5">Session</th>
@@ -368,17 +431,21 @@
                   <i data-lucide="cpu" class="w-5 h-5 text-sky-400"></i>
                   <span>Animated 9-Stage Clinical ML Pipeline</span>
                 </h3>
-                <p class="text-xs text-slate-400 mt-0.5">Automated signal conditioning, ensemble inference, and safety governor execution.</p>
+                <p class="text-xs text-slate-400 mt-0.5">Automated signal conditioning, ensemble inference, and safety
+                  governor execution.</p>
               </div>
 
-              <div id="pipelineSuccessBanner" class="hidden px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse">
+              <div id="pipelineSuccessBanner"
+                class="hidden px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse">
                 ✓ Pipeline Execution Complete & Synced
               </div>
             </div>
 
             <!-- Pipeline Progress Bar -->
             <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-              <div id="pipelineProgressBar" class="bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+              <div id="pipelineProgressBar"
+                class="bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-400 h-2 rounded-full transition-all duration-300"
+                style="width: 0%"></div>
             </div>
 
             <!-- 9 Interactive Stage Nodes -->
@@ -392,8 +459,10 @@
                 <span class="font-mono font-semibold uppercase">Real-Time Telemetry & Decision Log Stream</span>
                 <span class="text-[10px] text-slate-500">Sampling Rate: 100 Hz</span>
               </div>
-              <div id="pipelineLogFeed" class="p-4 rounded-xl bg-black/60 border border-slate-800 font-mono text-xs text-slate-300 h-40 overflow-y-auto space-y-1.5">
-                <div class="text-slate-500 italic">[READY] System initialized. Click "Analyze Session" to start processing...</div>
+              <div id="pipelineLogFeed"
+                class="p-4 rounded-xl bg-black/60 border border-slate-800 font-mono text-xs text-slate-300 h-40 overflow-y-auto space-y-1.5">
+                <div class="text-slate-500 italic">[READY] System initialized. Click "Analyze Session" to start
+                  processing...</div>
               </div>
             </div>
           </div>
@@ -405,10 +474,11 @@
         <!-- SECTION 3: PROGRESS / ANALYTICS                                -->
         <!-- ============================================================== -->
         <section id="section-progress" class="tab-section hidden space-y-6">
-          
+
           <div>
             <h2 class="text-2xl font-bold text-slate-100">Longitudinal Rehabilitation Analytics</h2>
-            <p class="text-sm text-slate-400 mt-1">Multi-session progression trends, score trajectory, and vital biomechanical correlations.</p>
+            <p class="text-sm text-slate-400 mt-1">Multi-session progression trends, score trajectory, and vital
+              biomechanical correlations.</p>
           </div>
 
           <!-- Primary Score Line Chart -->
@@ -416,9 +486,12 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
               <div>
                 <h3 class="text-lg font-bold text-slate-100">Rehabilitation Score Trajectory Across Sessions</h3>
-                <p class="text-xs text-slate-400">Formula: <code class="text-sky-300">0.30×Gait + 0.25×Stab + 0.20×Force + 0.15×Sym + 0.10×(100-Fatigue)</code></p>
+                <p class="text-xs text-slate-400">Formula: <code
+                    class="text-sky-300">0.30×Gait + 0.25×Stab + 0.20×Force + 0.15×Sym + 0.10×(100-Fatigue)</code></p>
               </div>
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">S1 to S5+ Longitudinal View</span>
+              <span
+                class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">S1
+                to S5+ Longitudinal View</span>
             </div>
             <div class="relative h-72">
               <canvas id="mainScoreChart"></canvas>
@@ -427,7 +500,7 @@
 
           <!-- Secondary Multi-Metric Charts Row -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             <!-- Gait Speed & Symmetry -->
             <div class="ards-card p-5">
               <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -474,7 +547,8 @@
 
             <div class="overflow-x-auto">
               <table class="w-full text-left">
-                <thead class="bg-slate-800/80 text-[11px] font-semibold uppercase text-slate-400 border-b border-slate-700">
+                <thead
+                  class="bg-slate-800/80 text-[11px] font-semibold uppercase text-slate-400 border-b border-slate-700">
                   <tr>
                     <th class="px-4 py-3">Date</th>
                     <th class="px-4 py-3">Session</th>
@@ -501,10 +575,11 @@
         <!-- SECTION 4: EXPLAINABLE AI (XAI)                                -->
         <!-- ============================================================== -->
         <section id="section-xai" class="tab-section hidden space-y-6">
-          
+
           <div>
             <h2 class="text-2xl font-bold text-slate-100">Explainable AI (XAI) & Interpretability</h2>
-            <p class="text-sm text-slate-400 mt-1">SHAP-style biomechanical feature contribution breakdown and interactive sensitivity simulator.</p>
+            <p class="text-sm text-slate-400 mt-1">SHAP-style biomechanical feature contribution breakdown and
+              interactive sensitivity simulator.</p>
           </div>
 
           <!-- Prediction Card -->
@@ -519,7 +594,7 @@
 
           <!-- Two Columns: Feature Contributions vs What-If Simulator -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
+
             <!-- Left: Signed Percentage Contribution Bars -->
             <div class="ards-card p-6 space-y-4">
               <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -542,7 +617,8 @@
                   <h3 class="text-base font-bold text-slate-100">Interactive "What-If" Simulator</h3>
                   <p class="text-xs text-slate-400">Adjust biomechanical parameters to test real-time model response</p>
                 </div>
-                <button id="btnResetSim" class="text-xs font-semibold text-sky-400 hover:text-sky-300">Reset Values</button>
+                <button id="btnResetSim" class="text-xs font-semibold text-sky-400 hover:text-sky-300">Reset
+                  Values</button>
               </div>
 
               <div class="space-y-4 text-xs">
@@ -551,11 +627,11 @@
                   <div class="flex justify-between items-center text-slate-300 mb-1">
                     <div>
                       <label for="simGait" class="font-medium text-slate-200">Gait Velocity:</label>
-                      <span class="text-[10px] text-slate-500 ml-1.5">(Target: 0.75+ m/s | Norm: 0.70–1.20)</span>
+                      <span class="text-[10px] text-slate-500 ml-1.5">(Target: 0.75+ m/s | Ceiling: 1.40)</span>
                     </div>
                     <span id="simGaitVal" class="font-mono font-bold text-sky-400">0.74 m/s</span>
                   </div>
-                  <input type="range" id="simGait" min="0.30" max="1.30" step="0.01" value="0.74">
+                  <input type="range" id="simGait" min="0.30" max="1.50" step="0.01" value="0.74">
                 </div>
 
                 <!-- Symmetry Slider -->
@@ -619,9 +695,11 @@
                 </div>
               </div>
 
-              <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+              <div
+                class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
                 <i data-lucide="info" class="w-3.5 h-3.5 inline text-sky-400 mr-1"></i>
-                Moving the sliders immediately re-calculates the Rehabilitation Score, Condition Classification, and XAI contributions above without modifying persisted session history.
+                Moving the sliders immediately re-calculates the Rehabilitation Score, Condition Classification, and XAI
+                contributions above without modifying persisted session history.
               </div>
             </div>
 
@@ -634,19 +712,27 @@
         <!-- SECTION 5: ALERTS & TRIAGE FEED                                -->
         <!-- ============================================================== -->
         <section id="section-alerts" class="tab-section hidden space-y-6">
-          
+
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h2 class="text-2xl font-bold text-slate-100">Clinical Alerts & Notifications</h2>
-              <p class="text-sm text-slate-400 mt-1">Real-time safety events, threshold breaches, and automated clinician triage feed.</p>
+              <p class="text-sm text-slate-400 mt-1">Real-time safety events, threshold breaches, and automated
+                clinician triage feed.</p>
             </div>
 
             <!-- Filter Tabs -->
-            <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-              <button class="alert-filter-btn px-3 py-1.5 rounded-lg bg-sky-600 text-white font-medium transition" data-filter="all">All Alerts</button>
-              <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition" data-filter="critical">🔴 Critical</button>
-              <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition" data-filter="warning">🟡 Warning</button>
-              <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition" data-filter="normal">🟢 Normal</button>
+            <div id="alertFilterBar" class="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+              <button class="alert-filter-btn px-3 py-1.5 rounded-lg bg-sky-600 text-white font-medium transition"
+                data-filter="all">All Alerts</button>
+              <button
+                class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition"
+                data-filter="critical">🔴 Critical</button>
+              <button
+                class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition"
+                data-filter="warning">🟡 Warning</button>
+              <button
+                class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition"
+                data-filter="normal">🟢 Normal</button>
             </div>
           </div>
 
@@ -662,10 +748,11 @@
         <!-- SECTION 6: DECISION & SAFETY LOG                               -->
         <!-- ============================================================== -->
         <section id="section-decision" class="tab-section hidden space-y-6">
-          
+
           <div>
             <h2 class="text-2xl font-bold text-slate-100">Transparent Decision & Safety Governor Log</h2>
-            <p class="text-sm text-slate-400 mt-1">Rule execution engine matrix, physiological constraints, and automated safety override logs.</p>
+            <p class="text-sm text-slate-400 mt-1">Rule execution engine matrix, physiological constraints, and
+              automated safety override logs.</p>
           </div>
 
           <!-- Active Rule Card -->
@@ -684,7 +771,8 @@
               <i data-lucide="git-branch" class="w-4 h-4 text-teal-400"></i>
               <span>Transparent Decision Rule Engine Matrix</span>
             </h3>
-            <p class="text-xs text-slate-400">The ARDS rule engine evaluates multi-dimensional state vectors to ensure clinically guarded progression:</p>
+            <p class="text-xs text-slate-400">The adaptive rule engine evaluates multi-dimensional state vectors to ensure
+              clinically guarded progression:</p>
 
             <div class="overflow-x-auto">
               <table class="w-full text-xs text-left border border-slate-800 rounded-xl overflow-hidden">
@@ -700,40 +788,61 @@
                 </thead>
                 <tbody class="divide-y divide-slate-800 text-slate-300">
                   <tr class="hover:bg-slate-800/30">
-                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_OPT_04</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">IMPROVING</span></td>
+                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_OPT_05</td>
+                    <td class="p-3"><span
+                        class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">IMPROVING</span>
+                    </td>
                     <td class="p-3 text-emerald-400">LOW (&lt;30%)</td>
                     <td class="p-3">SAFE (Pressure &le;50 kPa)</td>
                     <td class="p-3 text-slate-400">+20% Load</td>
                     <td class="p-3 font-semibold text-emerald-400">Increase difficulty slightly (+5%~10% load)</td>
                   </tr>
                   <tr class="hover:bg-slate-800/30">
-                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_STD_05</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">MODERATE</span></td>
+                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_STD_06</td>
+                    <td class="p-3"><span
+                        class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">MODERATE</span>
+                    </td>
                     <td class="p-3 text-amber-400">MED (30-55%)</td>
                     <td class="p-3">SAFE (Pressure &le;55 kPa)</td>
                     <td class="p-3 text-slate-400">0% Maintain</td>
-                    <td class="p-3 font-semibold text-amber-400">Maintain current difficulty &amp; monitor stability</td>
+                    <td class="p-3 font-semibold text-amber-400">Maintain current difficulty &amp; monitor stability
+                    </td>
                   </tr>
                   <tr class="hover:bg-slate-800/30">
                     <td class="p-3 font-mono text-sky-400 font-bold">RULE_WARN_03</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">ANY</span></td>
+                    <td class="p-3"><span
+                        class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">ANY</span>
+                    </td>
                     <td class="p-3 text-rose-400 font-bold">HIGH (&gt;55%)</td>
                     <td class="p-3">HIGH_FATIGUE</td>
                     <td class="p-3 text-slate-400">+10% Load</td>
                     <td class="p-3 font-semibold text-amber-400">Reduce/maintain difficulty; add recovery breaks</td>
                   </tr>
                   <tr class="hover:bg-slate-800/30">
+                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_WARN_04</td>
+                    <td class="p-3"><span
+                        class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">ANY</span>
+                    </td>
+                    <td class="p-3 text-slate-300">ANY</td>
+                    <td class="p-3 text-amber-400 font-bold">GAIT &gt;1.40 m/s</td>
+                    <td class="p-3 text-slate-400">+10% Load</td>
+                    <td class="p-3 font-semibold text-amber-400">Cap gait velocity at 1.40 m/s; reduce treadmill speed</td>
+                  </tr>
+                  <tr class="hover:bg-slate-800/30">
                     <td class="p-3 font-mono text-sky-400 font-bold">RULE_CRIT_01</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30">UNSTABLE</span></td>
+                    <td class="p-3"><span
+                        class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30">UNSTABLE</span>
+                    </td>
                     <td class="p-3 text-slate-300">ANY</td>
                     <td class="p-3 text-rose-400 font-bold">CRITICAL (&gt;60 kPa)</td>
                     <td class="p-3 text-slate-400">+5% Load</td>
                     <td class="p-3 font-semibold text-rose-400">🔴 Emergency Pause: Reduce difficulty + Warning</td>
                   </tr>
                   <tr class="hover:bg-slate-800/30">
-                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_AST_06</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30">UNSTABLE</span></td>
+                    <td class="p-3 font-mono text-sky-400 font-bold">RULE_AST_07</td>
+                    <td class="p-3"><span
+                        class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30">UNSTABLE</span>
+                    </td>
                     <td class="p-3 text-slate-300">ANY</td>
                     <td class="p-3">ASYMMETRIC (&lt;50%)</td>
                     <td class="p-3 text-slate-400">0% Maintain</td>
@@ -751,25 +860,29 @@
         <!-- SECTION 7: CLINICAL REPORTS                                    -->
         <!-- ============================================================== -->
         <section id="section-reports" class="tab-section hidden space-y-6">
-          
+
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
             <div>
               <h2 class="text-2xl font-bold text-slate-100">Physiotherapy Clinical Session Report</h2>
-              <p class="text-sm text-slate-400 mt-1">Comprehensive printable documentation with XAI interpretability and digital clinical sign-off.</p>
+              <p class="text-sm text-slate-400 mt-1">Comprehensive printable documentation with XAI interpretability and
+                digital clinical sign-off.</p>
             </div>
 
             <div class="flex items-center gap-2 flex-wrap">
-              <button id="btnExportCSVReport" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+              <button id="btnExportCSVReport"
+                class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
                 <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
                 <span>Export CSV</span>
               </button>
 
-              <button id="btnExportJSONReport" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+              <button id="btnExportJSONReport"
+                class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
                 <i data-lucide="code" class="w-3.5 h-3.5"></i>
                 <span>Export JSON</span>
               </button>
 
-              <button id="btnPrintReport" class="px-4 py-2 text-xs font-bold rounded-xl bg-sky-600 hover:bg-sky-500 text-white shadow-lg shadow-sky-500/25 transition flex items-center gap-2">
+              <button id="btnPrintReport"
+                class="px-4 py-2 text-xs font-bold rounded-xl bg-sky-600 hover:bg-sky-500 text-white shadow-lg shadow-sky-500/25 transition flex items-center gap-2">
                 <i data-lucide="printer" class="w-4 h-4"></i>
                 <span>Print / Save PDF</span>
               </button>
@@ -785,13 +898,14 @@
 
 
         <!-- ============================================================== -->
-        <!-- SECTION 8: ABOUT & DISCLAIMER                                  -->
+        <!-- SECTION 9: ABOUT & DISCLAIMER                                  -->
         <!-- ============================================================== -->
         <section id="section-about" class="tab-section hidden space-y-6">
-          
+
           <div>
-            <h2 class="text-2xl font-bold text-slate-100">About the ARDS Research Prototype</h2>
-            <p class="text-sm text-slate-400 mt-1">System architecture, biomechanical scoring formulation, and regulatory disclaimers.</p>
+            <h2 class="text-2xl font-bold text-slate-100">About the Research Prototype</h2>
+            <p class="text-sm text-slate-400 mt-1">System architecture, biomechanical scoring formulation, and
+              regulatory disclaimers.</p>
           </div>
 
           <!-- Mandatory Clinical Disclaimer Box -->
@@ -801,9 +915,15 @@
               <span>Medical &amp; Regulatory Prototype Disclaimer</span>
             </div>
             <ul class="space-y-2 text-xs text-amber-100/90 leading-relaxed list-disc list-inside">
-              <li><strong>Software-Only Research Prototype:</strong> The Adaptive Rehabilitation Decision Support System (ARDS) is an academic and engineering prototype. It is <strong>NOT</strong> an FDA/CE-cleared medical device.</li>
-              <li><strong>Clinical Decision Support Only:</strong> This system does not replace the professional clinical diagnosis, physical assessment, or treatment judgment of certified physiotherapists, prosthetists, or orthopedic physicians.</li>
-              <li><strong>Synthetic &amp; Simulated Telemetry:</strong> Data displayed in this prototype may contain synthetic, simulated, or anonymized biomechanical datasets designed to demonstrate system behaviors and safety governor algorithms.</li>
+              <li><strong>Software-Only Research Prototype:</strong> The Adaptive Rehabilitation Decision Support System
+                is an academic and engineering prototype. It is <strong>NOT</strong> an FDA/CE-cleared medical
+                device.</li>
+              <li><strong>Clinical Decision Support Only:</strong> This system does not replace the professional
+                clinical diagnosis, physical assessment, or treatment judgment of certified physiotherapists,
+                prosthetists, or orthopedic physicians.</li>
+              <li><strong>Synthetic &amp; Simulated Telemetry:</strong> Data displayed in this prototype may contain
+                synthetic, simulated, or anonymized biomechanical datasets designed to demonstrate system behaviors and
+                safety governor algorithms.</li>
             </ul>
           </div>
 
@@ -814,9 +934,11 @@
               <span>Rehabilitation Composite Scoring Formula</span>
             </h3>
             <p class="text-xs text-slate-400 leading-relaxed">
-              The ARDS Rehabilitation Score ($0–100$) integrates 5 core biomechanical domains weighted by clinical recovery priority:
+              The Rehabilitation Score ($0–100$) integrates 5 core biomechanical domains weighted by clinical
+              recovery priority:
             </p>
-            <div class="p-4 rounded-xl bg-slate-900 font-mono text-xs text-sky-300 border border-slate-800 overflow-x-auto">
+            <div
+              class="p-4 rounded-xl bg-slate-900 font-mono text-xs text-sky-300 border border-slate-800 overflow-x-auto">
               Score = 0.30×GaitVelocity + 0.25×Stability + 0.20×ForceControl + 0.15×Symmetry + 0.10×(100 - Fatigue)
             </div>
 
@@ -824,7 +946,8 @@
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2 text-xs">
               <div class="p-3.5 rounded-xl bg-slate-900/80 border border-rose-500/30">
                 <span class="font-bold text-rose-400">0 – 40: Poor</span>
-                <p class="text-[11px] text-slate-400 mt-1">High physical assistance needed; significant gait deficit.</p>
+                <p class="text-[11px] text-slate-400 mt-1">High physical assistance needed; significant gait deficit.
+                </p>
               </div>
               <div class="p-3.5 rounded-xl bg-slate-900/80 border border-amber-500/30">
                 <span class="font-bold text-amber-400">41 – 60: Moderate</span>
@@ -852,21 +975,164 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
               <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
                 <div class="font-bold text-sky-400 mb-1">1. Sensing &amp; Ingestion</div>
-                <p class="text-slate-400 text-[11px]">Wearable IMUs, socket capacitive pressure arrays, and force-sensing insoles.</p>
+                <p class="text-slate-400 text-[11px]">Wearable IMUs, socket capacitive pressure arrays, and
+                  force-sensing insoles.</p>
               </div>
               <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
                 <div class="font-bold text-teal-400 mb-1">2. ML Inference Engine</div>
-                <p class="text-slate-400 text-[11px]">Ensemble Random Forest &amp; SHAP surrogate for spatiotemporal gait classification.</p>
+                <p class="text-slate-400 text-[11px]">Ensemble Random Forest &amp; SHAP surrogate for spatiotemporal
+                  gait classification.</p>
               </div>
               <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
                 <div class="font-bold text-amber-400 mb-1">3. Safety Governor</div>
-                <p class="text-slate-400 text-[11px]">Deterministic rule bounds clamping progression to protect stump tissue integrity.</p>
+                <p class="text-slate-400 text-[11px]">Deterministic rule bounds clamping progression to protect stump
+                  tissue integrity.</p>
               </div>
               <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
                 <div class="font-bold text-emerald-400 mb-1">4. Human-in-the-Loop</div>
-                <p class="text-slate-400 text-[11px]">Interactive clinician dashboard, alert triage, and printable clinical sign-offs.</p>
+                <p class="text-slate-400 text-[11px]">Interactive clinician dashboard, alert triage, and printable
+                  clinical sign-offs.</p>
               </div>
             </div>
+          </div>
+
+        </section>
+
+
+        <!-- ============================================================== -->
+        <!-- SECTION 8: VOICE RECOGNITION & LANGUAGE                         -->
+        <!-- ============================================================== -->
+        <section id="section-voice" class="tab-section hidden space-y-6">
+
+          <div>
+            <h2 class="text-2xl font-bold text-slate-100">Voice Recognition & Language</h2>
+            <p class="text-sm text-slate-400 mt-1">Select the speech recognition language, control the microphone, and
+              interact with the clinical voice assistant.</p>
+          </div>
+
+          <!-- Language Selection -->
+          <div class="ards-card p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="languages" class="w-5 h-5 text-sky-400"></i>
+                <div>
+                  <h3 class="text-base font-bold text-slate-100">Recognition Language</h3>
+                  <p class="text-xs text-slate-400">Applies to both microphone input (speech-to-text) and spoken
+                    responses (text-to-speech).</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="voiceCurrentLangBadge"
+                  class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30">🇺🇸
+                  English (US)</span>
+                <select id="voiceLanguageSelect" class="form-select text-xs font-semibold text-slate-100 min-w-[200px]">
+                  <!-- Populated by voice-ui.js -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Language Cards Grid -->
+            <div id="voiceLanguageGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <!-- Populated by voice-ui.js -->
+            </div>
+            <!-- Response Voice Selection -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="audio-lines" class="w-5 h-5 text-emerald-400"></i>
+                <div>
+                  <h3 class="text-base font-bold text-slate-100">Response Voice</h3>
+                  <p class="text-xs text-slate-400">Pick the spoken voice used for replies in the selected language.</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="voiceCurrentBadge"
+                  class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Auto
+                  (Browser)</span>
+                <select id="voiceSelect" class="form-select text-xs font-semibold text-slate-100 min-w-[200px]">
+                  <!-- Populated by voice-ui.js -->
+                </select>
+              </div>
+            </div>
+
+            <div
+              class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+              <i data-lucide="info" class="w-3.5 h-3.5 inline text-sky-400 mr-1"></i>
+              Your language preference is saved automatically and restored on the next visit. Available voices depend on
+              your browser and operating system language packs.
+            </div>
+          </div>
+
+          <!-- Microphone Controls & Live Transcript -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Left: Microphone Controls -->
+            <div class="ards-card p-6 space-y-4">
+              <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="mic" class="w-5 h-5 text-fuchsia-400"></i>
+                <h3 class="text-base font-bold text-slate-100">Microphone Controls</h3>
+              </div>
+
+              <div id="voiceSupportWarning"
+                class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex items-start gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
+                <span>Speech Recognition is not supported in this browser. Use Chrome or Edge for full voice input.
+                  Spoken responses (text-to-speech) may still work.</span>
+              </div>
+
+              <div class="flex flex-col items-center justify-center py-5 space-y-3">
+                <button id="voiceAssistantBtn"
+                  class="w-20 h-20 rounded-full bg-sky-600 hover:bg-sky-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/30 transition"
+                  title="Start Listening">
+                  <i data-lucide="mic" class="w-8 h-8"></i>
+                </button>
+                <span id="listeningIndicator" class="text-xs font-semibold text-rose-400 h-4"></span>
+                <p class="text-xs text-slate-400 text-center max-w-xs">Click the microphone to start or stop voice
+                  recognition. You can also press <kbd
+                    class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300">Space</kbd>
+                  while this section is open.</p>
+              </div>
+
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="volume-2" class="w-4 h-4 text-emerald-400"></i>
+                  <span class="text-xs font-semibold text-slate-200">Spoken Voice Responses</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="voiceEnabledToggle" class="sr-only peer" checked>
+                  <div
+                    class="w-9 h-5 bg-slate-700 rounded-full transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition peer-checked:bg-emerald-500 peer-checked:after:translate-x-4">
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Right: Live Transcript & Command Examples -->
+            <div class="ards-card p-6 space-y-4">
+              <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="audio-lines" class="w-5 h-5 text-teal-400"></i>
+                <h3 class="text-base font-bold text-slate-100">Live Transcript & Voice Commands</h3>
+              </div>
+
+              <div id="voiceTranscript"
+                class="p-4 rounded-xl bg-black/60 border border-slate-800 font-mono text-xs text-slate-500 italic min-h-[64px]">
+                Recognized speech will appear here...
+              </div>
+
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Try saying:</span>
+                <ul id="voiceCommandExamples" class="mt-2 space-y-1.5 text-xs">
+                  <!-- Populated by voice-ui.js -->
+                </ul>
+              </div>
+
+              <div
+                class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+                <i data-lucide="info" class="w-3.5 h-3.5 inline text-sky-400 mr-1"></i>
+                Voice commands can query the current session, rehabilitation score, fatigue level, socket pressure, and
+                clinical recommendations, and can navigate between dashboard sections.
+              </div>
+            </div>
+
           </div>
 
         </section>
@@ -878,12 +1144,14 @@
 
   <!-- Modal: Add New Patient -->
   <!-- Modal: Add New Patient (CSV Import + Manual Entry) -->
-  <div id="modalAddPatient" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="ards-card bg-slate-900 border border-slate-700 w-full max-w-xl p-6 rounded-2xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+  <div id="modalAddPatient"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div
+      class="ards-card bg-slate-900 border border-slate-700 w-full max-w-xl p-6 rounded-2xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
           <i data-lucide="user-plus" class="w-5 h-5 text-sky-400"></i>
-          <h3 class="text-lg font-bold text-slate-100">Add Patient to ARDS</h3>
+          <h3 class="text-lg font-bold text-slate-100">Add Patient</h3>
         </div>
         <button id="btnCloseAddPatientModal" class="p-1 rounded-lg text-slate-400 hover:text-slate-200">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -892,11 +1160,13 @@
 
       <!-- Mode Selector Tabs -->
       <div class="flex items-center gap-2 p-1 bg-slate-800/80 rounded-xl border border-slate-700 text-xs">
-        <button type="button" id="tabBtnPatientCsv" class="flex-1 py-1.5 px-3 rounded-lg bg-sky-600 text-white font-bold transition flex items-center justify-center gap-1.5">
+        <button type="button" id="tabBtnPatientCsv"
+          class="flex-1 py-1.5 px-3 rounded-lg bg-sky-600 text-white font-bold transition flex items-center justify-center gap-1.5">
           <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
           <span>📂 Import from CSV File</span>
         </button>
-        <button type="button" id="tabBtnPatientManual" class="flex-1 py-1.5 px-3 rounded-lg text-slate-400 hover:text-slate-200 font-semibold transition flex items-center justify-center gap-1.5">
+        <button type="button" id="tabBtnPatientManual"
+          class="flex-1 py-1.5 px-3 rounded-lg text-slate-400 hover:text-slate-200 font-semibold transition flex items-center justify-center gap-1.5">
           <i data-lucide="edit-3" class="w-4 h-4"></i>
           <span>📝 Manual Form Entry</span>
         </button>
@@ -906,18 +1176,21 @@
       <div id="viewAddPatientCsv" class="space-y-3 text-xs">
         <div>
           <label class="font-semibold text-slate-300 block mb-1">Select CSV File from Computer:</label>
-          <input type="file" id="modalPatientCsvFile" accept=".csv" class="form-input w-full cursor-pointer file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sky-600 file:text-white file:font-semibold file:text-xs">
+          <input type="file" id="modalPatientCsvFile" accept=".csv"
+            class="form-input w-full cursor-pointer file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sky-600 file:text-white file:font-semibold file:text-xs">
         </div>
 
         <div class="relative flex py-1 items-center">
           <div class="flex-grow border-t border-slate-800"></div>
-          <span class="flex-shrink mx-2 text-[10px] uppercase font-semibold text-slate-500">OR PASTE CSV DATA BELOW</span>
+          <span class="flex-shrink mx-2 text-[10px] uppercase font-semibold text-slate-500">OR PASTE CSV DATA
+            BELOW</span>
           <div class="flex-grow border-t border-slate-800"></div>
         </div>
 
         <div>
           <label class="font-semibold text-slate-300 block mb-1">Paste CSV Content:</label>
-          <textarea id="modalPatientCsvText" rows="4" class="form-input w-full font-mono text-[11px]" placeholder="Patient,Session,Gait Speed,Symmetry,Force,Pressure,Stability,Fatigue&#10;P005,1,0.60,62,56,47,59,21&#10;P005,2,0.64,66,60,46,64,19"></textarea>
+          <textarea id="modalPatientCsvText" rows="4" class="form-input w-full font-mono text-[11px]"
+            placeholder="Patient,Session,Gait Speed,Symmetry,Force,Pressure,Stability,Fatigue&#10;P005,1,0.60,62,56,47,59,21&#10;P005,2,0.64,66,60,46,64,19"></textarea>
         </div>
 
         <!-- Optional Patient Metadata -->
@@ -926,7 +1199,8 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[11px] text-slate-400 block">Patient Full Name:</label>
-              <input type="text" id="csvPatientName" class="form-input w-full py-1 text-xs" placeholder="e.g. Jordan Hayes">
+              <input type="text" id="csvPatientName" class="form-input w-full py-1 text-xs"
+                placeholder="e.g. Jordan Hayes">
             </div>
             <div>
               <label class="text-[11px] text-slate-400 block">Amputation Type:</label>
@@ -944,8 +1218,10 @@
         <div id="modalCsvStatus"></div>
 
         <div class="pt-2 border-t border-slate-800 flex justify-end gap-2">
-          <button type="button" id="btnCancelAddPatientCsv" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Cancel</button>
-          <button type="button" id="btnSubmitImportPatientCsv" class="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold shadow-md shadow-teal-500/20 flex items-center gap-1.5">
+          <button type="button" id="btnCancelAddPatientCsv"
+            class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Cancel</button>
+          <button type="button" id="btnSubmitImportPatientCsv"
+            class="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold shadow-md shadow-teal-500/20 flex items-center gap-1.5">
             <i data-lucide="download-cloud" class="w-4 h-4"></i>
             <span>Import Patient &amp; Sessions</span>
           </button>
@@ -968,7 +1244,8 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Age</label>
-            <input type="number" id="newPatientAge" class="form-input w-full" placeholder="45" min="10" max="99" value="45">
+            <input type="number" id="newPatientAge" class="form-input w-full" placeholder="45" min="10" max="99"
+              value="45">
           </div>
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Amputation Type</label>
@@ -985,30 +1262,37 @@
 
         <div>
           <label class="font-semibold text-slate-300 block mb-1">Prosthetic Device Hardware</label>
-          <input type="text" id="newPatientProsthesis" class="form-input w-full" placeholder="e.g. Ottobock C-Leg / Endolite Blade" value="Modular Dynamic Prosthesis">
+          <input type="text" id="newPatientProsthesis" class="form-input w-full"
+            placeholder="e.g. Ottobock C-Leg / Endolite Blade" value="Modular Dynamic Prosthesis">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Attending Clinician</label>
-            <input type="text" id="newPatientClinician" class="form-input w-full" placeholder="Dr. Smith, PT, DPT" value="Dr. Rachel Thorne, PT, DPT">
+            <input type="text" id="newPatientClinician" class="form-input w-full" placeholder="Dr. Smith, PT, DPT"
+              value="Dr. Rachel Thorne, PT, DPT">
           </div>
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Target Ambulation Goal</label>
-            <input type="text" id="newPatientGoal" class="form-input w-full" placeholder="K3 Community Ambulation" value="Independent K3 gait cadence">
+            <input type="text" id="newPatientGoal" class="form-input w-full" placeholder="K3 Community Ambulation"
+              value="Independent K3 gait cadence">
           </div>
         </div>
 
         <div class="pt-2 border-t border-slate-800 flex justify-end gap-2">
-          <button type="button" id="btnCancelAddPatient" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold shadow-md shadow-sky-500/20">Save &amp; Switch Patient</button>
+          <button type="button" id="btnCancelAddPatient"
+            class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Cancel</button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold shadow-md shadow-sky-500/20">Save
+            &amp; Switch Patient</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Modal: Add New Session Record -->
-  <div id="modalAddSession" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <div id="modalAddSession"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="ards-card bg-slate-900 border border-slate-700 w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
@@ -1021,7 +1305,8 @@
       </div>
 
       <form id="formAddSession" class="space-y-3 text-xs">
-        <div class="p-2.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-300 font-semibold" id="newSessionPatientLabel">
+        <div class="p-2.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-300 font-semibold"
+          id="newSessionPatientLabel">
           Recording session for patient...
         </div>
 
@@ -1032,35 +1317,43 @@
           </div>
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Stance Symmetry (%)</label>
-            <input type="number" step="1" id="newSesSymm" class="form-input w-full" value="70" min="0" max="100" required>
+            <input type="number" step="1" id="newSesSymm" class="form-input w-full" value="70" min="0" max="100"
+              required>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Force Control (%)</label>
-            <input type="number" step="1" id="newSesForce" class="form-input w-full" value="65" min="0" max="100" required>
+            <input type="number" step="1" id="newSesForce" class="form-input w-full" value="65" min="0" max="100"
+              required>
           </div>
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Stability Index (%)</label>
-            <input type="number" step="1" id="newSesStab" class="form-input w-full" value="68" min="0" max="100" required>
+            <input type="number" step="1" id="newSesStab" class="form-input w-full" value="68" min="0" max="100"
+              required>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Socket Pressure (kPa)</label>
-            <input type="number" step="1" id="newSesPress" class="form-input w-full" value="46" min="10" max="100" required>
+            <input type="number" step="1" id="newSesPress" class="form-input w-full" value="46" min="10" max="100"
+              required>
           </div>
           <div>
             <label class="font-semibold text-slate-300 block mb-1">Fatigue Exertion (%)</label>
-            <input type="number" step="1" id="newSesFatigue" class="form-input w-full" value="20" min="0" max="100" required>
+            <input type="number" step="1" id="newSesFatigue" class="form-input w-full" value="20" min="0" max="100"
+              required>
           </div>
         </div>
 
         <div class="pt-2 border-t border-slate-800 flex justify-end gap-2">
-          <button type="button" id="btnCancelAddSession" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-500/20">Save &amp; Analyze</button>
+          <button type="button" id="btnCancelAddSession"
+            class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Cancel</button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-500/20">Save
+            &amp; Analyze</button>
         </div>
       </form>
     </div>
@@ -1183,7 +1476,14 @@
             <div class="flex-grow border-t border-slate-800"></div>
           </div>
 
-          <!-- Alert / Error message container -->
+          <!-- AI Assistant live clinician recognition -->
+            <div id="authAiLine"
+              class="flex items-center gap-2 text-[11px] font-medium text-sky-400/90 leading-snug">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              <span>AI Assistant: enter a registered Clinician ID, or click a 1-click clinician card for instant sign-in.</span>
+            </div>
+
+            <!-- Alert / Error message container -->
           <div id="authAlertBox" class="hidden p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
             <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 flex-shrink-0"></i>
             <span id="authAlertText">Authentication error message here</span>
@@ -1309,11 +1609,52 @@
   </div>
 
   <!-- Core JavaScript Modules -->
-  <script src="js/data.js"></script>
+    <script src="js/data.js"></script>
+  <script src="js/clinical-reference.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/pipeline.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/voice-assistant.js"></script>
+  <script src="js/voice-ui.js"></script>
+  <script src="js/chatbot.js"></script>
+
+  <!-- Responsive navigation glue (UI-only: off-canvas sidebar open/close) -->
+  <script>
+    (function () {
+      var body = document.body;
+      var toggle = document.getElementById('mobileMenuToggle');
+      var backdrop = document.getElementById('sidebarBackdrop');
+
+      function setSidebar(open) {
+        body.classList.toggle('sidebar-open', open);
+        if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          setSidebar(!body.classList.contains('sidebar-open'));
+        });
+      }
+      if (backdrop) {
+        backdrop.addEventListener('click', function () { setSidebar(false); });
+      }
+
+      // Close the drawer after choosing a section (mobile/tablet only)
+      document.addEventListener('click', function (e) {
+        if (e.target && e.target.closest && e.target.closest('.nav-btn') &&
+            window.matchMedia('(max-width: 1024px)').matches) {
+          setSidebar(false);
+        }
+      });
+
+      // Reset drawer state when returning to desktop widths
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 1024) setSidebar(false);
+      });
+    })();
+  </script>
 </body>
+
 </html>
