@@ -68,6 +68,7 @@
 
         populateLanguageGrid();
         renderCommandExamples();
+        updateVoiceUI();
     }
 
     function applyLanguage(langCode) {
@@ -83,8 +84,12 @@
             if (display) {
                 display.classList.remove('italic', 'text-slate-500', 'text-rose-300');
                 display.classList.add('text-slate-300');
-                display.textContent = `${assistant.translate('selectLanguage')}: ${assistant.currentLanguage}`;
+                display.textContent = `${assistant.translate('languageChanged')} (${assistant.currentLanguage})`;
             }
+
+            // Speak a confirmation in the newly selected language so the user
+            // immediately hears the TTS voice for that language.
+            assistant.speak(assistant.translate('languageChanged'));
         }
     }
 
@@ -188,6 +193,57 @@
     }
 
     /* ----------------------------------------------------
+     * RESPONSE VOICE SELECTION
+     * -------------------------------------------------- */
+    function populateVoiceSelect() {
+        const assistant = getAssistant();
+        const select = document.getElementById('voiceSelect');
+        if (!assistant || !select) return;
+
+        const voices = assistant.getAvailableVoices();
+        if (!voices.length) {
+            select.innerHTML = '<option value="">Auto (Browser)</option>';
+            updateVoiceBadge();
+            return;
+        }
+
+        const langHint = String(assistant.currentLanguage || 'en-US').split('-')[0].toLowerCase();
+        const matchesLang = (v) => String(v.lang || '').toLowerCase().split('-')[0] === langHint;
+        const options = voices.some(matchesLang) ? voices.filter(matchesLang) : voices;
+
+        const currentUri = assistant.currentVoice;
+        select.innerHTML =
+            '<option value="">Auto (Browser)</option>' +
+            options.map((v) =>
+                '<option value="' + v.uri + '"' +
+                (v.uri === currentUri ? ' selected' : '') +
+                '>' + v.name + (v.localService ? ' · System' : '') + ' (' + v.lang + ')</option>'
+            ).join('');
+
+        select.onchange = (e) => {
+            assistant.setVoice(e.target.value || null);
+            updateVoiceBadge();
+        };
+    }
+
+    function updateVoiceBadge() {
+        const assistant = getAssistant();
+        const badge = document.getElementById('voiceCurrentBadge');
+        if (!assistant || !badge) return;
+        const voice = assistant.getCurrentVoice();
+        if (assistant.currentVoice) {
+            badge.textContent = voice ? voice.name + ' · ' + voice.lang : 'Saved (unavailable)';
+        } else {
+            badge.textContent = voice ? 'Auto · ' + voice.name + ' · ' + voice.lang : 'Auto (Browser)';
+        }
+    }
+
+    function updateVoiceUI() {
+        populateVoiceSelect();
+        updateVoiceBadge();
+    }
+
+    /* ----------------------------------------------------
      * INIT
      * -------------------------------------------------- */
     function initVoiceSection() {
@@ -199,11 +255,26 @@
 
         enhanceTranscriptDisplay(assistant);
         populateLanguageSelect();
+        populateVoiceSelect();
         updateLanguageUI();
         setupMicButton();
         setupVoiceToggle();
         setupKeyboardShortcut();
         checkBrowserSupport();
+
+        // Refresh the voice dropdown once browser voices become available (they load async).
+        const synth = assistant.speechSynthesis;
+        if (synth && typeof synth.addEventListener === 'function') {
+            synth.addEventListener('voiceschanged', () => {
+                populateVoiceSelect();
+                updateVoiceBadge();
+            });
+        } else if (synth) {
+            synth.onvoiceschanged = function () {
+                populateVoiceSelect();
+                updateVoiceBadge();
+            };
+        }
 
         if (window.lucide && typeof window.lucide.createIcons === 'function') {
             try { lucide.createIcons(); } catch (e) { /* noop */ }
