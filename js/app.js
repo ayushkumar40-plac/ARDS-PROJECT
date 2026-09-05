@@ -2060,3 +2060,143 @@ if (document.readyState === 'loading') {
   initARDSApp();
 }
 
+// ========================================================
+// STEP 2: MQTT REAL-TIME HARDWARE CONNECTION
+// ========================================================
+
+// 1. Connection settings (Uses WSS port 8884 for HTTPS/Vercel)
+const brokerUrl = 'wss://broker.hivemq.com:8884/mqtt';
+
+// Unique topics to avoid matching other public broker users
+const TOPIC_TELEMETRY = 'ards_project/device/telemetry';
+const TOPIC_COMMANDS = 'ards_project/device/commands';
+
+// Holds the MQTT client instance (stays null if the CDN library failed to load)
+let mqttClient = null;
+
+if (typeof mqtt === 'undefined') {
+  console.warn('⚠️ MQTT library not loaded — check the CDN <script> tag in index.html <head>. Hardware link disabled.');
+} else {
+  // 2. Initialize the MQTT client
+  mqttClient = mqtt.connect(brokerUrl);
+  window.mqttClient = mqttClient; // exposed for debugging in the browser console
+
+  // Event: Triggered when successfully connected to the broker
+  mqttClient.on('connect', () => {
+    console.log('✅ Connected to MQTT Broker via WSS (Vercel Ready)');
+    updateMqttStatus('online', 'Connected to broker');
+
+    // Subscribe to receive data coming from ESP32
+    mqttClient.subscribe(TOPIC_TELEMETRY, (err) => {
+      if (!err) {
+        console.log(`📡 Subscribed to telemetry topic: ${TOPIC_TELEMETRY}`);
+      }
+    });
+  });
+
+  // Event: Connection lifecycle updates (reflected in the Device Control card)
+  mqttClient.on('reconnect', () => updateMqttStatus('reconnecting', 'Reconnecting…'));
+  mqttClient.on('close', () => updateMqttStatus('offline', 'Disconnected'));
+  mqttClient.on('error', (err) => {
+    console.error('⚠️ MQTT connection error:', err);
+    updateMqttStatus('error', 'Connection error');
+  });
+
+  // Event: Triggered whenever the ESP32 sends new data
+  mqttClient.on('message', (topic, message) => {
+    if (topic === TOPIC_TELEMETRY) {
+      try {
+        const data = JSON.parse(message.toString());
+        console.log('📥 Live ESP32 Sensor Data:', data);
+
+        // --- ROUTE DATA TO YOUR EXISTING MODULES ---
+
+        // Pass data to engine.js if you have a processing function
+        if (typeof processEngineData === 'function') {
+          processEngineData(data);
+        }
+
+        // Pass data to charts.js if you have a chart updater
+        if (typeof updateCharts === 'function' && data.value !== undefined) {
+          updateCharts(data.value);
+        }
+
+        // Live telemetry readout in the Device Control card (Home tab)
+        appendMqttLog(data);
+
+      } catch (error) {
+        console.error('⚠️ Error parsing incoming JSON data:', error);
+      }
+    }
+  });
+}
+
+// 3. Helper function to send commands back to the ESP32 hardware
+function sendHardwareCommand(actionName, payloadValue = null) {
+  if (mqttClient && mqttClient.connected) {
+    const payload = JSON.stringify({
+      action: actionName,
+      value: payloadValue,
+      timestamp: Date.now()
+    });
+
+    mqttClient.publish(TOPIC_COMMANDS, payload);
+    console.log('📤 Command sent to ESP32:', payload);
+    appendMqttLog({ sent: actionName, value: payloadValue }, true);
+  } else {
+    console.warn('⚠️ MQTT client is not connected yet!');
+  }
+}
+
+// Ensure the function is reachable from inline onclick="" attributes
+window.sendHardwareCommand = sendHardwareCommand;
+
+/* ----------------------------------------------------
+ * MQTT UI HELPERS (Device Control card on the Home tab)
+ * -------------------------------------------------- */
+function updateMqttStatus(state, detail) {
+  const dot = document.getElementById('mqttStatusDot');
+  const text = document.getElementById('mqttStatusText');
+  if (!dot || !text) return;
+
+  const styles = {
+    online: ['bg-emerald-500', 'text-emerald-400'],
+    reconnecting: ['bg-amber-400 animate-pulse', 'text-amber-400'],
+    offline: ['bg-slate-600', 'text-slate-500'],
+    error: ['bg-rose-500', 'text-rose-400']
+  };
+  const [dotClass, textClass] = styles[state] || styles.offline;
+
+  dot.className = `w-2.5 h-2.5 rounded-full ${dotClass}`;
+  text.className = `text-xs font-mono ${textClass}`;
+  text.textContent = detail;
+}
+
+function appendMqttLog(data, isCommand = false) {
+  const feed = document.getElementById('mqttLogFeed');
+  if (!feed) return;
+
+  const time = new Date().toLocaleTimeString();
+  const line = document.createElement('div');
+  line.className = isCommand ? 'text-amber-300' : 'text-slate-300';
+  line.textContent = `[${time}] ${isCommand ? '📤 TX' : '📥 RX'} ${JSON.stringify(data)}`;
+
+  feed.appendChild(line);
+  while (feed.children.length > 30) feed.removeChild(feed.firstChild);
+  feed.scrollTop = feed.scrollHeight;
+
+  const stamp = document.getElementById('mqttLastPayloadTime');
+  if (stamp && !isCommand) stamp.textContent = `Last packet: ${time}`;
+}
+
+// Render the lucide icons inside the Device Control card once the DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      lucide.createIcons();
+    }
+  });
+} else if (window.lucide && typeof window.lucide.createIcons === 'function') {
+  lucide.createIcons();
+}
+

@@ -35,7 +35,7 @@ check('logout button present', html.includes('id="btnLogout"'));
 check('auth.js script tag present', html.includes('js/auth.js'));
 check('auth.js loads before app.js',
     html.indexOf('js/auth.js') !== -1 &&
-    html.indexOf('js/auth.js') < html.indexOf('js/app.js'));
+    html.indexOf('js/auth.js') < html.lastIndexOf('js/app.js'));
 check('custom stylesheet linked', html.includes('css/styles.css'));
 
 // 3. CSS checks

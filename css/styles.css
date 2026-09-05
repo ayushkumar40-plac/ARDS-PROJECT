@@ -1022,6 +1022,13 @@ body::after {
   overflow-y: auto;
 }
 
+/* Defense-in-depth: once the dashboard is unlocked (no .auth-locked on
+   <body>), the auth overlay must never render — over or inside the
+   dashboard layout — even if a script error leaves stale classes behind. */
+body:not(.auth-locked) .login-screen {
+  display: none !important;
+}
+
 .login-orbs {
   position: absolute;
   inset: 0;
@@ -1083,6 +1090,107 @@ body::after {
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
+
+.login-portal-card {
+  max-width: 850px;
+  padding: 2.5rem;
+}
+
+.login-split-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+@media (min-width: 768px) {
+  .login-split-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .login-quickfill-section {
+    flex: 1;
+    min-width: 0;
+  }
+  .login-manual-section {
+    flex: 0 0 340px;
+  }
+}
+
+.clinician-quickfill-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .clinician-quickfill-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.quickfill-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.quickfill-card:hover {
+  background: var(--bg-surface-elevated);
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.avatar-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: inherit;
+  z-index: -1;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-card);
+}
+
+.login-divider span {
+  padding: 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+@media (min-width: 768px) {
+  .login-divider {
+    display: none;
+  }
+  .login-manual-section {
+    border-left: 1px solid var(--border-card);
+    padding-left: 2.5rem;
+  }
+}
+
 
 .login-brand {
   display: flex;
@@ -1450,21 +1558,17 @@ select.login-input {
 .login-form .gap-3 { gap: 0.75rem; }
 
 /* ==========================================================================
-   AUTH GATE — DASHBOARD LOCKING
-   ------------------------------
-   Login screen overlays the dashboard; while authenticated the login screen
+/* --- Auth & Gating ---
+   When unlocked, the app is visible and the login screen overlay
    is hidden, while locked (body.auth-locked) the dashboard content and
-   floating chatbots are hidden so nothing is visible behind the modal.
-   ========================================================================== */
+   sidebar are hidden so the login screen acts as a dedicated portal view.
+*/
 body.auth-locked {
   overflow: hidden;
 }
 
-body.auth-locked .app-header,
-body.auth-locked .app-sidebar,
-body.auth-locked .content-wrapper {
-  visibility: hidden;
-  pointer-events: none;
+body.auth-locked .app-container {
+  display: none !important;
 }
 
 body.auth-locked .ards-chatbot-root {
@@ -2471,3 +2575,118 @@ body.auth-locked .ards-chatbot-root {
   background: var(--color-primary-subtle);
   color: var(--text-heading);
 }
+
+/* ==========================================================================
+   GAIT AI INSIGHTS SECTION (additive module — js/ai-insights.js)
+   ========================================================================== */
+.ards-ai-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  padding: 1.15rem 1.35rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-card), var(--shadow-inset);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+}
+
+.ards-ai-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.ards-ai-title-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--color-violet);
+  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.45));
+}
+
+.ards-ai-subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  max-width: 62ch;
+}
+
+.ards-ai-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ards-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.52rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-card);
+  background: var(--bg-surface-elevated);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--t-fast), box-shadow var(--t-fast),
+              background-color var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+}
+
+.ards-ai-btn svg { width: 15px; height: 15px; }
+
+.ards-ai-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-active);
+  color: var(--text-heading);
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.45), var(--shadow-glow);
+}
+
+.ards-ai-btn:active { transform: translateY(0); }
+
+.ards-ai-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.ards-ai-btn-ghost { background: transparent; }
+
+.ards-ai-btn-primary,
+.ards-ai-btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-teal));
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.ards-ai-btn-primary:hover { box-shadow: 0 8px 22px -6px rgba(14, 165, 233, 0.55); }
+
+.ards-ai-status {
+  min-height: 1.1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.ards-ai-status:not(:empty) {
+  padding: 0.55rem 0.9rem;
+  border-radius: 10px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.ards-ai-status-err { color: var(--color-rose); border-color: var(--color-rose-subtle) !important; }
+/* <<AI_CSS_APPEND>> */
+

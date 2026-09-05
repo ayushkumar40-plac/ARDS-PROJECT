@@ -41,6 +41,9 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Load MQTT library via CDN (must load before js/app.js uses it) -->
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
   <!-- Custom Clinical Stylesheet -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -58,149 +61,220 @@
       <span class="login-orb login-orb-3"></span>
     </div>
 
-    <div id="loginCard" class="login-card">
-      <!-- Brand Header -->
-      <div class="login-brand">
-        <div
-          class="ards-logo ards-logo-lg w-12 h-12 rounded-2xl flex items-center justify-center text-white flex-shrink-0"
-          aria-hidden="true">
-          <svg class="ards-logo-ecg" viewBox="0 0 36 36" fill="none">
-            <path d="M5 19h6l3-8 4 14 3.5-9.5L23 19h8"></path>
-          </svg>
-        </div>
-        <div class="flex flex-col min-w-0">
-          <div class="flex items-center gap-1.5">
-            <span class="ards-wordmark text-lg leading-tight">Adaptive Rehabilitation</span>
-            <span
-              class="flex-shrink-0 px-1.5 py-0.2 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30">PROTOTYPE</span>
+    <div id="loginCard" class="login-card login-portal-card">
+      <!-- Portal Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div class="login-brand mb-0">
+          <div class="ards-logo ards-logo-lg w-12 h-12 rounded-2xl flex items-center justify-center text-white flex-shrink-0" aria-hidden="true">
+            <svg class="ards-logo-ecg" viewBox="0 0 36 36" fill="none">
+              <path d="M5 19h6l3-8 4 14 3.5-9.5L23 19h8"></path>
+            </svg>
           </div>
-          <span class="ards-wordmark text-lg leading-tight">Decision Support System</span>
-          <span class="text-[11px] text-slate-400 truncate mt-0.5">Clinical Decision Support for Prosthetic Rehabilitation</span>
+          <div class="flex flex-col min-w-0">
+            <h1 class="text-2xl font-bold text-slate-100 leading-tight tracking-tight">Clinician Access Portal</h1>
+            <span class="text-sm text-slate-400 mt-1">Authenticate to access patient telemetry and AI decision protocols.</span>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>System Operational</span>
         </div>
       </div>
 
-      <!-- Auth Mode Tabs -->
-      <div class="login-tabs" role="tablist">
-        <button type="button" id="loginTabSignin" class="login-tab login-tab-active" role="tab">
-          <i data-lucide="log-in" class="w-3.5 h-3.5"></i><span>Sign In</span>
-        </button>
-        <button type="button" id="loginTabRegister" class="login-tab" role="tab">
-          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i><span>Create Account</span>
-        </button>
-      </div>
-
-      <!-- Status Message -->
-      <div id="loginMessage" class="login-message hidden"></div>
-
-      <!-- SIGN IN FORM -->
-      <form id="loginFormSignin" class="login-form" novalidate>
-        <div class="login-field">
-          <label for="loginEmail">Email Address</label>
-          <div class="login-input-wrap">
-            <i data-lucide="mail" class="login-input-icon"></i>
-            <input type="email" id="loginEmail" class="login-input" placeholder="clinician@ards.demo"
-              autocomplete="username" spellcheck="false">
+      <div class="login-split-layout">
+        <!-- Left: Quick-Fill Options -->
+        <div class="login-quickfill-section">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+              1-Click Clinician Quick-Fill:
+            </h3>
+            <span class="text-[10px] text-slate-500">Select any role to test</span>
           </div>
-        </div>
+          
+          <div class="clinician-quickfill-grid">
+            <!-- Clinician 1 -->
+            <button type="button" class="quickfill-card" onclick="window.fillDemo('clinician@ards.demo', 'ards123', 'Clinician')">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0 border-2 border-slate-800 relative overflow-hidden">
+                <img src="assets/avatar-rachel.jpg" onerror="this.style.display='none'" alt="Avatar" class="absolute inset-0 w-full h-full object-cover">
+                <span class="avatar-fallback">RT</span>
+              </div>
+              <div class="flex flex-col text-left overflow-hidden min-w-0">
+                <span class="text-sm font-bold text-slate-200 truncate">Dr. Rachel Thorne</span>
+                <span class="text-[11px] text-slate-400 truncate">Physical Therapist</span>
+              </div>
+              <div class="ml-auto flex-shrink-0">
+                <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30">PT Lead</span>
+              </div>
+            </button>
 
-        <div class="login-field">
-          <label for="loginPassword">Password</label>
-          <div class="login-input-wrap">
-            <i data-lucide="lock" class="login-input-icon"></i>
-            <input type="password" id="loginPassword" class="login-input" placeholder="Enter your password"
-              autocomplete="current-password">
-            <button type="button" id="toggleLoginPassword" class="login-pw-toggle" title="Show / hide password"
-              aria-label="Toggle password visibility">
-              <i data-lucide="eye" class="w-4 h-4"></i>
+            <!-- Clinician 2 -->
+            <button type="button" class="quickfill-card" onclick="window.fillDemo('samuel.vance@ards.demo', 'ards123', 'Researcher')">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-400 flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0 border-2 border-slate-800 relative overflow-hidden">
+                <img src="assets/avatar-samuel.jpg" onerror="this.style.display='none'" alt="Avatar" class="absolute inset-0 w-full h-full object-cover">
+                <span class="avatar-fallback">SV</span>
+              </div>
+              <div class="flex flex-col text-left overflow-hidden min-w-0">
+                <span class="text-sm font-bold text-slate-200 truncate">Dr. Samuel Vance</span>
+                <span class="text-[11px] text-slate-400 truncate">Prosthetist Specialist</span>
+              </div>
+              <div class="ml-auto flex-shrink-0">
+                <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">CPO</span>
+              </div>
+            </button>
+
+            <!-- Clinician 3 -->
+            <button type="button" class="quickfill-card" onclick="window.fillDemo('kevin.patel@ards.demo', 'ards123', 'Administrator')">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-500 to-orange-400 flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0 border-2 border-slate-800 relative overflow-hidden">
+                <img src="assets/avatar-kevin.jpg" onerror="this.style.display='none'" alt="Avatar" class="absolute inset-0 w-full h-full object-cover">
+                <span class="avatar-fallback">KP</span>
+              </div>
+              <div class="flex flex-col text-left overflow-hidden min-w-0">
+                <span class="text-sm font-bold text-slate-200 truncate">Dr. Kevin Patel</span>
+                <span class="text-[11px] text-slate-400 truncate">Medical Director</span>
+              </div>
+              <div class="ml-auto flex-shrink-0">
+                <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Physiatrist MD</span>
+              </div>
+            </button>
+
+            <!-- Clinician 4 -->
+            <button type="button" class="quickfill-card" onclick="window.fillDemo('elena.woods@ards.demo', 'ards123', 'Administrator')">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-fuchsia-500 to-pink-400 flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0 border-2 border-slate-800 relative overflow-hidden">
+                <img src="assets/avatar-elena.jpg" onerror="this.style.display='none'" alt="Avatar" class="absolute inset-0 w-full h-full object-cover">
+                <span class="avatar-fallback">EW</span>
+              </div>
+              <div class="flex flex-col text-left overflow-hidden min-w-0">
+                <span class="text-sm font-bold text-slate-200 truncate">Dr. Elena Woods</span>
+                <span class="text-[11px] text-slate-400 truncate">Clinical Auditor</span>
+              </div>
+              <div class="ml-auto flex-shrink-0">
+                <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/30">System Admin</span>
+              </div>
             </button>
           </div>
         </div>
 
-        <div class="flex items-center justify-between gap-2 flex-wrap">
-          <label class="login-remember">
-            <input type="checkbox" id="loginRemember" checked>
-            <span>Keep me signed in</span>
-          </label>
-          <button type="button" id="btnFillDemo" class="login-link-btn">
-            <i data-lucide="sparkles" class="w-3 h-3"></i> Use demo account
-          </button>
-        </div>
-
-        <button type="submit" id="btnLoginSubmit" class="login-submit">
-          <i data-lucide="log-in" class="w-4 h-4"></i>
-          <span>Sign In to Dashboard</span>
-        </button>
-      </form>
-
-      <!-- REGISTER FORM -->
-      <form id="loginFormRegister" class="login-form hidden" novalidate>
-        <div class="login-field">
-          <label for="registerName">Full Name</label>
-          <div class="login-input-wrap">
-            <i data-lucide="user" class="login-input-icon"></i>
-            <input type="text" id="registerName" class="login-input" placeholder="Dr. Jane Doe" autocomplete="name">
+        <!-- Right: Manual Credentials -->
+        <div class="login-manual-section">
+          <div class="login-divider">
+            <span>OR MANUAL CREDENTIALS</span>
           </div>
-        </div>
 
-        <div class="login-field">
-          <label for="registerEmail">Email Address</label>
-          <div class="login-input-wrap">
-            <i data-lucide="mail" class="login-input-icon"></i>
-            <input type="email" id="registerEmail" class="login-input" placeholder="you@hospital.org"
-              autocomplete="email" spellcheck="false">
+          <!-- Auth Mode Tabs -->
+          <div class="login-tabs" role="tablist">
+            <button type="button" id="loginTabSignin" class="login-tab login-tab-active" role="tab">
+              <i data-lucide="log-in" class="w-3.5 h-3.5"></i><span>Sign In</span>
+            </button>
+            <button type="button" id="loginTabRegister" class="login-tab" role="tab">
+              <i data-lucide="user-plus" class="w-3.5 h-3.5"></i><span>Register</span>
+            </button>
           </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div class="login-field">
-            <label for="registerPassword">Password</label>
-            <div class="login-input-wrap">
-              <i data-lucide="lock" class="login-input-icon"></i>
-              <input type="password" id="registerPassword" class="login-input" placeholder="Min. 6 characters"
-                autocomplete="new-password">
+          <!-- Status Message -->
+          <div id="loginMessage" class="login-message hidden"></div>
+
+          <!-- SIGN IN FORM -->
+          <form id="loginFormSignin" class="login-form" novalidate>
+            <div class="login-field">
+              <label for="loginEmail">Clinician ID or Email</label>
+              <div class="login-input-wrap">
+                <i data-lucide="mail" class="login-input-icon"></i>
+                <input type="email" id="loginEmail" class="login-input" placeholder="clinician@ards.demo"
+                  autocomplete="username" spellcheck="false">
+              </div>
             </div>
-          </div>
-          <div class="login-field">
-            <label for="registerConfirm">Confirm</label>
-            <div class="login-input-wrap">
-              <i data-lucide="shield-check" class="login-input-icon"></i>
-              <input type="password" id="registerConfirm" class="login-input" placeholder="Repeat password"
-                autocomplete="new-password">
+
+            <div class="login-field">
+              <label for="loginPassword">Access Passcode</label>
+              <div class="login-input-wrap">
+                <i data-lucide="lock" class="login-input-icon"></i>
+                <input type="password" id="loginPassword" class="login-input" placeholder="Enter your passcode"
+                  autocomplete="current-password">
+                <button type="button" id="toggleLoginPassword" class="login-pw-toggle" title="Show / hide password"
+                  aria-label="Toggle password visibility">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div class="login-field">
-          <label for="registerRole">Clinical Role</label>
-          <div class="login-input-wrap">
-            <i data-lucide="stethoscope" class="login-input-icon"></i>
-            <select id="registerRole" class="login-input">
-              <option value="Clinician">Clinician / Physiotherapist</option>
-              <option value="Researcher">Researcher</option>
-              <option value="Administrator">Administrator</option>
-            </select>
-          </div>
-        </div>
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-2 mt-1">
+              <label class="login-remember">
+                <input type="checkbox" id="loginRemember" checked>
+                <span>Keep me signed in</span>
+              </label>
+              <button type="button" id="btnFillDemo" class="login-link-btn hidden">
+                <i data-lucide="sparkles" class="w-3 h-3"></i> Fill Demo
+              </button>
+            </div>
 
-        <button type="submit" id="btnRegisterSubmit" class="login-submit">
-          <i data-lucide="user-plus" class="w-4 h-4"></i>
-          <span>Create Account & Continue</span>
-        </button>
-      </form>
+            <button type="submit" id="btnLoginSubmit" class="login-submit">
+              <i data-lucide="log-in" class="w-4 h-4"></i>
+              <span>Authenticate & Enter Dashboard</span>
+            </button>
+          </form>
 
-      <!-- Demo Credentials Hint -->
-      <div class="login-demo-box">
-        <i data-lucide="key-round" class="w-4 h-4 text-amber-400 flex-shrink-0"></i>
-        <div class="text-[11px] leading-relaxed text-slate-300">
-          <span class="font-bold text-slate-200">Demo access:</span>
-          <code class="login-demo-cred">clinician@ards.demo</code> /
-          <code class="login-demo-cred">ards123</code>
+          <!-- REGISTER FORM -->
+          <form id="loginFormRegister" class="login-form hidden" novalidate>
+            <div class="login-field">
+              <label for="registerName">Full Name</label>
+              <div class="login-input-wrap">
+                <i data-lucide="user" class="login-input-icon"></i>
+                <input type="text" id="registerName" class="login-input" placeholder="Dr. Jane Doe" autocomplete="name">
+              </div>
+            </div>
+
+            <div class="login-field">
+              <label for="registerEmail">Email Address</label>
+              <div class="login-input-wrap">
+                <i data-lucide="mail" class="login-input-icon"></i>
+                <input type="email" id="registerEmail" class="login-input" placeholder="you@hospital.org"
+                  autocomplete="email" spellcheck="false">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="login-field">
+                <label for="registerPassword">Password</label>
+                <div class="login-input-wrap">
+                  <i data-lucide="lock" class="login-input-icon"></i>
+                  <input type="password" id="registerPassword" class="login-input" placeholder="Min. 6 characters"
+                    autocomplete="new-password">
+                </div>
+              </div>
+              <div class="login-field">
+                <label for="registerConfirm">Confirm</label>
+                <div class="login-input-wrap">
+                  <i data-lucide="shield-check" class="login-input-icon"></i>
+                  <input type="password" id="registerConfirm" class="login-input" placeholder="Repeat password"
+                    autocomplete="new-password">
+                </div>
+              </div>
+            </div>
+
+            <div class="login-field">
+              <label for="registerRole">Clinical Role</label>
+              <div class="login-input-wrap">
+                <i data-lucide="stethoscope" class="login-input-icon"></i>
+                <select id="registerRole" class="login-input">
+                  <option value="Clinician">Clinician / Physiotherapist</option>
+                  <option value="Researcher">Researcher</option>
+                  <option value="Administrator">Administrator</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" id="btnRegisterSubmit" class="login-submit">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span>Create Account & Continue</span>
+            </button>
+          </form>
         </div>
       </div>
 
-      <p class="login-footer">
+      <p class="login-footer mt-8">
         <i data-lucide="shield-alert" class="w-3 h-3 inline text-amber-400"></i>
-        Research prototype — sign-in is simulated locally in your browser and no data leaves this device.
+        ARDS Secure Research Prototype — 256-bit Encrypted Local Session. No patient telemetry leaves this device.
       </p>
     </div>
   </div>
@@ -252,31 +326,36 @@
           <span>4. AI Explanation (XAI)</span>
         </button>
 
+        <button class="nav-btn" data-tab="aiinsights" id="nav-btn-aiinsights" onclick="window.switchTab('aiinsights')">
+          <i data-lucide="sparkles" class="w-4 h-4 text-violet-300"></i>
+          <span>5. Gait AI Insights</span>
+        </button>
+
         <button class="nav-btn" data-tab="alerts" id="nav-btn-alerts" onclick="window.switchTab('alerts')">
           <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
-          <span>5. Alerts & Feed</span>
+          <span>6. Alerts & Feed</span>
           <span id="navAlertBadge"
             class="ml-auto px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-rose-500 text-white hidden">0</span>
         </button>
 
         <button class="nav-btn" data-tab="decision" id="nav-btn-decision" onclick="window.switchTab('decision')">
           <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400"></i>
-          <span>6. Decision & Safety Log</span>
+          <span>7. Decision & Safety Log</span>
         </button>
 
         <button class="nav-btn" data-tab="reports" id="nav-btn-reports" onclick="window.switchTab('reports')">
           <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
-          <span>7. Clinical Reports</span>
+          <span>8. Clinical Reports</span>
         </button>
 
         <button class="nav-btn" data-tab="voice" id="nav-btn-voice" onclick="window.switchTab('voice')">
           <i data-lucide="mic" class="w-4 h-4 text-fuchsia-400"></i>
-          <span>8. Voice & Language</span>
+          <span>9. Voice & Language</span>
         </button>
 
         <button class="nav-btn" data-tab="about" id="nav-btn-about" onclick="window.switchTab('about')">
           <i data-lucide="info" class="w-4 h-4 text-slate-400"></i>
-          <span>9. About & Disclaimer</span>
+          <span>10. About & Disclaimer</span>
         </button>
       </nav>
 
@@ -333,11 +412,12 @@
             <span>Sensor Sync Active</span>
           </div>
 
-          <!-- User Account Chip (managed by js/auth.js) — click to view / edit profile -->
-          <div id="userChip" class="hidden items-center gap-2.5 pl-3 border-l border-slate-700/60">
-            <button id="btnProfileChip" type="button"
-              class="flex items-center gap-2.5 rounded-xl hover:bg-slate-800/60 transition p-1 pr-2 text-left"
-              title="View &amp; edit my doctor profile">
+          <!-- User Account Chip — Profile Dropdown (managed by js/auth.js) -->
+          <div id="userChip" class="hidden items-center pl-3 border-l border-slate-700/60 relative">
+            <!-- Trigger button -->
+            <button id="btnProfileChip" type="button" aria-haspopup="true" aria-expanded="false"
+              class="flex items-center gap-2.5 rounded-xl hover:bg-slate-800/60 transition p-1 pr-2 text-left group"
+              title="Clinician profile &amp; options">
               <div id="userAvatar"
                 class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white text-[11px] font-bold shadow-md shadow-sky-500/20 flex-shrink-0">
                 --
@@ -345,21 +425,80 @@
               <div class="hidden md:flex flex-col leading-tight">
                 <span id="userName" class="text-xs font-bold text-slate-100 max-w-[150px] truncate">—</span>
                 <span id="userRole" class="text-[10px] text-slate-400">—</span>
-                <span id="userDoctorId" class="text-[9px] font-mono text-teal-300/80 tracking-wide">—</span>
               </div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 hidden md:block ml-0.5 group-aria-expanded:rotate-180 transition-transform"></i>
             </button>
 
-            <button id="btnOpenProfile"
-              class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
-              title="My Profile &amp; Doctor ID">
-              <i data-lucide="user-pen" class="w-4 h-4"></i>
-            </button>
+            <!-- Dropdown panel -->
+            <div id="profileDropdown"
+              class="hidden absolute right-0 top-[calc(100%+8px)] w-72 z-[9999]
+                     bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl shadow-black/60
+                     overflow-hidden animate-fadeInDown">
 
-            <button id="btnLogout"
-              class="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-500/15 text-slate-300 hover:text-rose-400 border border-slate-700 transition"
-              title="Sign Out">
-              <i data-lucide="log-out" class="w-4 h-4"></i>
-            </button>
+              <!-- Profile info block (own bordered/padded section at the top) -->
+              <div class="p-4 bg-slate-800/60">
+                <div class="flex items-center gap-3">
+                  <div id="dropdownAvatar"
+                    class="w-11 h-11 rounded-full bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-sky-500/25 flex-shrink-0">
+                    --
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div id="dropdownName" class="text-sm font-bold text-slate-100 truncate">—</div>
+                    <div id="dropdownRole" class="text-xs text-slate-400 truncate">—</div>
+                    <div id="dropdownDoctorId" class="text-[10px] font-mono text-teal-300/80 tracking-wide mt-0.5">—</div>
+                  </div>
+                  <button id="btnOpenProfile" type="button"
+                    class="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition flex-shrink-0"
+                    title="Edit profile">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+
+                <!-- Contact & department details -->
+                <div class="mt-3 pt-3 border-t border-slate-700/40 space-y-1.5">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0"></i>
+                    <span id="dropdownEmail" class="text-xs text-slate-300 truncate">—</span>
+                  </div>
+                  <div class="flex items-center gap-2 min-w-0">
+                    <i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0"></i>
+                    <span id="dropdownDept" class="text-xs text-slate-300 truncate">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Divider: separates profile info from action items -->
+              <div class="h-px bg-slate-700/60"></div>
+
+              <!-- Action items -->
+              <div class="p-1.5 flex flex-col gap-0.5">
+                <button id="btnLockWorkstation" type="button"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-slate-800 hover:text-slate-100 transition text-left group/item">
+                  <span class="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0 group-hover/item:bg-amber-500/20 transition">
+                    <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i>
+                  </span>
+                  <span>Lock Workstation</span>
+                </button>
+
+                <button id="btnSwitchClinician" type="button"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-slate-800 hover:text-slate-100 transition text-left group/item">
+                  <span class="w-7 h-7 rounded-lg bg-sky-500/10 flex items-center justify-center flex-shrink-0 group-hover/item:bg-sky-500/20 transition">
+                    <i data-lucide="user-switch" class="w-3.5 h-3.5 text-sky-400"></i>
+                  </span>
+                  <span>Switch Clinician</span>
+                </button>
+
+                <div class="h-px bg-slate-700/40 my-1 mx-1"></div>
+
+                <button id="btnLogout" type="button"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-rose-500/10 hover:text-rose-400 transition text-left group/item">
+                  <span class="w-7 h-7 rounded-lg bg-rose-500/10 flex items-center justify-center flex-shrink-0 group-hover/item:bg-rose-500/20 transition">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5 text-rose-400"></i>
+                  </span>
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Send Feedback -->
@@ -446,6 +585,61 @@
           <!-- Quick KPI Stats Row -->
           <div id="homeStatsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Rendered by app.js -->
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- DEVICE CONTROL: ESP32 HARDWARE LINK VIA MQTT                    -->
+          <!-- Commands are sent by sendHardwareCommand() in js/app.js        -->
+          <!-- ============================================================== -->
+          <div class="ards-card p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                  <i data-lucide="radio" class="w-5 h-5 text-emerald-400"></i>
+                  <span>Device Control — ESP32 Hardware Link</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">Send real-time commands and receive telemetry over MQTT
+                  (WSS). Topic: <code class="text-sky-300">ards_project/device/commands</code></p>
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span id="mqttStatusDot" class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+                <span id="mqttStatusText" class="text-xs font-mono text-slate-400">Connecting to broker…</span>
+              </div>
+            </div>
+
+            <!-- Hardware Action Buttons -->
+            <div class="flex flex-wrap gap-3">
+              <button onclick="sendHardwareCommand('LED_ON')"
+                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition shadow-md shadow-emerald-500/20 flex items-center gap-2">
+                <i data-lucide="power" class="w-4 h-4"></i>
+                <span>Turn ON Device</span>
+              </button>
+
+              <button onclick="sendHardwareCommand('LED_OFF')"
+                class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition shadow-md shadow-red-500/20 flex items-center gap-2">
+                <i data-lucide="power-off" class="w-4 h-4"></i>
+                <span>Turn OFF Device</span>
+              </button>
+
+              <button onclick="sendHardwareCommand('PING')"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-semibold rounded-lg transition flex items-center gap-2">
+                <i data-lucide="wifi" class="w-4 h-4"></i>
+                <span>Ping Device</span>
+              </button>
+            </div>
+
+            <!-- Live Telemetry Console Feed -->
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                <span class="font-mono font-semibold uppercase">Live ESP32 Telemetry</span>
+                <span id="mqttLastPayloadTime" class="text-[10px] text-slate-500">No data received yet</span>
+              </div>
+              <div id="mqttLogFeed"
+                class="p-4 rounded-xl bg-black/60 border border-slate-800 font-mono text-xs text-slate-300 h-32 overflow-y-auto space-y-1.5">
+                <div class="text-slate-500 italic">[READY] Waiting for telemetry on topic:
+                  ards_project/device/telemetry ...</div>
+              </div>
+            </div>
           </div>
 
         </section>
@@ -841,6 +1035,9 @@
 
 
         <!-- ============================================================== -->
+        <!-- SECTION 4B: GAIT AI INSIGHTS (additive module; UI rendered by js/ai-insights.js) -->
+        <section id="section-aiinsights" class="tab-section hidden space-y-6"></section>
+
         <!-- SECTION 5: ALERTS & TRIAGE FEED                                -->
         <!-- ============================================================== -->
         <section id="section-alerts" class="tab-section hidden space-y-6">
@@ -1592,6 +1789,125 @@
     </div>
   </div>
 
+  <!-- ============================================================== -->
+  <!-- MODAL: DOCTOR PROFILE                                          -->
+  <!-- ============================================================== -->
+  <div id="modalProfile" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalProfileTitle">
+    <div class="modal-panel max-w-2xl">
+      <div class="modal-header">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/20 to-teal-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400">
+            <i data-lucide="user" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="modalProfileTitle" class="text-lg font-bold text-slate-100">Clinician Profile</h3>
+            <p class="text-sm text-slate-400">Manage your clinical credentials and system access.</p>
+          </div>
+        </div>
+        <button id="btnCloseProfileModal" class="modal-close" title="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="modal-body max-h-[70vh] overflow-y-auto custom-scroll">
+        <form id="formProfile" class="space-y-6">
+
+          <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 flex items-center justify-between">
+            <div>
+              <span class="block text-xs font-semibold text-slate-400 mb-1">Doctor ID (System Generated)</span>
+              <div class="flex items-center gap-2">
+                <code id="profileDoctorId" class="text-lg font-mono text-teal-400 bg-teal-400/10 px-2 py-0.5 rounded font-bold">ARDS-D-XXXX</code>
+                <button type="button" id="btnCopyDoctorId" class="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 transition" title="Copy ID">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+                <span id="profileCopyNote" class="text-xs text-emerald-400 hidden">Copied!</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="block text-xs text-slate-500 mb-1">Member Since</span>
+              <span id="profileMemberSince" class="text-sm text-slate-300 font-medium">--</span>
+            </div>
+          </div>
+
+          <!-- General Info -->
+          <div class="space-y-4">
+            <h4 class="text-sm font-bold text-slate-300 border-b border-slate-700/50 pb-2">General Information</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="profileName" class="form-label">Full Name <span class="text-rose-400">*</span></label>
+                <input type="text" id="profileName" class="form-input" required>
+                <span id="profileNameError" class="text-xs text-rose-400 hidden mt-1">Name is required.</span>
+              </div>
+              <div class="form-group">
+                <label for="profileEmail" class="form-label">Email Address <span class="text-rose-400">*</span></label>
+                <input type="email" id="profileEmail" class="form-input" required>
+                <span id="profileEmailError" class="text-xs text-rose-400 hidden mt-1">Valid email required.</span>
+              </div>
+              <div class="form-group">
+                <label for="profilePhone" class="form-label">Phone Number</label>
+                <input type="tel" id="profilePhone" class="form-input" placeholder="+1 (555) 000-0000">
+                <span id="profilePhoneError" class="text-xs text-rose-400 hidden mt-1">Invalid phone format.</span>
+              </div>
+              <div class="form-group">
+                <label for="profileRole" class="form-label">System Role</label>
+                <select id="profileRole" class="form-input">
+                  <option value="Clinician">Clinician</option>
+                  <option value="Researcher">Researcher</option>
+                  <option value="Administrator">Administrator</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clinical Credentials -->
+          <div class="space-y-4">
+            <h4 class="text-sm font-bold text-slate-300 border-b border-slate-700/50 pb-2">Clinical Credentials</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="profileSpecialization" class="form-label">Specialization</label>
+                <input type="text" id="profileSpecialization" class="form-input" placeholder="e.g. Physiotherapist">
+              </div>
+              <div class="form-group">
+                <label for="profileQualification" class="form-label">Qualifications</label>
+                <input type="text" id="profileQualification" class="form-input" placeholder="e.g. PT, DPT">
+              </div>
+              <div class="form-group">
+                <label for="profileLicense" class="form-label">License Number</label>
+                <input type="text" id="profileLicense" class="form-input" placeholder="e.g. MED-84920">
+              </div>
+              <div class="form-group">
+                <label for="profileExperience" class="form-label">Years of Experience</label>
+                <input type="number" id="profileExperience" class="form-input" min="0" max="70" placeholder="e.g. 10">
+                <span id="profileExperienceError" class="text-xs text-rose-400 hidden mt-1">Invalid number.</span>
+              </div>
+              <div class="form-group sm:col-span-2">
+                <label for="profileOrganization" class="form-label">Organization / Hospital</label>
+                <input type="text" id="profileOrganization" class="form-input" placeholder="e.g. ARDS General Hospital">
+              </div>
+              <div class="form-group sm:col-span-2">
+                <label for="profileCity" class="form-label">City / Region</label>
+                <input type="text" id="profileCity" class="form-input" placeholder="e.g. New York, NY">
+              </div>
+            </div>
+          </div>
+
+          <div id="profileFormError" class="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm hidden">
+            <i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Please correct the highlighted errors.
+          </div>
+          <div id="profileSuccess" class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm hidden">
+            <i data-lucide="check-circle-2" class="w-4 h-4 inline mr-1"></i> Profile updated successfully!
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-700/50">
+            <button type="button" id="btnCancelProfile" class="btn btn-secondary">Cancel</button>
+            <button type="submit" id="btnSaveProfile" class="btn btn-primary bg-sky-500 hover:bg-sky-400 text-white">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Hidden helper button (auth.js API compatibility) -->
+  <button id="btnCloseProfileSuccess" class="hidden"></button>
+
   <!-- Core JavaScript Modules -->
     <script src="js/data.js"></script>
   <script src="js/clinical-reference.js"></script>
@@ -1603,10 +1919,13 @@
   <script src="js/voice-assistant.js"></script>
   <script src="js/voice-ui.js"></script>
   <script src="js/chatbot.js"></script>
+  <script src="js/ai-insights.js"></script>
 
-  <!-- Responsive navigation glue (UI-only: off-canvas sidebar open/close) -->
+  <!-- Responsive navigation + profile dropdown glue -->
   <script>
     (function () {
+      'use strict';
+      // ── Off-canvas sidebar (mobile/tablet) ──────────────────────────────
       var body = document.body;
       var toggle = document.getElementById('mobileMenuToggle');
       var backdrop = document.getElementById('sidebarBackdrop');
@@ -1637,6 +1956,115 @@
       window.addEventListener('resize', function () {
         if (window.innerWidth > 1024) setSidebar(false);
       });
+
+      // ── Profile Dropdown ─────────────────────────────────────────────────
+      var profileBtn  = document.getElementById('btnProfileChip');
+      var profileDrop = document.getElementById('profileDropdown');
+
+      function openDropdown() {
+        if (!profileDrop) return;
+        profileDrop.classList.remove('hidden');
+        profileBtn.setAttribute('aria-expanded', 'true');
+      }
+
+      function closeDropdown() {
+        if (!profileDrop) return;
+        profileDrop.classList.add('hidden');
+        if (profileBtn) profileBtn.setAttribute('aria-expanded', 'false');
+      }
+
+      if (profileBtn) {
+        profileBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var isOpen = !profileDrop.classList.contains('hidden');
+          if (isOpen) { closeDropdown(); } else { openDropdown(); }
+        });
+      }
+
+      // Close on outside click
+      document.addEventListener('click', function (e) {
+        if (profileDrop && !profileDrop.classList.contains('hidden')) {
+          var chip = document.getElementById('userChip');
+          if (chip && !chip.contains(e.target)) { closeDropdown(); }
+        }
+      });
+
+      // Close on Escape
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { closeDropdown(); }
+      });
+
+      // Lock Workstation — re-shows login screen without clearing session
+      var lockBtn = document.getElementById('btnLockWorkstation');
+      if (lockBtn) {
+        lockBtn.addEventListener('click', function () {
+          closeDropdown();
+          // Use the auth module's logout (clears session) as Lock behaviour
+          // because the prototype has no separate lock mechanism.
+          if (window.ardsAuth && window.ardsAuth.logout) {
+            window.ardsAuth.logout();
+          }
+        });
+      }
+
+      // Switch Clinician — same as logout: returns to login gate
+      var switchBtn = document.getElementById('btnSwitchClinician');
+      if (switchBtn) {
+        switchBtn.addEventListener('click', function () {
+          closeDropdown();
+          if (window.ardsAuth && window.ardsAuth.logout) {
+            window.ardsAuth.logout();
+          }
+        });
+      }
+
+      // Keep dropdown avatar / name / ID in sync with the header chip
+      // (auth.js calls renderUserChip which populates #userAvatar/#userName/#userRole/#userDoctorId)
+      // We mirror those to the dropdown equivalents after auth initialises.
+      function syncDropdown() {
+        var src = {
+          avatar: document.getElementById('userAvatar'),
+          name:   document.getElementById('userName'),
+          role:   document.getElementById('userRole'),
+          id:     document.getElementById('userDoctorId')
+        };
+        var dst = {
+          avatar: document.getElementById('dropdownAvatar'),
+          name:   document.getElementById('dropdownName'),
+          role:   document.getElementById('dropdownRole'),
+          id:     document.getElementById('dropdownDoctorId')
+        };
+        if (src.avatar && dst.avatar) dst.avatar.textContent = src.avatar.textContent;
+        if (src.name   && dst.name)   dst.name.textContent   = src.name.textContent;
+        if (src.role   && dst.role)   dst.role.textContent   = src.role.textContent;
+        if (src.id     && dst.id)     dst.id.textContent     = src.id   ? src.id.textContent : '';
+
+        // Populate contact / department details from the signed-in account
+        var account = (window.ardsAuth && window.ardsAuth.getAccount)
+          ? window.ardsAuth.getAccount() : null;
+        var emailEl = document.getElementById('dropdownEmail');
+        var deptEl  = document.getElementById('dropdownDept');
+        if (emailEl) {
+          emailEl.textContent = (account && account.email) ? account.email : '—';
+        }
+        if (deptEl) {
+          var dept = account
+            ? (account.organization || account.specialization || account.role || '')
+            : '';
+          deptEl.textContent = dept ? dept : '—';
+        }
+      }
+
+      // Observe changes to the chip avatar so dropdown stays in sync
+      var chipAvatar = document.getElementById('userAvatar');
+      if (chipAvatar && window.MutationObserver) {
+        new MutationObserver(syncDropdown).observe(
+          document.getElementById('userChip') || document.body,
+          { childList: true, subtree: true, characterData: true }
+        );
+      }
+      // Also sync on every dropdown open
+      if (profileBtn) profileBtn.addEventListener('click', syncDropdown);
     })();
   </script>
 </body>

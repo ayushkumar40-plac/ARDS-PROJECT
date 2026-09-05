@@ -376,6 +376,148 @@
         }, 650);
     }
 
+    function currentAccount() {
+        const session = getStoredSession();
+        if (!session || !session.email) return null;
+        const users = loadUsers();
+        return users.find(u => u.email.toLowerCase() === session.email.toLowerCase()) || null;
+    }
+
+    function updateProfile(updates) {
+        const session = getStoredSession();
+        if (!session) return false;
+        
+        let users = loadUsers();
+        const idx = users.findIndex(u => u.email.toLowerCase() === session.email.toLowerCase());
+        if (idx === -1) return false;
+
+        const updatedUser = { ...users[idx], ...updates };
+        users[idx] = updatedUser;
+        saveUsers(users);
+        
+        // update session but preserve loginAt
+        storeSession({ ...updatedUser, loginAt: session.loginAt }, el('loginRemember') && el('loginRemember').checked);
+        renderUserChip(updatedUser);
+        return true;
+    }
+
+    function openProfileModal() {
+        const user = currentAccount();
+        if (!user || !el('modalProfile')) return;
+
+        const form = el('formProfile');
+        if (form) form.reset();
+
+        // Populate fields
+        if (el('profileDoctorId')) el('profileDoctorId').textContent = user.doctorId || 'N/A';
+        if (el('profileName')) el('profileName').value = user.name || '';
+        if (el('profileEmail')) el('profileEmail').value = user.email || '';
+        if (el('profilePhone')) el('profilePhone').value = user.phone || '';
+        if (el('profileRole')) el('profileRole').value = user.role || 'Clinician';
+        if (el('profileSpecialization')) el('profileSpecialization').value = user.specialization || '';
+        if (el('profileQualification')) el('profileQualification').value = user.qualification || '';
+        if (el('profileLicense')) el('profileLicense').value = user.licenseNo || '';
+        if (el('profileOrganization')) el('profileOrganization').value = user.organization || '';
+        if (el('profileCity')) el('profileCity').value = user.city || '';
+        if (el('profileExperience')) el('profileExperience').value = user.experienceYears || '';
+        
+        if (el('profileMemberSince')) {
+            const date = new Date(user.createdAt);
+            el('profileMemberSince').textContent = isNaN(date) ? 'Unknown' : date.toLocaleDateString();
+        }
+
+        // Hide errors/success
+        ['profileFormError', 'profileNameError', 'profileEmailError', 'profilePhoneError', 'profileExperienceError'].forEach(id => {
+            if (el(id)) el(id).classList.add('hidden');
+        });
+        if (el('profileSuccess')) el('profileSuccess').classList.add('hidden');
+
+        el('modalProfile').classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function setupProfileModal() {
+        if (el('btnProfileChip')) el('btnProfileChip').addEventListener('click', openProfileModal);
+        if (el('btnOpenProfile')) el('btnOpenProfile').addEventListener('click', openProfileModal);
+        
+        const closeBtn = el('btnCloseProfileModal');
+        const cancelBtn = el('btnCancelProfile');
+        const successCloseBtn = el('btnCloseProfileSuccess');
+        
+        const closeHandler = () => {
+            if (el('modalProfile')) el('modalProfile').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        };
+
+        if (closeBtn) closeBtn.addEventListener('click', closeHandler);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeHandler);
+        if (successCloseBtn) successCloseBtn.addEventListener('click', closeHandler);
+
+        if (el('btnCopyDoctorId')) {
+            el('btnCopyDoctorId').addEventListener('click', () => {
+                const id = el('profileDoctorId') ? el('profileDoctorId').textContent : '';
+                if (!id || id === 'N/A') return;
+                navigator.clipboard.writeText(id).then(() => {
+                    if (el('profileCopyNote')) {
+                        el('profileCopyNote').classList.remove('hidden');
+                        setTimeout(() => {
+                            if (el('profileCopyNote')) el('profileCopyNote').classList.add('hidden');
+                        }, 2000);
+                    }
+                });
+            });
+        }
+
+        const form = el('formProfile');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Reset errors
+                ['profileFormError', 'profileNameError', 'profileEmailError', 'profilePhoneError', 'profileExperienceError'].forEach(id => {
+                    if (el(id)) el(id).classList.add('hidden');
+                });
+
+                const name = (el('profileName') ? el('profileName').value : '').trim();
+                const email = (el('profileEmail') ? el('profileEmail').value : '').trim();
+                const phone = (el('profilePhone') ? el('profilePhone').value : '').trim();
+                const exp = el('profileExperience') ? el('profileExperience').value : '';
+                
+                let hasError = false;
+                if (!name) {
+                    if (el('profileNameError')) el('profileNameError').classList.remove('hidden');
+                    hasError = true;
+                }
+                if (!email || !isValidEmail(email)) {
+                    if (el('profileEmailError')) el('profileEmailError').classList.remove('hidden');
+                    hasError = true;
+                }
+                
+                if (hasError) return;
+
+                const success = updateProfile({
+                    name,
+                    email,
+                    phone,
+                    role: el('profileRole') ? el('profileRole').value : 'Clinician',
+                    specialization: el('profileSpecialization') ? el('profileSpecialization').value : '',
+                    qualification: el('profileQualification') ? el('profileQualification').value : '',
+                    licenseNo: el('profileLicense') ? el('profileLicense').value : '',
+                    organization: el('profileOrganization') ? el('profileOrganization').value : '',
+                    city: el('profileCity') ? el('profileCity').value : '',
+                    experienceYears: exp
+                });
+
+                if (success) {
+                    if (el('profileSuccess')) el('profileSuccess').classList.remove('hidden');
+                    setTimeout(() => closeHandler(), 1500);
+                } else {
+                    if (el('profileFormError')) el('profileFormError').classList.remove('hidden');
+                }
+            });
+        }
+    }
+
     /* ---------------------------------------------------------
      * Logout Flow
      * ------------------------------------------------------- */
@@ -419,12 +561,20 @@
         if (demoBtn) {
             demoBtn.addEventListener('click', () => {
                 switchAuthMode('signin');
-                el('loginEmail').value = DEMO_ACCOUNT.email;
-                el('loginPassword').value = DEMO_ACCOUNT.password;
+                if (el('loginEmail')) el('loginEmail').value = DEMO_ACCOUNT.email;
+                if (el('loginPassword')) el('loginPassword').value = DEMO_ACCOUNT.password;
                 clearMessage();
-                showMessage('Demo credentials filled. Click "Sign In to Dashboard" to continue.', 'success');
+                showMessage('Demo credentials filled. Click "Authenticate & Enter Dashboard" to continue.', 'success');
             });
         }
+        
+        window.fillDemo = function(email, password, role) {
+            switchAuthMode('signin');
+            if (el('loginEmail')) el('loginEmail').value = email;
+            if (el('loginPassword')) el('loginPassword').value = password;
+            clearMessage();
+            showMessage(`Credentials for ${email} populated. Click below to sign in.`, 'success');
+        };
 
         // Logout
         const logoutBtn = el('btnLogout');
