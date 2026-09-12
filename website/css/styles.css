@@ -653,6 +653,28 @@ html[data-theme='dark'] .footer { border-top: 1px solid var(--color-border); }
   .heading-xl {
     font-size: 1.75rem;
   }
+  
+  /* Mobile-friendly card layouts */
+  .highlight-card,
+  .feature-card {
+    min-width: 280px;
+  }
+  
+  /* Improved button grouping */
+  .hero-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Better mobile navigation */
+  .mobile-nav-link {
+    min-height: 48px;
+  }
 }
 
 /* ---------- Small phones (<= 420px) ---------- */
