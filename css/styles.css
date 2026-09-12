@@ -1384,8 +1384,70 @@ body::after {
                     radial-gradient(circle at 80% 80%, rgba(13, 148, 136, 0.1), transparent 60%);
   padding: 1.5rem;
   overflow-y: auto;
-  color: #f8fafc;
+  color: #ffffff !important;
   color-scheme: dark;
+}
+
+/* Force crisp pure white text contrast across all login card elements */
+.login-card h1,
+.login-portal-card h1,
+.login-brand h1 {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.login-brand span {
+  color: #cbd5e1 !important;
+}
+
+.login-quickfill-section h3 {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.login-quickfill-section span {
+  color: #94a3b8 !important;
+}
+
+.quickfill-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 0.85rem;
+  padding: 0.75rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.quickfill-card span.text-slate-200,
+.quickfill-card .text-slate-200,
+.quickfill-card span.font-bold {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.quickfill-card span.text-slate-400,
+.quickfill-card .text-slate-400 {
+  color: #cbd5e1 !important;
+}
+
+.login-field label {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.login-remember {
+  color: #cbd5e1 !important;
+}
+
+.login-footer {
+  color: #94a3b8 !important;
 }
 
 /* Defense-in-depth: once the dashboard is unlocked (no .auth-locked on
