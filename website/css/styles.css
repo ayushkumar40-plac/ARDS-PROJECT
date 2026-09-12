@@ -608,6 +608,51 @@ html[data-theme='dark'] .footer { border-top: 1px solid var(--color-border); }
   main {
     display: block !important;
   }
+  
+  /* Horizontal scrolling for cards and features */
+  .horizontal-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  
+  .horizontal-scroll-container::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .horizontal-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  
+  /* Improved card spacing */
+  .highlight-card,
+  .feature-card,
+  .blog-card {
+    margin-bottom: 1rem;
+  }
+  
+  /* Better spacing between sections */
+  .section {
+    margin-bottom: 2rem;
+  }
+  
+  /* Touch-friendly buttons */
+  .btn {
+    min-height: 44px;
+  }
+  
+  /* Improved visual hierarchy */
+  .heading-lg {
+    font-size: 1.5rem;
+  }
+  
+  .heading-xl {
+    font-size: 1.75rem;
+  }
 }
 
 /* ---------- Small phones (<= 420px) ---------- */
