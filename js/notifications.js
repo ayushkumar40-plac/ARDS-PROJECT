@@ -11,7 +11,7 @@ class ARDSRiskNotifier {
     this.CONFIG_KEY = 'ards_notify_config_v1';
     this.SENT_KEY = 'ards_notify_sent_v1';
     this.DEFAULTS = {
-      apiBaseUrl: 'http://localhost:8787',
+      apiBaseUrl: 'https://ards-alert-service.vercel.app',
       autoNotify: true
     };
   }
