@@ -1397,7 +1397,7 @@ body::after {
 }
 
 .login-brand span {
-  color: #cbd5e1 !important;
+  color: #e2e8f0 !important;
 }
 
 .login-quickfill-section h3 {
@@ -1406,7 +1406,7 @@ body::after {
 }
 
 .login-quickfill-section span {
-  color: #94a3b8 !important;
+  color: #e2e8f0 !important;
 }
 
 .quickfill-card {
@@ -1434,7 +1434,7 @@ body::after {
 
 .quickfill-card span.text-slate-400,
 .quickfill-card .text-slate-400 {
-  color: #cbd5e1 !important;
+  color: #e2e8f0 !important;
 }
 
 .login-field label {
