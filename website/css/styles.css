@@ -581,23 +581,33 @@ html[data-theme='dark'] .footer { border-top: 1px solid var(--color-border); }
 @media (max-width: 768px) {
   .nav-desktop, .header-actions .btn { display: none; }
   .hamburger { display: flex; }
-  .section { padding: 56px 0; }
-  .section-sm { padding: 44px 0; }
-  .hero { padding: calc(var(--header-h) + 44px) 0 64px; }
-  .hero-content { grid-template-columns: 1fr; gap: 44px; }
+  .section { padding: 56px 0; display: block; }
+  .section-sm { padding: 44px 0; display: block; }
+  .hero { padding: calc(var(--header-h) + 44px) 0 64px; display: block; }
+  .hero-content { grid-template-columns: 1fr; gap: 44px; display: grid; }
   .hero-description { font-size: 1.02rem; }
   .hero-float-card-1 { right: 4px; top: -18px; }
   .hero-float-card-2 { left: 4px; bottom: -16px; }
-  .highlights-grid, .features-grid, .values-grid { grid-template-columns: 1fr; }
-  .mission-layout { grid-template-columns: 1fr; gap: 32px; }
-  .blog-grid { grid-template-columns: 1fr; }
-  .contact-layout { grid-template-columns: 1fr; gap: 32px; }
-  .form-row { grid-template-columns: 1fr; gap: 0; }
-  .contact-form { padding: 28px 22px; }
-  .cta-inner { padding: 52px 24px; }
-  .footer-grid { grid-template-columns: 1fr; gap: 30px; }
-  .footer-bottom { flex-direction: column; text-align: center; }
+  .highlights-grid, .features-grid, .values-grid { grid-template-columns: 1fr; display: grid; }
+  .mission-layout { grid-template-columns: 1fr; gap: 32px; display: grid; }
+  .blog-grid { grid-template-columns: 1fr; display: grid; }
+  .contact-layout { grid-template-columns: 1fr; gap: 32px; display: grid; }
+  .form-row { grid-template-columns: 1fr; gap: 0; display: grid; }
+  .contact-form { padding: 28px 22px; display: block; }
+  .cta-inner { padding: 52px 24px; display: block; }
+  .footer-grid { grid-template-columns: 1fr; gap: 30px; display: grid; }
+  .footer-bottom { flex-direction: column; text-align: center; display: flex; }
   .container { padding: 0 18px; }
+  
+  /* Ensure all sections are visible on mobile */
+  section {
+    display: block !important;
+  }
+  
+  /* Ensure main content is visible */
+  main {
+    display: block !important;
+  }
 }
 
 /* ---------- Small phones (<= 420px) ---------- */
