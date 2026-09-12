@@ -371,7 +371,7 @@
       <div class="ards-ai-empty">
         <i data-lucide="cpu" class="ards-ai-empty-icon"></i>
         <p class="ards-ai-empty-title">No gait telemetry analyzed yet</p>
-        <p class="ards-ai-empty-text">Connect the ESP32-GAIT device on the <strong>Data Upload</strong> tab, or paste a serial capture
+        <p class="ards-ai-empty-text">Stream local gait sensor node data on the <strong>Data Upload</strong> tab, or paste a telemetry capture
         (the <code>D,…</code> / <code>S,…</code> / <code>E,…</code> lines) below and press <strong>Analyze</strong>. You can also
         load a clearly-labelled synthetic demo to preview the model.</p>
         <textarea id="aiPasteBox" class="ards-ai-paste" rows="6" spellcheck="false"
@@ -495,7 +495,7 @@
       const port = await navigator.serial.requestPort();
       await port.open({ baudRate: 115200 });
       this.serialActive = true;
-      this.setStatus('ESP32 connected over USB — streaming gait telemetry…');
+      this.setStatus('Gait sensor node connected — streaming telemetry…');
       const decoder = new TextDecoderStream();
       port.readable.pipeTo(decoder.writable).catch(() => {});
       const reader = decoder.readable.getReader();

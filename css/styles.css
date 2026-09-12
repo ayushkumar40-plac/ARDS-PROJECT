@@ -3701,6 +3701,104 @@ body.auth-locked .ards-chatbot-root {
   .ards-ai-risk-bar > div { transition: none; }
 }
 
+/* ==========================================================================
+   LOGIN INTERACTION FEEDBACK (restored after merge — hover/click response,
+   focus rings, busy spinner. Additive; overrides nothing functional.)
+   ========================================================================== */
+
+/* Tab hover + press feedback */
+.login-tab:hover {
+  color: var(--text-heading);
+  background: var(--bg-surface-elevated);
+}
+
+.login-tab:active { transform: scale(0.97); }
+
+.login-tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Submit button: hover lift + press + disabled/busy state */
+.login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+  filter: brightness(1.08);
+}
+
+.login-submit:active:not(:disabled) { transform: translateY(0) scale(0.99); }
+
+.login-submit:disabled,
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+  filter: saturate(0.7);
+}
+
+/* Spinner inside the busy submit button */
+.login-submit .animate-spin,
+.login-submit svg.animate-spin {
+  animation: authSpin 0.9s linear infinite;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Input hover + focus ring on the wrapper */
+.login-input:hover {
+  border-color: var(--border-active);
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+.login-input-wrap:focus-within .login-input-icon {
+  color: var(--color-primary);
+}
+
+/* Password toggle + link button */
+.login-pw-toggle {
+  cursor: pointer;
+  transition: color var(--t-fast), background-color var(--t-fast);
+}
+
+.login-pw-toggle:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.login-link-btn {
+  cursor: pointer;
+  transition: color var(--t-fast);
+}
+
+.login-link-btn:hover { color: var(--color-primary-hover); }
+
+/* Remember label + quickfill keyboard focus */
+.login-remember { cursor: pointer; }
+.login-remember:hover span { color: var(--text-heading); }
+
+.quickfill-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Global interactive sanity: any button that is clickable shows a pointer */
+.login-screen button { cursor: pointer; }
+.login-screen button:disabled { cursor: not-allowed; }
+
+@media (prefers-reduced-motion: reduce) {
+  .login-submit .animate-spin,
+  .login-submit svg.animate-spin { animation: none; }
+  .login-tab:active,
+  .login-submit:hover:not(:disabled),
+  .login-submit:active:not(:disabled) { transform: none; }
+}
+
 
 
 

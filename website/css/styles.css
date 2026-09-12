@@ -1,4 +1,4 @@
-﻿/* ================================================================
+/* ================================================================
    ARDS Responsive Website — Stylesheet
    Light theme (default) + automatic dark mode via prefers-color-scheme
    ================================================================ */
@@ -174,7 +174,7 @@ input, textarea, select { font-family: inherit; font-size: 1rem; color: var(--co
 }
 .nav-dropdown-toggle:hover { color: var(--color-text); background: var(--color-surface); }
 .nav-dropdown-toggle .chevron { width: 15px; height: 15px; transition: transform var(--transition-fast); }
-.nav-dropdown:hover .chevron, .nav-dropdown:focus-within .chevron { transform: rotate(180deg); }
+.nav-dropdown:hover .chevron, .nav-dropdown:focus-within .chevron, .nav-dropdown.active .chevron { transform: rotate(180deg); }
 
 .nav-dropdown-menu {
   position: absolute; top: calc(100% + 8px); left: 0; min-width: 250px;
@@ -184,7 +184,8 @@ input, textarea, select { font-family: inherit; font-size: 1rem; color: var(--co
   transition: all var(--transition-fast);
 }
 .nav-dropdown:hover .nav-dropdown-menu,
-.nav-dropdown:focus-within .nav-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.nav-dropdown:focus-within .nav-dropdown-menu,
+.nav-dropdown.active .nav-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
 .nav-dropdown-menu a {
   display: flex; align-items: center; gap: 10px;
   padding: 10px 12px; border-radius: var(--radius-sm);

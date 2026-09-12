@@ -20,11 +20,34 @@
   handleHeaderScroll();
 
   /* ============================================================
-     2. MOBILE MENU — hamburger toggle
+     2. NAV DROPDOWN & MOBILE MENU — interactive toggles
      ============================================================ */
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobileMenu');
   const body = document.body;
+
+  // Dropdown menus
+  const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
+  dropdownToggles.forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const parent = btn.closest('.nav-dropdown');
+      if (!parent) return;
+      const isOpen = parent.classList.contains('active');
+      document.querySelectorAll('.nav-dropdown').forEach(function (d) {
+        d.classList.remove('active');
+      });
+      if (!isOpen) {
+        parent.classList.add('active');
+      }
+    });
+  });
+
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.nav-dropdown').forEach(function (d) {
+      d.classList.remove('active');
+    });
+  });
 
   function closeMobileMenu() {
     if (!hamburger || !mobileMenu) return;
@@ -54,7 +77,32 @@
   }
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeMobileMenu();
+    if (e.key === 'Escape') {
+      closeMobileMenu();
+      document.querySelectorAll('.nav-dropdown').forEach(function (d) {
+        d.classList.remove('active');
+      });
+    }
+  });
+
+  /* Smooth scroll for section anchors */
+  document.querySelectorAll('a[href*="#"]').forEach(function (anchor) {
+    anchor.addEventListener('click', function (e) {
+      const href = anchor.getAttribute('href');
+      const hashIndex = href.indexOf('#');
+      if (hashIndex === -1) return;
+      const targetId = href.substring(hashIndex + 1);
+      if (!targetId) return;
+      
+      const isSamePage = href.startsWith('#') || href.startsWith(window.location.pathname.split('/').pop());
+      if (isSamePage) {
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          e.preventDefault();
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
   });
 
   /* ============================================================
