@@ -2803,6 +2803,28 @@ body.auth-locked .ards-chatbot-root {
     margin-inline: auto;
     width: 100%;
   }
+
+  /* Dashboard grid optimizations */
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Chart containers */
+  .chart-container {
+    height: 300px;
+  }
+}
+
+/* --- Large desktop (>=1440): maximum space utilization ------------------- */
+@media (min-width: 1440px) {
+  .content-wrapper {
+    max-width: 1600px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
 }
 
 /* --- Responsive Adjustments (Desktop, Tablet & Mobile) --- */
@@ -2816,7 +2838,9 @@ body.auth-locked .ards-chatbot-root {
   .app-sidebar {
     transform: translateX(-100%);
     width: min(300px, 85vw);
+    transition: transform 0.3s ease;
   }
+  
   .sidebar-logo span,
   .nav-btn span,
   .nav-btn span.badge-num,
@@ -2858,118 +2882,162 @@ body.auth-locked .ards-chatbot-root {
   .content-wrapper {
     padding: 1.25rem 1.25rem 1.75rem;
   }
-}
 
-/* --- Phone landscape / small tablet (<=768) -------------------------------- */
-@media (max-width: 768px) {
+  /* Header adjustments */
   .app-header {
-    flex-wrap: wrap;
-    row-gap: 0.55rem;
-    padding-inline: 0.9rem;
+    padding-inline: 1rem;
   }
 
-  .app-sidebar {
-    width: 100%;
-    height: auto;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    border-right: none;
-    border-bottom: 1px solid var(--border-subtle);
+  /* Grid adjustments */
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .sidebar-logo {
-    padding: 0.75rem 1rem;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    padding: 0.5rem 0.75rem;
-    gap: 0.5rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .sidebar-nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .nav-btn {
-    white-space: nowrap;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
-    flex-shrink: 0;
-    width: auto;
-  }
-
-  .nav-btn-active::before {
-    display: none;
-  }
-
-  .app-header {
-    padding: 0.75rem 1rem;
-    position: relative;
-    top: auto;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .content-wrapper {
-    padding: 1rem 0.75rem;
-  }
-
+  /* Card adjustments */
   .ards-card {
-    padding: 1.25rem !important;
+    padding: 1.5rem;
   }
 
-  .overflow-x-auto {
-    margin-left: -0.25rem;
-    margin-right: -0.25rem;
+  /* Table adjustments */
+  .ards-card:has(> table),
+  .ards-card:has(.ards-table) {
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   table {
-    min-width: 580px;
+    min-width: 700px;
+  }
+}
+
+/* --- Phone landscape / small tablet (<=768) -------------------------------- */
+@media (max-width: 768px) {
+  /* Improved header layout */
+  .app-header {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    padding-inline: 0.75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
   }
 
+  /* Better sidebar behavior - keep as off-canvas drawer */
+  .app-sidebar {
+    transform: translateX(-100%);
+    width: min(280px, 85vw);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    border-right: 1px solid var(--border-subtle);
+  }
+
+  body.sidebar-open .app-sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-logo {
+    padding: 1rem;
+  }
+
+  .sidebar-nav {
+    flex-direction: column;
+    padding: 0.5rem 1rem;
+    gap: 0.25rem;
+    overflow-y: auto;
+  }
+
+  .nav-btn {
+    white-space: normal;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .nav-btn-active::before {
+    display: block;
+  }
+
+  /* Show sidebar text on mobile */
+  .sidebar-logo span,
+  .nav-btn span,
+  .sidebar-footer {
+    display: block;
+  }
+
+  /* Content area adjustments */
+  .app-main {
+    margin-left: 0;
+  }
+
+  .content-wrapper {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .ards-card {
+    padding: 1.1rem !important;
+    margin-bottom: 1rem;
+  }
+
+  /* Improved overflow handling */
+  .overflow-x-auto {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tables */
+  table {
+    min-width: 600px;
+    font-size: 0.85rem;
+  }
+
+  th, td {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Form inputs */
   .form-select, .form-input, button, input[type=range] {
-    min-height: 38px;
+    min-height: 44px;
+    font-size: 16px;
   }
 
+  /* Modals */
   #modalAddPatient .ards-card,
   #modalAddSession .ards-card,
   .lock-card,
   .auth-card {
     margin: 0.5rem;
     padding: 1.25rem !important;
-    max-height: 94vh;
+    max-height: 92vh;
+    max-width: calc(100vw - 1rem);
   }
 
-  /* Patient/session selectors drop to their own full-width row */
+  /* Patient/session selectors */
   .app-header > div:first-of-type {
     order: 10;
     width: 100%;
+    margin-bottom: 0.5rem;
   }
 
   #globalPatientSelect,
   #globalSessionSelect {
     min-width: 0;
-  }
-
-  /* Prevent iOS auto-zoom on focus (inputs must be >= 16px) */
-  .form-input,
-  .form-select,
-  .login-input {
-    font-size: 16px;
+    width: 100%;
   }
 
   /* Touch-friendly targets */
   .btn {
     min-height: 44px;
+    padding: 0.75rem 1rem;
   }
 
   .nav-btn {
-    min-height: 46px;
+    min-height: 48px;
   }
 
   .modal-close,
@@ -2980,54 +3048,143 @@ body.auth-locked .ards-chatbot-root {
     min-height: 44px;
   }
 
-  /* Responsive tables: scroll horizontally inside their card */
+  /* Responsive tables */
   .ards-card:has(> table),
   .ards-card:has(.ards-table),
   .content-wrapper div:has(> table),
   .modal-dialog div:has(> table) {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-md);
   }
 
   .content-wrapper table,
   .modal-dialog table {
-    min-width: 620px;
+    min-width: 600px;
   }
 
-  /* Charts never overflow their card */
+  /* Charts */
   canvas {
     max-width: 100%;
+    height: auto !important;
   }
 
-  /* Modals: tighter chrome, wrapping footers */
+  .chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
+  }
+
+  /* Modals */
   .modal-body {
     padding: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
   }
 
   .modal-footer {
     flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
-  /* Cards & misc spacing */
+  /* Cards */
   .ards-card {
     overflow-wrap: break-word;
   }
 
   .stat-card {
-    padding: 0.9rem 1rem;
+    padding: 0.85rem 1rem;
   }
 
   .login-card {
-    padding: 1.6rem 1.3rem;
+    padding: 1.5rem 1.25rem;
   }
 
   #csvDropzone {
-    padding: 1.75rem 1rem;
+    padding: 1.5rem 1rem;
   }
 
-  /* Alert filter chips wrap instead of overflowing */
+  /* Alert filter chips */
   #alertFilterBar {
     min-width: 0;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Grid layouts */
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stat cards */
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  /* Dashboard cards */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Override Tailwind grid classes for mobile */
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4,
+  .grid-cols-5,
+  .grid-cols-9 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lg\:grid-cols-2,
+  .lg\:grid-cols-3,
+  .lg\:grid-cols-4,
+  .lg\:grid-cols-5,
+  .lg\:grid-cols-9 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sm\:grid-cols-2,
+  .sm\:grid-cols-3,
+  .sm\:grid-cols-4,
+  .sm\:grid-cols-5 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .md\:grid-cols-2,
+  .md\:grid-cols-3,
+  .md\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Horizontal scroll containers */
+  .horizontal-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .horizontal-scroll-container::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .horizontal-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--border-card);
+    border-radius: 4px;
+  }
+
+  .horizontal-scroll-container > * {
+    min-width: 200px;
+    flex-shrink: 0;
   }
 }
 
@@ -3312,58 +3469,186 @@ body.auth-locked .ards-chatbot-root {
 
 /* --- Phones (<=480): 320 / 375 / 390 / 430 --------------------------------- */
 @media (max-width: 480px) {
+  /* Container */
   .content-wrapper {
-    padding: 0.85rem 0.75rem 1.25rem;
+    padding: 0.75rem 0.5rem 1rem;
   }
 
-  /* Compact card padding (beats Tailwind p-5/p-6/p-8 via specificity) */
-  .content-wrapper .ards-card {
-    padding: 1.1rem;
-  }
-
-  /* Two-column form pairs & KPI pairs collapse to one column */
-  body .grid-cols-2 {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  #globalPatientSelect,
-  #globalSessionSelect {
-    min-width: 0;
-  }
-
-  .stat-value {
-    font-size: 1.2rem;
-  }
-
-  .login-card {
-    padding: 1.35rem 1rem;
-  }
-
-  .ards-card-header {
-    flex-wrap: wrap;
+  /* Header */
+  .app-header {
+    padding-inline: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    gap: 0.5rem;
   }
 
   .app-header-actions {
-    gap: 0.4rem;
+    gap: 0.35rem;
+  }
+
+  /* Compact card padding */
+  .content-wrapper .ards-card {
+    padding: 0.9rem !important;
+  }
+
+  /* Sidebar */
+  .app-sidebar {
+    width: min(260px, 90vw);
+  }
+
+  .nav-btn {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+  }
+
+  /* Grid layouts */
+  body .grid-cols-2,
+  body .grid-cols-3,
+  body .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Patient/session selectors */
+  #globalPatientSelect,
+  #globalSessionSelect {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Stats */
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  /* Login card */
+  .login-card {
+    padding: 1.25rem 1rem;
+  }
+
+  /* Card headers */
+  .ards-card-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .ards-card-title {
+    font-size: 0.95rem;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+  }
+
+  /* Tables */
+  table {
+    font-size: 0.8rem;
+  }
+
+  th, td {
+    padding: 0.4rem 0.6rem;
+  }
+
+  /* Modals */
+  .modal-body {
+    padding: 0.85rem;
+  }
+
+  /* Charts */
+  .chart-container {
+    height: 200px;
+  }
+
+  /* Form inputs */
+  .form-input,
+  .form-select {
+    padding: 0.65rem 0.85rem;
+    font-size: 15px;
   }
 }
 
 /* --- Small phones (<=360, e.g. 320px) -------------------------------------- */
 @media (max-width: 360px) {
-  .content-wrapper .ards-card {
-    padding: 0.95rem;
+  /* Container */
+  .content-wrapper {
+    padding: 0.65rem 0.4rem 0.85rem;
   }
 
+  /* Header */
   .app-header {
-    padding-inline: 0.6rem;
+    padding-inline: 0.4rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
   }
 
+  /* Cards */
+  .content-wrapper .ards-card {
+    padding: 0.8rem !important;
+  }
+
+  /* Sidebar */
+  .app-sidebar {
+    width: min(240px, 95vw);
+  }
+
+  .nav-btn {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* Stats */
   .stat-value {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
 
+  .stat-label {
+    font-size: 0.7rem;
+  }
+
+  /* Typography */
   .ards-card-title {
+    font-size: 0.9rem;
+  }
+
+  .heading-sm {
     font-size: 0.95rem;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* Tables */
+  table {
+    font-size: 0.75rem;
+  }
+
+  th, td {
+    padding: 0.35rem 0.5rem;
+  }
+
+  /* Form inputs */
+  .form-input,
+  .form-select {
+    padding: 0.6rem 0.75rem;
+    font-size: 14px;
+  }
+
+  /* Modals */
+  .modal-body {
+    padding: 0.75rem;
+  }
+
+  /* Charts */
+  .chart-container {
+    height: 180px;
   }
 }
 
