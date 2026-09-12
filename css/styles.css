@@ -3988,31 +3988,63 @@ button:disabled {
   }
   
   .content-wrapper {
-    padding: 1rem 1rem 1.5rem;
+    padding: 0.8rem 0.8rem 1.2rem;
+    max-width: 100%;
   }
   
   /* Header adjustments */
   .app-header {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.8rem;
   }
   
   .app-header-title {
     font-size: 0.8rem;
   }
   
-  /* Card adjustments */
+  /* Card adjustments - more organized layout */
   .ards-card {
     padding: 1rem;
     border-radius: var(--radius-md);
+    margin-bottom: 0.8rem;
   }
   
   .ards-card-header {
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.6rem;
     padding-bottom: 0.5rem;
   }
   
   .ards-card-title {
     font-size: 0.85rem;
+  }
+  
+  /* Horizontal scrolling for stats and key metrics */
+  .horizontal-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  
+  .horizontal-scroll-container::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .horizontal-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--border-subtle);
+    border-radius: 4px;
+  }
+  
+  /* Stat cards in horizontal layout */
+  .stat-card {
+    padding: 0.8rem;
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+  
+  .stat-value {
+    font-size: 1.1rem;
   }
   
   /* Button sizing for touch */
@@ -4044,15 +4076,6 @@ button:disabled {
     padding: 0.4rem 0.5rem;
   }
   
-  /* Stat cards */
-  .stat-card {
-    padding: 0.8rem;
-  }
-  
-  .stat-value {
-    font-size: 1.1rem;
-  }
-  
   /* Modal adjustments */
   .modal-dialog {
     max-width: 95%;
@@ -4077,6 +4100,101 @@ button:disabled {
     padding: 0.12rem 0.4rem;
     font-size: 0.62rem;
   }
+  
+  /* Improved grid layout for mobile */
+  .mobile-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .mobile-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  /* Patient context card improvements */
+  .patient-context-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .patient-controls-mobile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .patient-controls-mobile .form-select {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  /* Action buttons row */
+  .action-buttons-mobile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .action-buttons-mobile .btn {
+    flex: 1;
+    min-width: 100px;
+  }
+  
+  /* Visual hierarchy improvements */
+  .ards-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .ards-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Better spacing between sections */
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+  
+  /* Improved header spacing */
+  .app-header {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Mobile-specific card improvements */
+  .mobile-card-compact {
+    padding: 0.8rem;
+  }
+  
+  .mobile-card-compact .ards-card-header {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.4rem;
+  }
+  
+  /* Improved text hierarchy */
+  .text-lg {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  
+  .text-md {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  /* Better button grouping */
+  .btn-group-mobile {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .btn-group-mobile .btn {
+    flex: 1;
+    min-width: 80px;
+  }
 }
 
 /* Small Mobile (<= 480px) */
@@ -4086,11 +4204,12 @@ button:disabled {
   }
   
   .content-wrapper {
-    padding: 0.8rem 0.8rem 1.2rem;
+    padding: 0.6rem 0.6rem 1rem;
   }
   
   .ards-card {
-    padding: 0.8rem;
+    padding: 0.7rem;
+    margin-bottom: 0.6rem;
   }
   
   .ards-card-title {
@@ -4178,6 +4297,39 @@ button:disabled {
   .ards-table th,
   .ards-table td {
     padding: 0.3rem 0.4rem;
+  }
+  
+  /* Optimized card sizing for small screens */
+  .horizontal-scroll-container {
+    gap: 0.5rem;
+  }
+  
+  .stat-card {
+    min-width: 120px;
+    padding: 0.6rem;
+  }
+  
+  /* Compact patient context */
+  .patient-context-mobile {
+    gap: 0.5rem;
+  }
+  
+  /* Smaller gaps in grids */
+  .mobile-grid-2,
+  .mobile-grid-3 {
+    gap: 0.5rem;
+  }
+  
+  /* Reduced padding for compact cards */
+  .mobile-card-compact {
+    padding: 0.6rem;
+  }
+  
+  /* Better fit for action buttons */
+  .action-buttons-mobile .btn {
+    min-width: 90px;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
   }
 }
 
