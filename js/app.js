@@ -14,6 +14,7 @@ class ARDSApp {
   init() {
     this.setupTheme();
     this.setupNavigation();
+    this.setupMobileMenu();
     this.setupPatientSelectors();
     this.setupModalHandlers();
     this.setupUploadHandlers();
@@ -75,9 +76,46 @@ class ARDSApp {
         const tab = btn.dataset.tab;
         if (tab) {
           this.switchTab(tab);
+          // Close mobile sidebar after navigation
+          this.closeMobileSidebar();
         }
       });
     });
+  }
+
+  setupMobileMenu() {
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('appSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (mobileToggle && sidebar && overlay) {
+      mobileToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+        mobileToggle.setAttribute('aria-expanded', sidebar.classList.contains('open'));
+      });
+
+      overlay.addEventListener('click', () => {
+        this.closeMobileSidebar();
+      });
+
+      // Close sidebar on escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+          this.closeMobileSidebar();
+        }
+      });
+    }
+  }
+
+  closeMobileSidebar() {
+    const sidebar = document.getElementById('appSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
   }
 
   switchTab(tabId) {
