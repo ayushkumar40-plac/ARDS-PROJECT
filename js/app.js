@@ -771,7 +771,7 @@ class ARDSApp {
     const scoreDelta = currentScore - baseScore;
 
     cardEl.innerHTML = `
-      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-800/80">
+      <div class="patient-context-mobile flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-800/80">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-sky-500/20">
             ${patient.id}
@@ -786,19 +786,22 @@ class ARDSApp {
         </div>
 
         <!-- Controls: Patient Dropdown, Session Dropdown, Add Patient, Record Session, Reset -->
-        <div class="flex items-center gap-2.5 flex-wrap w-full lg:w-auto justify-start lg:justify-end">
-          <div class="flex items-center gap-1.5">
+        <div class="patient-controls-mobile flex items-center gap-2.5 flex-wrap w-full lg:w-auto justify-start lg:justify-end">
+          <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
             <label class="text-[11px] font-semibold uppercase text-slate-400">Patient:</label>
-            <select id="homePatientSelect" class="form-select text-xs font-semibold text-slate-100 py-1.5 px-2.5 min-w-[170px]">
+            <select id="homePatientSelect" class="form-select text-xs font-semibold text-slate-100 py-1.5 px-2.5 flex-1">
             </select>
           </div>
 
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
             <label class="text-[11px] font-semibold uppercase text-slate-400">Session:</label>
-            <select id="homeSessionSelect" class="form-select text-xs font-medium text-slate-200 py-1.5 px-2.5">
+            <select id="homeSessionSelect" class="form-select text-xs font-medium text-slate-200 py-1.5 px-2.5 flex-1">
             </select>
           </div>
+        </div>
 
+        <!-- Action buttons on separate row for mobile -->
+        <div class="action-buttons-mobile flex items-center gap-2.5 flex-wrap w-full lg:w-auto justify-start lg:justify-end">
           <button onclick="window.ardsApp.openAddPatientModal()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-600 hover:bg-sky-500 text-white transition flex items-center gap-1 shadow-sm" title="Register a new custom patient">
             <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
             <span>+ Patient</span>
@@ -815,21 +818,21 @@ class ARDSApp {
         </div>
       </div>
 
-      <!-- Demographics & Clinical Goal Details -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
-        <div>
+      <!-- Demographics & Clinical Goal Details - Horizontal scroll on mobile -->
+      <div class="horizontal-scroll-container grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
+        <div class="min-w-[140px]">
           <span class="text-slate-500 uppercase font-semibold text-[10px]">Rehab Ambulation Goal</span>
           <div class="font-bold text-slate-200 mt-0.5 truncate" title="${patient.rehabGoal}">${patient.rehabGoal}</div>
         </div>
-        <div>
+        <div class="min-w-[140px]">
           <span class="text-slate-500 uppercase font-semibold text-[10px]">Attending Clinician</span>
           <div class="font-bold text-slate-200 mt-0.5 truncate">${patient.clinician}</div>
         </div>
-        <div>
+        <div class="min-w-[140px]">
           <span class="text-slate-500 uppercase font-semibold text-[10px]">Session Status</span>
           <div class="font-bold text-teal-400 mt-0.5">Session ${session ? session.session : 1} of ${patient.sessions.length} recorded</div>
         </div>
-        <div>
+        <div class="min-w-[140px]">
           <span class="text-slate-500 uppercase font-semibold text-[10px]">Longitudinal Delta</span>
           <div class="font-bold ${scoreDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'} mt-0.5">
             ${scoreDelta >= 0 ? '+' : ''}${scoreDelta.toFixed(1)} pts vs Baseline (S1: ${baseScore})
