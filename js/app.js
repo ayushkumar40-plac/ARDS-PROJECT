@@ -724,6 +724,8 @@ class ARDSApp {
     if (window.lucide) {
       lucide.createIcons();
     }
+
+    this.autoNotifyIfAtRisk().catch(() => { /* alerting must never break rendering */ });
   }
 
   updateGlobalHeader(patient, session) {
@@ -1631,7 +1633,199 @@ class ARDSApp {
     });
   }
 
+  getPreviousSession(patient, session) {
+    if (!patient || !patient.sessions || !session) return null;
+    const idx = patient.sessions.findIndex(s => s.session === session.session);
+    return idx > 0 ? patient.sessions[idx - 1] : null;
+  }
+
+  setRiskNotifyStatus(message, tone = 'info') {
+    const el = document.getElementById('riskNotifyStatus');
+    if (!el) return;
+    const toneClass = {
+      info: 'text-slate-400',
+      success: 'text-emerald-400',
+      warning: 'text-amber-400',
+      error: 'text-rose-400'
+    }[tone] || 'text-slate-400';
+    el.className = `text-xs ${toneClass}`;
+    el.textContent = message;
+  }
+
+  renderRiskNotifyPanel() {
+    const container = document.getElementById('riskNotifyPanel');
+    if (!container || !window.ardsRiskNotifier) return;
+
+    const patient = window.dataStore.getActivePatient();
+    const session = window.dataStore.getActiveSession();
+    if (!patient || !session) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const baseline = patient.sessions && patient.sessions.length ? patient.sessions[0] : session;
+    const risk = window.ardsEngine.assessRisk(session, baseline, this.getPreviousSession(patient, session));
+    const config = window.ardsRiskNotifier.getConfig();
+
+    const riskBadge = risk.atRisk
+      ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${risk.severity === 'critical' ? 'border-rose-500/40 bg-rose-500/10 text-rose-400' : 'border-amber-500/40 bg-amber-500/10 text-amber-400'}">AT RISK · ${risk.severity.toUpperCase()}</span>`
+      : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-500/40 bg-emerald-500/10 text-emerald-400">NOT AT RISK</span>`;
+
+    container.innerHTML = `
+      <div class="ards-card p-5 space-y-4">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+              <i data-lucide="message-square-warning" class="w-4 h-4 text-sky-400"></i>
+              <span>At-Risk SMS &amp; WhatsApp Notifications</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">When the rehab score is flagged at risk, the patient and the treating
+              clinician each receive a short SMS and a detailed WhatsApp message.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            ${riskBadge}
+            <span class="text-xs text-slate-500 font-mono">Score ${risk.score} · ${risk.band}</span>
+          </div>
+        </div>
+
+        ${risk.atRisk && risk.reasons.length ? `
+          <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside">
+            ${risk.reasons.map(r => `<li>${this.escapeFeedbackHtml(r)}</li>`).join('')}
+          </ul>` : ''}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-semibold uppercase text-slate-400">Patient mobile (E.164)</label>
+            <input id="notifyPatientPhone" type="tel" placeholder="+14155551234" value="${this.escapeFeedbackHtml(patient.phone || '')}"
+              class="form-input w-full text-xs mt-1" />
+          </div>
+          <div>
+            <label class="text-[11px] font-semibold uppercase text-slate-400">Clinician mobile (E.164)</label>
+            <input id="notifyDoctorPhone" type="tel" placeholder="+14155559876" value="${this.escapeFeedbackHtml(patient.clinicianPhone || '')}"
+              class="form-input w-full text-xs mt-1" />
+          </div>
+          <div>
+            <label class="text-[11px] font-semibold uppercase text-slate-400">Alert service URL</label>
+            <input id="notifyApiUrl" type="url" placeholder="http://localhost:8787" value="${this.escapeFeedbackHtml(config.apiBaseUrl)}"
+              class="form-input w-full text-xs mt-1" />
+          </div>
+          <div class="flex items-end">
+            <label class="flex items-center gap-2 text-xs text-slate-300">
+              <input id="notifyAutoToggle" type="checkbox" ${config.autoNotify ? 'checked' : ''} class="w-4 h-4 accent-sky-500" />
+              <span>Send automatically when a session is flagged at risk</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btnSaveNotifySettings" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 transition">Save settings</button>
+          <button id="btnTestNotifyService" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 transition">Test service</button>
+          <button id="btnSendRiskAlert" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-600 hover:bg-sky-500 text-white transition shadow-sm">Notify patient &amp; doctor now</button>
+          <span id="riskNotifyStatus" class="text-xs text-slate-400"></span>
+        </div>
+      </div>
+    `;
+
+    this.bindRiskNotifyHandlers();
+    if (window.lucide) lucide.createIcons();
+  }
+
+  bindRiskNotifyHandlers() {
+    const saveBtn = document.getElementById('btnSaveNotifySettings');
+    const testBtn = document.getElementById('btnTestNotifyService');
+    const sendBtn = document.getElementById('btnSendRiskAlert');
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        this.saveRiskNotifySettings();
+        this.setRiskNotifyStatus('Settings saved.', 'success');
+      });
+    }
+
+    if (testBtn) {
+      testBtn.addEventListener('click', async () => {
+        this.saveRiskNotifySettings();
+        this.setRiskNotifyStatus('Checking alert service…');
+        try {
+          const health = await window.ardsRiskNotifier.checkServiceHealth();
+          this.setRiskNotifyStatus(
+            health.dryRun
+              ? 'Service reachable, running in dry-run mode (no Twilio credentials configured).'
+              : `Service reachable. Sending SMS from ${health.smsFrom} and WhatsApp from ${health.whatsappFrom}.`,
+            health.dryRun ? 'warning' : 'success'
+          );
+        } catch (e) {
+          this.setRiskNotifyStatus(`Alert service unreachable: ${e.message}`, 'error');
+        }
+      });
+    }
+
+    if (sendBtn) {
+      sendBtn.addEventListener('click', async () => {
+        this.saveRiskNotifySettings();
+        this.setRiskNotifyStatus('Sending SMS and WhatsApp alerts…');
+        const patient = window.dataStore.getActivePatient();
+        const session = window.dataStore.getActiveSession();
+        const baseline = patient.sessions && patient.sessions.length ? patient.sessions[0] : session;
+        const outcome = await window.ardsRiskNotifier.evaluateAndNotify(
+          patient, session, baseline, this.getPreviousSession(patient, session), { force: true }
+        );
+        this.reportNotifyOutcome(outcome);
+      });
+    }
+  }
+
+  saveRiskNotifySettings() {
+    const patientPhone = (document.getElementById('notifyPatientPhone') || {}).value;
+    const doctorPhone = (document.getElementById('notifyDoctorPhone') || {}).value;
+    const apiUrl = (document.getElementById('notifyApiUrl') || {}).value;
+    const auto = (document.getElementById('notifyAutoToggle') || {}).checked;
+
+    window.dataStore.updateContacts(window.dataStore.activePatientId, {
+      phone: (patientPhone || '').trim(),
+      clinicianPhone: (doctorPhone || '').trim()
+    });
+    window.ardsRiskNotifier.saveConfig({
+      apiBaseUrl: (apiUrl || '').trim() || 'http://localhost:8787',
+      autoNotify: Boolean(auto)
+    });
+  }
+
+  reportNotifyOutcome(outcome) {
+    if (!outcome) return;
+    if (outcome.status === 'sent' || outcome.status === 'partial' || outcome.status === 'dry-run') {
+      const label = outcome.status === 'dry-run'
+        ? 'Dry run: messages composed but not sent (no Twilio credentials on the service).'
+        : `SMS + WhatsApp alerts ${outcome.status === 'partial' ? 'partially ' : ''}dispatched to patient and clinician.`;
+      this.setRiskNotifyStatus(label, outcome.status === 'sent' ? 'success' : 'warning');
+      this.renderAlertsSection();
+      this.updateAlertBadgeCount();
+    } else if (outcome.status === 'missing-contacts') {
+      this.setRiskNotifyStatus(outcome.reason, 'error');
+    } else if (outcome.status === 'failed') {
+      this.setRiskNotifyStatus(`Could not send alerts: ${outcome.reason}`, 'error');
+    } else {
+      this.setRiskNotifyStatus(outcome.reason || 'No alert sent.', 'info');
+    }
+  }
+
+  async autoNotifyIfAtRisk() {
+    if (!window.ardsRiskNotifier) return;
+    const patient = window.dataStore.getActivePatient();
+    const session = window.dataStore.getActiveSession();
+    if (!patient || !session) return;
+    const baseline = patient.sessions && patient.sessions.length ? patient.sessions[0] : session;
+    const outcome = await window.ardsRiskNotifier.evaluateAndNotify(
+      patient, session, baseline, this.getPreviousSession(patient, session)
+    );
+    if (outcome.status === 'sent' || outcome.status === 'partial' || outcome.status === 'dry-run') {
+      this.reportNotifyOutcome(outcome);
+    }
+  }
+
   renderAlertsSection(filter = 'all') {
+    this.renderRiskNotifyPanel();
+
     const container = document.getElementById('alertsFeedContainer');
     if (!container) return;
 

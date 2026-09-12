@@ -3,3 +3,6 @@ ARDS-PROJECT.git
 ARDS-PROJECT-NEW
 node_modules/
 *.log
+
+# Local service secrets
+server/.env

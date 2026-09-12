@@ -231,6 +231,62 @@ class ARDSEngine {
   }
 
   /**
+   * Determines whether a session places the patient's rehabilitation at risk
+   * and collects the human-readable drivers behind that verdict.
+   * @returns {{atRisk: boolean, severity: "critical"|"warning"|"none", score: number,
+   *            band: string, state: string, safetyFlag: string, reasons: string[],
+   *            recommendation: string}}
+   */
+  assessRisk(session, baseline, previousSession) {
+    const score = this.calculateScore(session);
+    const band = this.getScoreBand(score);
+    const decision = this.evaluateDecisionAndSafety(session, baseline, previousSession);
+    const state = decision.condition.state;
+    const reasons = [];
+
+    if (band.key === 'poor') {
+      reasons.push(`Rehab score ${score}/100 is in the Poor band (0–40).`);
+    } else if (band.key === 'moderate' && state === 'UNSTABLE') {
+      reasons.push(`Rehab score ${score}/100 with an unstable biomechanical profile.`);
+    }
+
+    if (previousSession) {
+      const drop = this.calculateScore(previousSession) - score;
+      if (drop >= 6) {
+        reasons.push(`Rehab score dropped ${drop.toFixed(1)} points since the previous session.`);
+      }
+    }
+
+    if (session.pressure >= this.SAFETY_THRESHOLDS.criticalPressure) {
+      reasons.push(`Socket pressure ${session.pressure} kPa breached the ${this.SAFETY_THRESHOLDS.criticalPressure} kPa critical limit.`);
+    } else if (session.pressure > this.SAFETY_THRESHOLDS.maxSafePressure) {
+      reasons.push(`Socket pressure ${session.pressure} kPa exceeds the ${this.SAFETY_THRESHOLDS.maxSafePressure} kPa safe envelope.`);
+    }
+
+    if (session.fatigue > this.SAFETY_THRESHOLDS.maxSafeFatigue) {
+      reasons.push(`Fatigue index ${session.fatigue}% exceeds the ${this.SAFETY_THRESHOLDS.maxSafeFatigue}% endurance threshold.`);
+    }
+
+    if (session.symmetry < this.SAFETY_THRESHOLDS.minAcceptableSymmetry) {
+      reasons.push(`Gait symmetry ${session.symmetry}% is below the ${this.SAFETY_THRESHOLDS.minAcceptableSymmetry}% acceptable floor.`);
+    }
+
+    const critical = state === 'UNSTABLE' || decision.safetyFlag === 'CRITICAL_UNSAFE';
+    const atRisk = reasons.length > 0 || critical;
+
+    return {
+      atRisk,
+      severity: atRisk ? (critical ? 'critical' : 'warning') : 'none',
+      score,
+      band: band.label,
+      state,
+      safetyFlag: decision.safetyFlag,
+      reasons: reasons.length ? reasons : (atRisk ? [decision.condition.summary] : []),
+      recommendation: decision.finalRecommendation
+    };
+  }
+
+  /**
    * Explainable AI (XAI) Feature Contributions (SHAP-style signed contributions)
    * Normalized strictly against the ARDS linear decision model weights:
    * Score = 0.30*Gait + 0.25*Stability + 0.20*Force + 0.15*Symmetry + 0.10*(100-Fatigue)

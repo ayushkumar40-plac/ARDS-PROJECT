@@ -13,6 +13,8 @@ const ARDS_INITIAL_DATA = {
       amputationDate: "2025-06-12",
       prosthesis: "Ottobock Genium / ProCarve Carbon Foot",
       clinician: "Dr. Rachel Thorne, PT, DPT",
+      phone: "",
+      clinicianPhone: "",
       rehabGoal: "Independent community ambulation & uneven terrain walking (K3 level)",
       sessions: [
         { session: 1, date: "2026-07-02", gaitSpeed: 0.60, symmetry: 61, force: 55, pressure: 48, stability: 58, fatigue: 20 },
@@ -35,6 +37,8 @@ const ARDS_INITIAL_DATA = {
       amputationDate: "2025-09-20",
       prosthesis: "C-Leg 4 Microprocessor Knee / Triton Harmony",
       clinician: "Dr. Samuel Vance, CPO",
+      phone: "",
+      clinicianPhone: "",
       rehabGoal: "Stair descent and progressive cadence endurance (K2 to K3)",
       sessions: [
         { session: 1, date: "2026-07-05", gaitSpeed: 0.52, symmetry: 55, force: 50, pressure: 52, stability: 50, fatigue: 25 },
@@ -56,6 +60,8 @@ const ARDS_INITIAL_DATA = {
       amputationDate: "2025-03-15",
       prosthesis: "Dual Endolite Blade XT / Vacuum Suspension",
       clinician: "Dr. Rachel Thorne, PT, DPT",
+      phone: "",
+      clinicianPhone: "",
       rehabGoal: "High-level sports agility and dynamic dual-limb ground force distribution",
       sessions: [
         { session: 1, date: "2026-07-03", gaitSpeed: 0.58, symmetry: 62, force: 58, pressure: 46, stability: 60, fatigue: 22 },
@@ -77,6 +83,8 @@ const ARDS_INITIAL_DATA = {
       amputationDate: "2025-11-04",
       prosthesis: "Ossur Rheo Knee / Pro-Flex LP Align",
       clinician: "Dr. Kevin Patel, MD, PM&R",
+      phone: "",
+      clinicianPhone: "",
       rehabGoal: "Post-operative initial gait retraining and weight-bearing confidence",
       sessions: [
         { session: 1, date: "2026-07-08", gaitSpeed: 0.45, symmetry: 48, force: 44, pressure: 50, stability: 46, fatigue: 30 },
@@ -173,6 +181,8 @@ class ARDSDataStore {
         amputationDate: "2025-01-01",
         prosthesis: "Standard Modular Prosthesis",
         clinician: "Attending Physiotherapist",
+        phone: "",
+        clinicianPhone: "",
         rehabGoal: "Gait symmetry and functional independence",
         sessions: [],
         alerts: []
@@ -203,6 +213,15 @@ class ARDSDataStore {
       });
       this.saveData();
     }
+  }
+
+  updateContacts(patientId, { phone, clinicianPhone }) {
+    const patient = this.getPatient(patientId);
+    if (!patient) return null;
+    if (phone !== undefined) patient.phone = phone;
+    if (clinicianPhone !== undefined) patient.clinicianPhone = clinicianPhone;
+    this.saveData();
+    return patient;
   }
 
   acknowledgeAlert(patientId, alertId) {
