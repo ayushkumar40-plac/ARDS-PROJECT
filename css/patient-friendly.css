@@ -1,0 +1,62 @@
+/* patient-friendly.css */
+
+/* Base typography */
+html {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px; /* larger base font */
+  line-height: 1.6;
+  color: #222;
+}
+
+/* Headings hierarchy */
+h1 { font-size: 2.25rem; margin-bottom: 0.75rem; }
+h2 { font-size: 1.875rem; margin-bottom: 0.66rem; }
+h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+h4 { font-size: 1.25rem; margin-bottom: 0.4rem; }
+
+/* Paragraphs */
+p { margin-bottom: 1rem; }
+
+/* Larger touch targets */
+button, .btn, a, input, select, textarea {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Risk color palette */
+:root {
+  --risk-low: #28a745;   /* green */
+  --risk-medium: #ffc107; /* yellow */
+  --risk-high: #dc3545;   /* red */
+}
+
+.risk-low { color: var(--risk-low); }
+.risk-medium { color: var(--risk-medium); }
+.risk-high { color: var(--risk-high); }
+
+/* Form hints */
+.form-intro { font-weight: 500; margin-bottom: 0.5rem; }
+.form-hint { display: block; font-size: 0.875rem; color: #555; margin-top: 0.25rem; }
+
+/* Learn more expandable sections */
+details.learn-more {
+  margin-top: 0.5rem;
+}
+
+details.learn-more > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #0066cc;
+}
+
+/* Icon sizing */
+.icon {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+  margin-right: 0.25em;
+}
+
+/* Ensure sufficient color contrast */
+.bg-white { background-color: #fff; }
+.text-black { color: #000; }
