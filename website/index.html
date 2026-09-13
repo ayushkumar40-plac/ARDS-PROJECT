@@ -1,274 +1,404 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="h-full" lang="en" style="">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARDS &mdash; Adaptive Rehabilitation Decision Support | Home</title>
-  <meta name="description" content="AI-assisted clinical decision-support for lower-limb amputee rehabilitation. Real-time analytics, XAI insights, and safety-first recommendations.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='48' y2='48' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%230284c7'/%3E%3Cstop offset='1' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='48' height='48' rx='14' fill='url(%23g)'/%3E%3Cpath d='M9 26h8l4-11 6 18 5-13 3 6h4' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/tailwind.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/stitch.css">
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tailwind.css">
 <link rel="stylesheet" href="css/patient-friendly.css">
+<link rel="stylesheet" href="css/stitch.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-lowest": "#ffffff", "inverse-primary": "#7dd4dd", "on-primary": "#ffffff", "status-alert-border": "#FECDD3", "surface-container-subtle": "#F1F5F9", "error": "#ba1a1a", "background": "#f7f9fb", "on-primary-fixed": "#002022", "text-secondary": "#475569", "text-muted": "#64748B", "on-surface-variant": "#3e494a", "tertiary-container": "#0076a0", "secondary-fixed": "#d5e3ff", "on-secondary-fixed": "#001c3b", "on-surface": "#191c1e", "surface-container-high": "#e6e8ea", "surface-container-low": "#f2f4f6", "secondary-container": "#b5d0fd", "secondary-fixed-dim": "#adc8f5", "surface-tint": "#006970", "status-warning-border": "#FDE68A", "on-tertiary-container": "#e4f3ff", "status-warning": "#B45309", "on-secondary-container": "#3e5980", "status-warning-bg": "#FEF3C7", "on-secondary-fixed-variant": "#2d486d", "outline": "#6e797a", "on-secondary": "#ffffff", "surface": "#f7f9fb", "tertiary": "#005c7e", "primary-fixed": "#99f1f9", "status-safe-border": "#A5D6A7", "status-safe": "#2E7D32", "on-primary-container": "#cdfaff", "on-tertiary-fixed-variant": "#004c69", "inverse-on-surface": "#eff1f3", "status-safe-bg": "#E8F5E9", "surface-card": "#FFFFFF", "outline-variant": "#bdc9ca", "primary": "#006066", "surface-dim": "#d8dadc", "secondary": "#455f87", "surface-container-highest": "#e0e3e5", "primary-fixed-dim": "#7dd4dd", "on-error-container": "#93000a", "on-tertiary": "#ffffff", "primary-container": "#0d7a82", "status-alert-bg": "#FFE4E6", "error-container": "#ffdad6", "on-tertiary-fixed": "#001e2c", "tertiary-fixed": "#c4e7ff", "on-error": "#ffffff", "on-primary-fixed-variant": "#004f55", "text-primary": "#0F172A", "status-alert": "#BE123C", "inverse-surface": "#2d3133", "on-background": "#191c1e", "surface-variant": "#e0e3e5", "tertiary-fixed-dim": "#7bd0ff", "surface-container": "#eceef0", "surface-bright": "#f7f9fb" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-sm": "0.625rem", "gutter": "1rem", "space-md": "1rem", "space-lg": "1.5rem", "space-xl": "2rem", "margin": "1.25rem", "space-xs": "0.375rem" }, fontFamily: { "body-sm": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"] }, fontSize: { "body-sm": ["14px", { "lineHeight": "21px", "fontWeight": "400" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "800" }], "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "700" }], "body-md": ["16px", { "lineHeight": "25px", "fontWeight": "400" }], "label-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "body-lg": ["17px", { "lineHeight": "26px", "fontWeight": "400" }], "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }] } } } };</script>
 </head>
-<body class="page-transition">
+<body class="bg-background font-body-md text-on-surface antialiased min-h-full flex flex-col">
+<header class="fixed top-0 w-full z-50 pt-safe bg-surface-card/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]">
+<div class="h-20 px-margin flex items-center justify-between gap-space-sm">
+<div class="flex flex-col justify-center min-w-0">
+<div class="flex items-center gap-space-xs">
+<span aria-hidden="true" class="text-headline-sm">🌿</span>
+<span class="font-headline-sm text-headline-sm text-text-primary tracking-tight truncate">Adaptive Rehabilitation Decision Support System</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-status-safe-bg text-status-safe"><span aria-hidden="true" class="w-2 h-2 rounded-full bg-status-safe animate-pulse"></span><span class="font-label-sm text-label-sm">Everything is working smoothly</span></span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<button aria-label="Quick Help &amp; Clarification" class="w-11 h-11 rounded-xl flex items-center justify-center text-text-secondary bg-surface-container-subtle hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[22px]">help</span></button>
+<a aria-label="Profile" class="w-11 h-11 flex items-center justify-center" data-path="support" href="#"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></a>
+</div>
+</div>
+</header>
+<main class="flex flex-col relative w-full px-margin pt-20 pb-28 bg-surface">
+<div class="flex flex-col w-full space-y-space-lg">
+<!-- HERO COMPANION: Live Walking Companion & Sensor Status -->
+<section class="bg-surface-card rounded-2xl p-margin shadow-sm relative overflow-hidden flex flex-col gap-space-md">
+<!-- Gentle Ambient Top Accent -->
+<div class="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-primary-fixed/20 blur-2xl pointer-events-none"></div>
+<!-- Header Meta & Status Pill -->
+<div class="flex items-center justify-between gap-space-xs z-10">
+<div class="flex items-center gap-space-xs">
+<span aria-hidden="true" class="w-2.5 h-2.5 rounded-full bg-status-safe animate-ping"></span>
+<span class="font-label-md text-label-md text-text-primary">Live Companion</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-safe-bg text-status-safe">
+<span class="material-symbols-outlined text-[16px]">sensors</span>
+<span class="font-label-sm text-label-sm">Smart Insole Connected • Calibrated</span>
+</div>
+</div>
+<!-- Primary Metric & Waveform Display -->
+<div class="flex flex-col gap-space-xs z-10">
+<div class="flex items-baseline justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Session Time</span>
+<div class="font-headline-xl-mobile text-headline-xl-mobile text-text-primary mt-0.5" id="timer-display">25:51</div>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Steps Walked</span>
+<div class="font-headline-xl-mobile text-headline-xl-mobile text-primary mt-0.5" id="step-counter">1,587</div>
+</div>
+</div>
+<!-- Real-time Stride Waveform -->
+<div class="bg-surface-container-subtle rounded-xl p-space-sm flex flex-col gap-1 mt-space-xs">
+<div class="flex items-center justify-between text-text-muted">
+<span class="font-label-sm text-label-sm flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-primary">graphic_eq</span>Stride Consistency Stream<span class="font-label-sm text-label-sm text-status-safe font-semibold">Steady Pace (94%)</span></span>
+</div>
+<div class="w-full h-12 flex items-center justify-between px-1">
+<!-- Animated SVG Waveform -->
+<svg class="w-full h-10 text-primary-container" fill="none" preserveAspectRatio="none" viewBox="0 0 320 40"><path class="opacity-90" d="M0 20 Q 20 5, 40 20 T 80 20 T 120 10 T 160 30 T 200 18 T 240 22 T 280 12 T 320 20" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path><path class="opacity-40" d="M0 20 Q 20 12, 40 20 T 80 20 T 120 15 T 160 25 T 200 19 T 240 21 T 280 16 T 320 20" stroke="currentColor" stroke-dasharray="3 3" stroke-width="1.5"></path></svg>
+</div>
+</div>
+</div>
+<!-- Live Telemetry Pill Cards (Plain Language) -->
+<div class="grid grid-cols-1 gap-space-xs z-10">
+<!-- Pace -->
+<div class="flex items-center justify-between bg-surface-container-low rounded-xl px-space-md py-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-card flex items-center justify-center text-primary shadow-sm"><span class="material-symbols-outlined text-[20px]">speed</span></div>
+<div>
+<div class="font-label-md text-label-md text-text-primary">Pace: 0.74 m/s</div>
+<div class="font-body-sm text-body-sm text-text-muted">Nice, steady stride!</div>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-status-safe-bg text-status-safe font-label-sm text-label-sm">Safe</span>
+</div>
+<!-- Balance -->
+<div class="flex items-center justify-between bg-surface-container-low rounded-xl px-space-md py-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-card flex items-center justify-center text-secondary shadow-sm"><span class="material-symbols-outlined text-[20px]">balance</span></div>
+<div>
+<div class="font-label-md text-label-md text-text-primary">Balance: 76%</div>
+<div class="font-body-sm text-body-sm text-text-muted">Left &amp; right evenly matched</div>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-status-safe-bg text-status-safe font-label-sm text-label-sm">Balanced</span>
+</div>
+<!-- Socket Comfort -->
+<div class="flex items-center justify-between bg-surface-container-low rounded-xl px-space-md py-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-card flex items-center justify-center text-primary-container shadow-sm"><span class="material-symbols-outlined text-[20px]">shield_with_heart</span></div>
+<div>
+<div class="font-label-md text-label-md text-text-primary">Socket Comfort: 44 kPa</div>
+<div class="font-body-sm text-body-sm text-text-muted">Comfortable &amp; safe zone</div>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-status-safe-bg text-status-safe font-label-sm text-label-sm">Optimal</span>
+</div>
+</div>
+<!-- Active Action Buttons -->
+<div class="flex items-center gap-space-xs pt-space-xs z-10">
+<button class="flex-1 h-[52px] bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-md hover:bg-primary" id="btn-toggle-walk"><span class="material-symbols-outlined text-[22px]" id="walk-icon">pause</span><span id="walk-btn-label" class="">Pause Walking</span></button>
+<button class="h-[52px] px-space-md bg-surface-container-subtle text-text-secondary hover:text-text-primary rounded-xl font-label-md text-label-md flex items-center justify-center gap-1 active:scale-[0.98] transition-all" id="btn-end-session"><span class="material-symbols-outlined text-[20px]">stop_circle</span><span class="">Save Walk</span></button>
+</div>
+</section>
+<!-- SECTION 2: Add a Walking Session (Friendly Data Ingestion) -->
+<section class="bg-surface-card rounded-2xl p-margin shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-text-primary tracking-tight">Sync New Walk</h2>
+<p class="font-body-sm text-body-sm text-text-muted">Upload sensor telemetry or pick a saved routine</p>
+</div>
+<div class="w-10 h-10 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center"><span class="material-symbols-outlined text-[22px]">cloud_sync</span></div>
+</div>
+<!-- Friendly Dropzone -->
+<div class="bg-surface-container-subtle rounded-xl p-space-md flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-high transition-colors" id="drop-zone">
+<div class="w-12 h-12 rounded-full bg-surface-card text-primary flex items-center justify-center mb-space-xs shadow-sm"><span class="material-symbols-outlined text-[26px]">upload_file</span></div>
+<span class="font-label-md text-label-md text-text-primary">Sync from tracker or insole file</span>
+<span class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">Tap to choose a .csv file from your Smart Insole, or drop it here</span>
+<input accept=".csv, .txt" class="hidden" id="file-input" type="file">
+<button class="mt-space-sm px-space-md py-2 rounded-lg bg-surface-card text-primary font-label-md text-label-md shadow-sm active:scale-[0.98]" onclick="document.getElementById('file-input').click()" type="button">Choose File</button>
+</div>
+<!-- 1-Tap Presets -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-text-muted">Or try a test walk preset:</span>
+<div class="grid grid-cols-1 gap-2">
+<button class="preset-pill w-full flex items-center justify-between px-space-md py-space-sm bg-surface-container-low rounded-xl text-left hover:bg-secondary-fixed/40 transition-colors" data-preset="morning"><div class="flex items-center gap-space-xs"><span class="text-[18px]">🌅</span><div><div class="font-label-md text-label-md text-text-primary">Morning Neighborhood Walk</div><div class="font-body-sm text-body-sm text-text-muted">0.76 m/s • 18 min • Low fatigue</div></div></div><span class="material-symbols-outlined text-text-muted text-[18px]">play_circle</span></button>
+<button class="preset-pill w-full flex items-center justify-between px-space-md py-space-sm bg-surface-container-low rounded-xl text-left hover:bg-secondary-fixed/40 transition-colors" data-preset="park"><div class="flex items-center gap-space-xs"><span class="text-[18px]">🌳</span><div><div class="font-label-md text-label-md text-text-primary">Afternoon Park Stroll</div><div class="font-body-sm text-body-sm text-text-muted">0.72 m/s • 24 min • Gentle incline</div></div></div><span class="material-symbols-outlined text-text-muted text-[18px]">play_circle</span></button>
+<button class="preset-pill w-full flex items-center justify-between px-space-md py-space-sm bg-surface-container-low rounded-xl text-left hover:bg-secondary-fixed/40 transition-colors" data-preset="treadmill"><div class="flex items-center gap-space-xs"><span class="text-[18px]">🏃</span><div><div class="font-label-md text-label-md text-text-primary">Rehab Treadmill Session</div><div class="font-body-sm text-body-sm text-text-muted">0.78 m/s • 12 min • High balance focus</div></div></div><span class="material-symbols-outlined text-text-muted text-[18px]">play_circle</span></button>
+</div>
+</div>
+<!-- Plain-English 4-Step Pipeline Indicator -->
+<div class="bg-surface-container-subtle rounded-xl p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Automated Safety Check</span><span class="font-label-sm text-label-sm text-status-safe flex items-center gap-1 font-semibold"><span class="material-symbols-outlined text-[14px]">check_circle</span> 4 of 4 Ready</span></div>
+<!-- 4 Stepper Cards -->
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-surface-card rounded-lg p-2.5 flex flex-col gap-1 shadow-sm"><div class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[16px]">directions_run</span><span class="font-label-sm text-label-sm">1. Read Movement</span></div><p class="font-body-sm text-body-sm text-text-muted leading-tight">Syncs stride rates &amp; foot strike smoothly</p></div>
+<div class="bg-surface-card rounded-lg p-2.5 flex flex-col gap-1 shadow-sm"><div class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[16px]">balance</span><span class="font-label-sm text-label-sm">2. Check Symmetry</span></div><p class="font-body-sm text-body-sm text-text-muted leading-tight">Compares weight between left and right</p></div>
+<div class="bg-surface-card rounded-lg p-2.5 flex flex-col gap-1 shadow-sm"><div class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[16px]">verified_user</span><span class="font-label-sm text-label-sm">3. Socket Safety</span></div><p class="font-body-sm text-body-sm text-text-muted leading-tight">Guarantees stump tissue stays protected</p></div>
+<div class="bg-surface-card rounded-lg p-2.5 flex flex-col gap-1 shadow-sm"><div class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[16px]">psychology_alt</span><span class="font-label-sm text-label-sm">4. Daily Advice</span></div><p class="font-body-sm text-body-sm text-text-muted leading-tight">Prepares personal pacing recommendations</p></div>
+</div>
+</div>
+<!-- SECTION 3: Interactive Walking Simulator ("What-If" Explorer) -->
+<section class="bg-surface-card rounded-2xl p-margin shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-text-primary tracking-tight">"What-If" Walking Explorer</h2>
+<p class="font-body-sm text-body-sm text-text-muted">See how speed, rest, and pressure change your progress</p>
+</div>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container-subtle text-text-secondary font-label-sm text-label-sm hover:text-text-primary flex items-center gap-1" id="reset-sliders-btn"><span class="material-symbols-outlined text-[16px]">refresh</span> Reset</button>
+</div>
+<!-- Friendly Explanation Box -->
+<div class="bg-secondary-container/30 rounded-xl p-space-sm flex items-start gap-space-xs text-on-secondary-container"><span class="material-symbols-outlined text-[20px] text-secondary flex-shrink-0 mt-0.5">info</span><p class="font-body-sm text-body-sm leading-snug">Adjusting these won't change your real doctor records. It just helps you understand how rest and pace improve your recovery score!</p></div>
+<!-- Sliders Form -->
+<div class="flex flex-col gap-space-md">
+<!-- Slider 1: Walking Speed -->
+<div class="flex flex-col gap-1"><div class="flex items-center justify-between"><label class="font-label-md text-label-md text-text-primary" for="speed-slider">Walking Speed</label><span class="font-label-md text-label-md text-primary" id="speed-val">0.74 m/s</span></div><div class="flex items-center justify-between text-text-muted font-body-sm text-body-sm"><span class="">Target: 0.75+ m/s</span><span class="font-label-sm text-label-sm text-status-safe">Gentle &amp; Steady</span></div><input class="w-full h-3 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" id="speed-slider" max="1.30" min="0.40" step="0.02" type="range" value="0.74"></div>
+<!-- Slider 2: Stride Balance -->
+<div class="flex flex-col gap-1"><div class="flex items-center justify-between"><label class="font-label-md text-label-md text-text-primary" for="balance-slider">Stride Balance</label><span class="font-label-md text-label-md text-primary" id="balance-val">76%</span></div><div class="flex items-center justify-between text-text-muted font-body-sm text-body-sm"><span class="">Target: 75%+</span><span class="font-label-sm text-label-sm text-status-safe">Symmetric</span></div><input class="w-full h-3 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" id="balance-slider" max="100" min="40" step="1" type="range" value="76"></div>
+<!-- Slider 3: Step Push-off Power -->
+<div class="flex flex-col gap-1"><div class="flex items-center justify-between"><label class="font-label-md text-label-md text-text-primary" for="power-slider">Step Push-off Power</label><span class="font-label-md text-label-md text-primary" id="power-val">70%</span></div><div class="flex items-center justify-between text-text-muted font-body-sm text-body-sm"><span class="">Target: 70%+</span><span class="font-label-sm text-label-sm text-status-safe">Strong Roll-over</span></div><input class="w-full h-3 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" id="power-slider" max="100" min="30" step="1" type="range" value="70"></div>
+<!-- Slider 4: Socket Pressure -->
+<div class="flex flex-col gap-1"><div class="flex items-center justify-between"><label class="font-label-md text-label-md text-text-primary" for="pressure-slider">Socket Pressure</label><span class="font-label-md text-label-md text-primary" id="pressure-val">44 kPa</span></div><div class="flex items-center justify-between text-text-muted font-body-sm text-body-sm"><span class="">Safe Zone: 30 - 50 kPa</span><span class="font-label-sm text-label-sm text-status-safe" id="pressure-tag">Comfortable</span></div><input class="w-full h-3 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" id="pressure-slider" max="75" min="20" step="1" type="range" value="44"></div>
+<!-- Slider 5: Fatigue / Energy -->
+<div class="flex flex-col gap-1"><div class="flex items-center justify-between"><label class="font-label-md text-label-md text-text-primary" for="fatigue-slider">Fatigue / Energy Spent</label><span class="font-label-md text-label-md text-primary" id="fatigue-val">17%</span></div><div class="flex items-center justify-between text-text-muted font-body-sm text-body-sm"><span class="">Safe: Under 30%</span><span class="font-label-sm text-label-sm text-status-safe" id="fatigue-tag">Fresh</span></div><input class="w-full h-3 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" id="fatigue-slider" max="80" min="5" step="1" type="range" value="17"></div>
+</div>
+<!-- Live Simulated Dynamic Outcome Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-xs transition-colors" id="simulated-outcome-card"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Simulated Walking Score</span><span class="font-headline-sm text-headline-sm text-primary font-bold" id="simulated-score">78 / 100</span></div><div class="w-full bg-surface-container-highest rounded-full h-2.5 overflow-hidden"><div class="bg-primary h-full rounded-full transition-all duration-300" id="simulated-score-bar" style="width: 78%;"></div></div><div class="flex items-start gap-2 mt-1"><span class="material-symbols-outlined text-[20px] text-status-safe" id="simulated-status-icon">check_circle</span><div><span class="font-label-md text-label-md text-text-primary" id="simulated-status-title">Improving Steadily</span><p class="font-body-sm text-body-sm text-text-muted leading-snug" id="simulated-status-desc">Your speed and balance are in a healthy groove. Socket pressure remains well protected.</p></div></div></div>
+</section>
+<!-- SECTION 4: Safety & Walking Guardrails (Rule Engine Translated) -->
+<section class="bg-surface-card rounded-2xl p-margin shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between"><div><h2 class="font-headline-md text-headline-md text-text-primary tracking-tight">Walking Safeguards</h2><p class="font-body-sm text-body-sm text-text-muted">How the Hub protects your residual limb in real time</p></div><div class="w-10 h-10 rounded-xl bg-status-safe-bg text-status-safe flex items-center justify-center"><span class="material-symbols-outlined text-[22px]">health_and_safety</span></div></div>
+<div class="flex flex-col gap-space-xs">
+<!-- Guardrail 1: Tissue Protection -->
+<div class="bg-surface-container-subtle rounded-xl p-space-md flex items-start gap-space-xs"><div class="w-10 h-10 rounded-full bg-surface-card text-status-safe flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5"><span class="material-symbols-outlined text-[20px]">shield</span></div><div class="flex flex-col gap-0.5"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-text-primary">Stump &amp; Skin Protection</span><span class="px-2 py-0.5 rounded-full bg-status-safe-bg text-status-safe font-label-sm text-label-sm">Active</span></div><p class="font-body-sm text-body-sm text-text-secondary">If socket pressure rises above 55 kPa, the companion asks you to take a brief 2‑minute seated pause before skin redness can develop.</p></div></div>
+<!-- Guardrail 2: Pacing Cap -->
+<div class="bg-surface-container-subtle rounded-xl p-space-md flex items-start gap-space-xs"><div class="w-10 h-10 rounded-full bg-surface-card text-secondary flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5"><span class="material-symbols-outlined text-[20px]">slow_motion_video</span></div><div class="flex flex-col gap-0.5"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-text-primary">Speed Ceiling (Max 1.4 m/s)</span><span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">Pacing</span></div><p class="font-body-sm text-body-sm text-text-secondary">Fast walks can cause micro‑stumbles. We gently nudge you to stay under 1.4 m/s to maintain high stance balance and energy reserves.</p></div></div>
+<!-- Guardrail 3: Fatigue Recovery -->
+<div class="bg-surface-container-subtle rounded-xl p-space-md flex items-start gap-space-xs"><div class="w-10 h-10 rounded-full bg-surface-card text-status-warning flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5"><span class="material-symbols-outlined text-[20px]">battery_charging_full</span></div><div class="flex flex-col gap-0.5"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-text-primary">Rest Before Fatigue Hits</span><span class="px-2 py-0.5 rounded-full bg-status-warning-bg text-status-warning font-label-sm text-label-sm">Smart Breather</span></div><p class="font-body-sm text-body-sm text-text-secondary">When exertion reaches 30%, our adaptive algorithm recommends a 90‑second breathing stop so your muscle power stays stable.</p></div></div>
+</div>
+</section>
+<!-- Contact Physical Therapist Card -->
+<div class="bg-primary/5 rounded-xl p-space-md flex items-center justify-between gap-space-xs mt-space-xs"><div class="flex items-center gap-space-xs"><div class="w-11 h-11 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-sm text-headline-sm font-bold shadow-sm">RT</div><div><div class="font-label-md text-label-md text-text-primary">Dr. Rachel Thorne</div><div class="font-body-sm text-body-sm text-text-muted">Therapy Specialist • Active</div></div></div><button class="h-10 px-space-md bg-surface-card text-primary rounded-xl font-label-md text-label-md shadow-sm hover:bg-surface-container-subtle flex items-center gap-1 active:scale-[0.98]"><span class="material-symbols-outlined text-[18px]">chat</span> Message</button></div>
+</div>
+</main>
+<nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-card/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.04)]" data-active-classes="text-primary bg-primary-fixed/30 font-label-md">
+<div class="h-20 px-margin flex items-center justify-between">
+<a aria-current="page" class="flex flex-col items-center justify-center w-16 h-16 rounded-xl transition-all duration-150 text-primary bg-primary-fixed/30 font-label-md" data-path="today" href="#"><span class="material-symbols-outlined text-[24px]">vital_signs</span><span class="font-label-sm text-label-sm mt-1">Today</span></a>
+<a class="flex flex-col items-center justify-center w-16 h-16 rounded-xl text-text-secondary hover:text-text-primary transition-all duration-150" data-path="walking" href="#"><span class="material-symbols-outlined text-[24px]">directions_walk</span><span class="font-label-sm text-label-sm mt-1">Walking</span></a>
+<a class="flex flex-col items-center justify-center w-16 h-16 rounded-xl text-text-secondary hover:text-text-primary transition-all duration-150" data-path="progress" href="#"><span class="material-symbols-outlined text-[24px]">insights</span><span class="font-label-sm text-label-sm mt-1">Progress</span></a>
+<a class="flex flex-col items-center justify-center w-16 h-16 rounded-xl text-text-secondary hover:text-text-primary transition-all duration-150" data-path="support" href="#"><span class="material-symbols-outlined text-[24px]">handshake</span><span class="font-label-sm text-label-sm mt-1">Support</span></a>
+</div>
+</nav>
+<script>
+  (function() {
+    // --- Live Companion Timer & Toggling ---
+    let walking = true;
+    let seconds = 872; // 14m 32s
+    let steps = 1248;
+    const timerEl = document.getElementById('timer-display');
+    const stepEl = document.getElementById('step-counter');
+    const toggleBtn = document.getElementById('btn-toggle-walk');
+    const walkIcon = document.getElementById('walk-icon');
+    const walkLabel = document.getElementById('walk-btn-label');
 
-  <!-- ==================== HEADER ==================== -->
-  <header class="header" id="siteHeader">
-    <div class="container header-inner">
-      <a href="index.html" class="logo" aria-label="ARDS Home">
-        <div class="logo-icon" aria-hidden="true">
-          <svg viewBox="0 0 36 36" fill="none">
-            <path d="M5 19h6l3-8 4 14 3.5-9.5L23 19h8" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <span class="logo-text">ARDS<span>.</span></span>
-      </a>
+    setInterval(() => {
+      if (!walking) return;
+      seconds++;
+      if (seconds % 2 === 0) {
+        steps += 1;
+        stepEl.textContent = steps.toLocaleString();
+      }
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 0;
+      timerEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }, 1000);
 
-      <nav class="nav-desktop" aria-label="Primary navigation">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="about.html" class="nav-link">About</a>
-        <div class="nav-dropdown">
-          <button class="nav-dropdown-toggle" aria-haspopup="true">
-            Services
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="nav-dropdown-menu">
-            <a href="services.html#analytics"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Analytics Dashboard</a>
-            <a href="services.html#safety"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Safety Governor</a>
-            <a href="services.html#xai"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>XAI Explanations</a>
-            <a href="services.html#voice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Voice Assistant</a>
-          </div>
-        </div>
-        <a href="blog.html" class="nav-link">Blog</a>
-        <a href="community.html" class="nav-link">Community</a>
-        <a href="contact.html" class="nav-link">Contact</a>
-      </nav>
+    toggleBtn.addEventListener('click', () => {
+      walking = !walking;
+      if (walking) {
+        walkIcon.textContent = 'pause';
+        walkLabel.textContent = 'Pause Walking';
+        toggleBtn.classList.remove('bg-status-safe');
+        toggleBtn.classList.add('bg-primary-container');
+      } else {
+        walkIcon.textContent = 'play_arrow';
+        walkLabel.textContent = 'Resume Walking';
+        toggleBtn.classList.remove('bg-primary-container');
+        toggleBtn.classList.add('bg-status-safe');
+      }
+    });
 
-      <div class="header-actions">
-        <a href="../index.html" class="btn btn-primary btn-sm flex items-center gap-1.5">Launch Portal</a>
-        <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </div>
-  </header>
+    // --- Interactive "What-If" Explorer Simulator ---
+    const speedSlider = document.getElementById('speed-slider');
+    const balanceSlider = document.getElementById('balance-slider');
+    const powerSlider = document.getElementById('power-slider');
+    const pressureSlider = document.getElementById('pressure-slider');
+    const fatigueSlider = document.getElementById('fatigue-slider');
 
-  <!-- ==================== MOBILE MENU ==================== -->
-  <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-    <a href="index.html" class="mobile-nav-link">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-      Home
-    </a>
-    <a href="about.html" class="mobile-nav-link">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
-      About
-    </a>
-    <a href="services.html" class="mobile-nav-link">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Services
-    </a>
-    <a href="blog.html" class="mobile-nav-link">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      Blog
-    </a>
-    <a href="community.html" class="mobile-nav-link">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      Community
-    </a>
-    <a href="contact.html" class="mobile-nav-link">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
-      Contact
-    </a>
-    <div class="mobile-menu-actions">
-      <a href="../index.html" class="btn btn-primary btn-lg btn-full">Launch Clinician Portal</a>
-    </div>
-  </nav>
+    const speedVal = document.getElementById('speed-val');
+    const balanceVal = document.getElementById('balance-val');
+    const powerVal = document.getElementById('power-val');
+    const pressureVal = document.getElementById('pressure-val');
+    const fatigueVal = document.getElementById('fatigue-val');
+    const pressureTag = document.getElementById('pressure-tag');
+    const fatigueTag = document.getElementById('fatigue-tag');
 
-  <main>
-    <!-- ==================== HERO ==================== -->
-    <section class="hero">
-      <div class="hero-bg" aria-hidden="true">
-        <div class="hero-bg-gradient"></div>
-        <div class="hero-grid-pattern"></div>
-        <span class="hero-orb hero-orb-1"></span>
-        <span class="hero-orb hero-orb-2"></span>
-        <span class="hero-orb hero-orb-3"></span>
-      </div>
+    const simulatedScore = document.getElementById('simulated-score');
+    const simulatedScoreBar = document.getElementById('simulated-score-bar');
+    const simulatedStatusIcon = document.getElementById('simulated-status-icon');
+    const simulatedStatusTitle = document.getElementById('simulated-status-title');
+    const simulatedStatusDesc = document.getElementById('simulated-status-desc');
+    const resetBtn = document.getElementById('reset-sliders-btn');
 
-      <div class="container hero-content">
-        <div class="hero-text">
-          <span class="hero-badge"><span class="dot"></span> AI-Powered Clinical Intelligence</span>
-          <h1 class="heading-xl hero-title">Smarter Decisions for <span class="gradient-text">Rehabilitation</span> Care</h1>
-          <p class="hero-description">
-            ARDS delivers real-time, explainable AI insights for lower-limb amputee rehabilitation &mdash; combining predictive analytics with transparent, safety-first clinical decision support.
-          </p>
-          <div class="hero-actions">
-            <a href="../index.html" class="btn btn-primary btn-lg">
-              Launch Clinician Portal
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-            <a href="services.html" class="btn btn-secondary btn-lg">Explore Features</a>
-          </div>
-        </div>
+    function updateSimulation() {
+      const speed = parseFloat(speedSlider.value);
+      const balance = parseInt(balanceSlider.value, 10);
+      const power = parseInt(powerSlider.value, 10);
+      const pressure = parseInt(pressureSlider.value, 10);
+      const fatigue = parseInt(fatigueSlider.value, 10);
 
-        <div class="hero-visual">
-          <div class="hero-card-main">
-            <div class="hero-stats">
-              <div class="hero-stat">
-                <div class="hero-stat-value" data-count="94" data-suffix="%">0%</div>
-                <div class="hero-stat-label">Accuracy</div>
-              </div>
-              <div class="hero-stat">
-                <div class="hero-stat-value" data-count="1200" data-suffix="+">0</div>
-                <div class="hero-stat-label">Sessions</div>
-              </div>
-              <div class="hero-stat">
-                <div class="hero-stat-value" data-count="40" data-suffix="%">0%</div>
-                <div class="hero-stat-label">Faster Care</div>
-              </div>
-            </div>
-            <div class="hero-chart-placeholder">
-              <div class="hero-float-icon" style="background: rgba(2,132,199,0.1); margin-bottom: 0;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
-              </div>
-            </div>
-          </div>
+      // Display Values
+      speedVal.textContent = `${speed.toFixed(2)} m/s`;
+      balanceVal.textContent = `${balance}%`;
+      powerVal.textContent = `${power}%`;
+      pressureVal.textContent = `${pressure} kPa`;
+      fatigueVal.textContent = `${fatigue}%`;
 
-          <div class="hero-float-card hero-float-card-1">
-            <div class="hero-float-icon" style="background: rgba(16,185,129,0.12);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
-            </div>
-            <div class="hero-float-text">Alerts Resolved</div>
-            <div class="hero-float-sub">98.2% response rate</div>
-          </div>
+      // Status Tags
+      if (pressure <= 50) {
+        pressureTag.textContent = 'Comfortable';
+        pressureTag.className = 'font-label-sm text-label-sm text-status-safe';
+      } else if (pressure <= 58) {
+        pressureTag.textContent = 'Guarded';
+        pressureTag.className = 'font-label-sm text-label-sm text-status-warning';
+      } else {
+        pressureTag.textContent = 'High - Risk of Redness';
+        pressureTag.className = 'font-label-sm text-label-sm text-status-alert font-bold';
+      }
 
-          <div class="hero-float-card hero-float-card-2">
-            <div class="hero-float-icon" style="background: rgba(139,92,246,0.12);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6v6l4 2"/></svg>
-            </div>
-            <div class="hero-float-text">Real-Time XAI</div>
-            <div class="hero-float-sub">Explainable AI insights</div>
-          </div>
-        </div>
-      </div>
-    </section>
+      if (fatigue < 30) {
+        fatigueTag.textContent = 'Fresh';
+        fatigueTag.className = 'font-label-sm text-label-sm text-status-safe';
+      } else if (fatigue <= 55) {
+        fatigueTag.textContent = 'Moderate';
+        fatigueTag.className = 'font-label-sm text-label-sm text-status-warning';
+      } else {
+        fatigueTag.textContent = 'High - Break Needed';
+        fatigueTag.className = 'font-label-sm text-label-sm text-status-alert font-bold';
+      }
 
-    <!-- ==================== HIGHLIGHTS ==================== -->
-    <section class="section" id="highlights">
-      <div class="container">
-        <div style="text-align: center; margin-bottom: var(--space-3xl);" class="reveal">
-          <h2 class="heading-lg">Why Choose ARDS?</h2>
-          <p class="text-md text-muted" style="max-width: 560px; margin: var(--space-md) auto 0;">
-            A complete decision-support platform built for clinicians, therapists, and patients.
-          </p>
-        </div>
+      // Calculation Formula from Clinical Spec:
+      // Score = 0.30*(speed/1.2*100) + 0.25*balance + 0.20*power + 0.15*balance + 0.10*(100 - fatigue)
+      // clamped by pressure governor
+      let normalizedSpeed = Math.min(100, (speed / 1.0) * 100);
+      let calculatedScore = Math.round(
+        0.30 * normalizedSpeed +
+        0.25 * balance +
+        0.20 * power +
+        0.10 * (100 - fatigue) +
+        0.15 * ((balance + power) / 2)
+      );
 
-        <div class="highlights-grid">
-          <div class="highlight-card reveal">
-            <div class="highlight-icon" style="background: rgba(2,132,199,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            </div>
-            <h3>Real-Time Analytics</h3>
-            <p>Live session monitoring with instant Rehabilitation Score computation and trend detection across every patient interaction.</p>
-          </div>
+      // Rule Engine Clamps
+      if (pressure > 58) calculatedScore = Math.min(calculatedScore, 52);
+      if (fatigue > 55) calculatedScore = Math.min(calculatedScore, 58);
+      calculatedScore = Math.min(98, Math.max(25, calculatedScore));
 
-          <div class="highlight-card reveal reveal-delay-1">
-            <div class="highlight-icon" style="background: rgba(13,148,136,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-            </div>
-            <h3>Safety-First Design</h3>
-            <p>Automated safety governor enforces physiological constraints and flags critical alerts before recommendations reach clinicians.</p>
-          </div>
+      simulatedScore.textContent = `${calculatedScore} / 100`;
+      simulatedScoreBar.style.width = `${calculatedScore}%`;
 
-          <div class="highlight-card reveal reveal-delay-2">
-            <div class="highlight-icon" style="background: rgba(139,92,246,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-            </div>
-            <h3>Transparent XAI</h3>
-            <p>Every prediction comes with clear contribution breakdowns &mdash; clinicians always understand the "why" behind recommendations.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+      if (calculatedScore >= 75) {
+        simulatedScoreBar.className = 'bg-status-safe h-full rounded-full transition-all duration-300';
+        simulatedStatusIcon.textContent = 'check_circle';
+        simulatedStatusIcon.className = 'material-symbols-outlined text-[20px] text-status-safe';
+        simulatedStatusTitle.textContent = 'Improving Steadily';
+        simulatedStatusDesc.textContent = 'Your speed and balance are in a healthy groove. Socket pressure remains well protected.';
+      } else if (calculatedScore >= 55) {
+        simulatedScoreBar.className = 'bg-status-warning h-full rounded-full transition-all duration-300';
+        simulatedStatusIcon.textContent = 'info';
+        simulatedStatusIcon.className = 'material-symbols-outlined text-[20px] text-status-warning';
+        simulatedStatusTitle.textContent = 'Guarded Progression';
+        simulatedStatusDesc.textContent = 'Pacing is acceptable, but consider resting soon to maintain symmetric step push-off.';
+      } else {
+        simulatedScoreBar.className = 'bg-status-alert h-full rounded-full transition-all duration-300';
+        simulatedStatusIcon.textContent = 'warning';
+        simulatedStatusIcon.className = 'material-symbols-outlined text-[20px] text-status-alert';
+        simulatedStatusTitle.textContent = 'Break Recommended';
+        simulatedStatusDesc.textContent = 'High socket pressure or fatigue detected. Taking a 5‑minute break will restore joint alignment.';
+      }
+    }
 
-    <!-- ==================== CTA ==================== -->
-    <section class="section-sm cta-section">
-      <div class="container">
-        <div class="cta-inner reveal">
-          <div class="cta-content">
-            <h2 class="cta-title">Ready to Transform Rehabilitation Care?</h2>
-            <p class="cta-text">Join the growing community of clinicians using ARDS to deliver faster, safer, smarter rehabilitation outcomes.</p>
-            <div class="cta-actions">
-              <a href="contact.html" class="btn btn-xl" style="background: white; color: #0369a1;">Get Started Free</a>
-              <a href="about.html" class="btn btn-xl" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);">Learn More</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+    [speedSlider, balanceSlider, powerSlider, pressureSlider, fatigueSlider].forEach(slider => {
+      slider.addEventListener('input', updateSimulation);
+    });
 
-  <!-- ==================== FOOTER ==================== -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a href="index.html" class="logo">
-            <div class="logo-icon" aria-hidden="true">
-              <svg viewBox="0 0 36 36" fill="none">
-                <path d="M5 19h6l3-8 4 14 3.5-9.5L23 19h8" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <span class="logo-text" style="color: white;">ARDS<span>.</span></span>
-          </a>
-          <p>Adaptive Rehabilitation Decision Support System &mdash; AI-assisted clinical intelligence for lower-limb amputee rehabilitation.</p>
-          <form id="newsletterForm" style="margin-top: var(--space-lg); display: flex; gap: 8px; max-width: 320px;">
-            <input type="email" placeholder="Your email" required style="flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #1e293b; background: #0f172a; color: white; font-size: 0.85rem;">
-            <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
-          </form>
-        </div>
+    resetBtn.addEventListener('click', () => {
+      speedSlider.value = '0.74';
+      balanceSlider.value = '76';
+      powerSlider.value = '70';
+      pressureSlider.value = '44';
+      fatigueSlider.value = '17';
+      updateSimulation();
+    });
 
-        <div class="footer-col">
-          <h4>Company</h4>
-          <a href="about.html">About Us</a>
-          <a href="about.html">Our Team</a>
-          <a href="blog.html">Blog</a>
-          <a href="contact.html">Contact</a>
-        </div>
+    // Presets Click Handlers
+    document.querySelectorAll('.preset-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const type = pill.dataset.preset;
+        if (type === 'morning') {
+          speedSlider.value = '0.76';
+          balanceSlider.value = '80';
+          powerSlider.value = '74';
+          pressureSlider.value = '42';
+          fatigueSlider.value = '14';
+        } else if (type === 'park') {
+          speedSlider.value = '0.72';
+          balanceSlider.value = '75';
+          powerSlider.value = '68';
+          pressureSlider.value = '46';
+          fatigueSlider.value = '22';
+        } else if (type === 'treadmill') {
+          speedSlider.value = '0.80';
+          balanceSlider.value = '84';
+          powerSlider.value = '78';
+          pressureSlider.value = '48';
+          fatigueSlider.value = '28';
+        }
+        updateSimulation();
+      });
+    });
 
-        <div class="footer-col">
-          <h4>Services</h4>
-          <a href="services.html">Analytics Dashboard</a>
-          <a href="services.html">Safety Governor</a>
-          <a href="services.html">XAI Explanations</a>
-          <a href="services.html">Voice Assistant</a>
-        </div>
+    // Save Walk micro-interaction
+    const endBtn = document.getElementById('btn-end-session');
+    endBtn.addEventListener('click', () => {
+      endBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-status-safe">check</span> Walk Saved!';
+      setTimeout(() => {
+        endBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">stop_circle</span><span>Save Walk</span>';
+      }, 2000);
+    });
 
-        <div class="footer-col">
-          <h4>Resources</h4>
-          <a href="blog.html">Clinical Updates</a>
-          <a href="services.html">Documentation</a>
-          <a href="contact.html">Support</a>
-          <a href="contact.html">FAQ</a>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p>&copy; 2026 ARDS &mdash; Adaptive Rehabilitation Decision Support System. All rights reserved.</p>
-        <div class="footer-bottom-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">HIPAA Compliance</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <button class="back-to-top" id="backToTop" aria-label="Back to top">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
-  </button>
-
-  <script src="js/main.js"></script>
+    // Dropzone feedback
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        dropZone.querySelector('span.font-label-md').textContent = `Loaded: ${fileInput.files[0].name}`;
+      }
+    });
+  })();
+</script>
 </body>
 </html>
