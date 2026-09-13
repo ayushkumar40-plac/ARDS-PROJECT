@@ -41,9 +41,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Load MQTT library via CDN (must load before js/app.js uses it) -->
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-
   <!-- Custom Clinical Stylesheet -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -483,7 +480,7 @@
                 <button id="btnSwitchClinician" type="button"
                   class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-slate-800 hover:text-slate-100 transition text-left group/item">
                   <span class="w-7 h-7 rounded-lg bg-sky-500/10 flex items-center justify-center flex-shrink-0 group-hover/item:bg-sky-500/20 transition">
-                    <i data-lucide="user-switch" class="w-3.5 h-3.5 text-sky-400"></i>
+                    <i data-lucide="users" class="w-3.5 h-3.5 text-sky-400"></i>
                   </span>
                   <span>Switch Clinician</span>
                 </button>
@@ -519,6 +516,24 @@
 
       <!-- Dynamic Page Sections -->
       <div class="content-wrapper">
+
+        <!-- Global Application Error Boundary (Non-blocking fallback banner) -->
+        <div id="globalErrorBoundary" class="hidden mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm flex items-center justify-between gap-3 shadow-lg">
+          <div class="flex items-center gap-3">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-400 flex-shrink-0"></i>
+            <div>
+              <p class="font-semibold text-rose-200" id="globalErrorTitle">An application error was intercepted</p>
+              <p class="text-xs text-rose-300/80 mt-0.5" id="globalErrorMessage">The interface remains responsive. You can dismiss this alert or reload the active view.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button type="button" onclick="window.ardsApp && window.ardsApp.renderAll ? window.ardsApp.renderAll() : window.location.reload()" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/30 transition">Reload View</button>
+            <button type="button" onclick="document.getElementById('globalErrorBoundary').classList.add('hidden')" class="px-2 py-1 text-xs text-rose-400 hover:text-rose-200 transition">✕</button>
+          </div>
+        </div>
+
+        <!-- Lightweight Toast Notification Container -->
+        <div id="ardsToastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full"></div>
 
         <!-- ============================================================== -->
         <!-- SECTION 1: HOME / SESSION OVERVIEW                              -->
@@ -588,7 +603,7 @@
           </div>
 
           <!-- ============================================================== -->
-          <!-- DEVICE CONTROL: ESP32 HARDWARE LINK VIA MQTT                    -->
+          <!--            <!-- Quick KPI Stats Row -->                    -->
           <!-- Commands are sent by sendHardwareCommand() in js/app.js        -->
           <!-- ============================================================== -->
           <div class="ards-card p-6 space-y-4">
@@ -1236,6 +1251,86 @@
             <p class="text-sm text-slate-400 mt-1">System architecture, biomechanical scoring formulation, and
               regulatory disclaimers.</p>
           </div>
+
+          <!-- ═══════════════════════════════════════════════════════════════
+               ALERT CONTACTS — SMS & WhatsApp HIGH-risk notification
+               Phone numbers are stored in localStorage and read by
+               js/alert-dispatcher.js whenever any engine flags HIGH risk.
+          ═══════════════════════════════════════════════════════════════ -->
+          <div class="ards-card p-6 space-y-5" id="alertContactsCard">
+            <div class="flex items-center gap-3">
+              <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex-shrink-0">
+                <i data-lucide="bell-ring" class="w-5 h-5 text-rose-400"></i>
+              </span>
+              <div>
+                <h3 class="text-base font-bold text-slate-100">🚨 HIGH-Risk Alert Contacts</h3>
+                <p class="text-xs text-slate-400 mt-0.5">When any risk engine flags <strong class="text-rose-400">HIGH</strong>, the system automatically sends an <strong>SMS + WhatsApp</strong> message to the numbers below via Twilio.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Doctor phone -->
+              <div class="space-y-1.5">
+                <label for="alertDoctorPhone" class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <i data-lucide="stethoscope" class="w-3.5 h-3.5 text-sky-400"></i>
+                  Doctor / Clinician Phone
+                </label>
+                <div class="flex gap-2">
+                  <input id="alertDoctorPhone" type="tel"
+                    class="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 transition-colors"
+                    placeholder="+91XXXXXXXXXX"
+                    autocomplete="tel"
+                    aria-label="Doctor phone number for HIGH-risk alerts">
+                </div>
+                <p class="text-[11px] text-slate-500">Include country code, e.g. +91 for India</p>
+              </div>
+              <!-- Patient / emergency contact phone -->
+              <div class="space-y-1.5">
+                <label for="alertPatientPhone" class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <i data-lucide="user" class="w-3.5 h-3.5 text-emerald-400"></i>
+                  Patient / Emergency Contact Phone
+                </label>
+                <div class="flex gap-2">
+                  <input id="alertPatientPhone" type="tel"
+                    class="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-colors"
+                    placeholder="+91XXXXXXXXXX"
+                    autocomplete="tel"
+                    aria-label="Patient phone number for HIGH-risk alerts">
+                </div>
+                <p class="text-[11px] text-slate-500">Include country code, e.g. +91 for India</p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <button id="btnSaveAlertContacts"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-sky-900/30"
+                type="button">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                Save Alert Contacts
+              </button>
+              <button id="btnTestAlert"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700 hover:bg-rose-600 text-slate-200 hover:text-white text-sm font-semibold transition-colors"
+                type="button"
+                title="Send a test HIGH-risk alert to the saved numbers">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                Test Alert
+              </button>
+              <span id="alertContactsStatus" class="text-xs text-slate-400"></span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-amber-500/8 border border-amber-500/20 text-amber-200/80 text-[11px] leading-relaxed space-y-1">
+              <p><strong>📋 Setup required:</strong> This feature uses <strong>Twilio</strong> to dispatch messages.</p>
+              <p>Set the following in your <strong>Vercel dashboard → Settings → Environment Variables</strong>:</p>
+              <ul class="list-disc list-inside ml-1 space-y-0.5 font-mono">
+                <li>TWILIO_ACCOUNT_SID</li>
+                <li>TWILIO_AUTH_TOKEN</li>
+                <li>TWILIO_PHONE_NUMBER &nbsp;(your Twilio SMS number, e.g. +15005550006)</li>
+                <li>TWILIO_WHATSAPP_NUMBER &nbsp;(e.g. whatsapp:+14155238886)</li>
+              </ul>
+              <p class="mt-1">Phone numbers entered here are saved only in your browser's local storage.</p>
+            </div>
+          </div>
+          <!-- end Alert Contacts -->
 
           <!-- Mandatory Clinical Disclaimer Box -->
           <div class="p-6 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 text-amber-200 shadow-xl space-y-3">
@@ -1919,6 +2014,7 @@
   <script src="js/voice-assistant.js"></script>
   <script src="js/voice-ui.js"></script>
   <script src="js/chatbot.js"></script>
+  <script src="js/alert-dispatcher.js"></script>
   <script src="js/ai-insights.js"></script>
 
   <!-- Responsive navigation + profile dropdown glue -->
@@ -2034,37 +2130,108 @@
           role:   document.getElementById('dropdownRole'),
           id:     document.getElementById('dropdownDoctorId')
         };
-        if (src.avatar && dst.avatar) dst.avatar.textContent = src.avatar.textContent;
-        if (src.name   && dst.name)   dst.name.textContent   = src.name.textContent;
-        if (src.role   && dst.role)   dst.role.textContent   = src.role.textContent;
-        if (src.id     && dst.id)     dst.id.textContent     = src.id   ? src.id.textContent : '';
+        if (src.avatar && dst.avatar && dst.avatar.textContent !== src.avatar.textContent) dst.avatar.textContent = src.avatar.textContent;
+        if (src.name   && dst.name   && dst.name.textContent   !== src.name.textContent)   dst.name.textContent   = src.name.textContent;
+        if (src.role   && dst.role   && dst.role.textContent   !== src.role.textContent)   dst.role.textContent   = src.role.textContent;
+        var newId = src.id ? src.id.textContent : '';
+        if (dst.id && dst.id.textContent !== newId) dst.id.textContent = newId;
 
         // Populate contact / department details from the signed-in account
         var account = (window.ardsAuth && window.ardsAuth.getAccount)
           ? window.ardsAuth.getAccount() : null;
         var emailEl = document.getElementById('dropdownEmail');
         var deptEl  = document.getElementById('dropdownDept');
-        if (emailEl) {
-          emailEl.textContent = (account && account.email) ? account.email : '—';
+        var newEmail = (account && account.email) ? account.email : '—';
+        if (emailEl && emailEl.textContent !== newEmail) {
+          emailEl.textContent = newEmail;
         }
         if (deptEl) {
           var dept = account
             ? (account.organization || account.specialization || account.role || '')
             : '';
-          deptEl.textContent = dept ? dept : '—';
+          var newDept = dept ? dept : '—';
+          if (deptEl.textContent !== newDept) {
+            deptEl.textContent = newDept;
+          }
         }
       }
 
-      // Observe changes to the chip avatar so dropdown stays in sync
+      // Observe changes to the chip avatar so dropdown stays in sync (guarded against recursive mutation loops)
       var chipAvatar = document.getElementById('userAvatar');
+      var isSyncing = false;
+      var safeSyncDropdown = function () {
+        if (isSyncing) return;
+        isSyncing = true;
+        try {
+          syncDropdown();
+        } finally {
+          isSyncing = false;
+        }
+      };
       if (chipAvatar && window.MutationObserver) {
-        new MutationObserver(syncDropdown).observe(
-          document.getElementById('userChip') || document.body,
+        new MutationObserver(safeSyncDropdown).observe(
+          chipAvatar,
           { childList: true, subtree: true, characterData: true }
         );
       }
       // Also sync on every dropdown open
-      if (profileBtn) profileBtn.addEventListener('click', syncDropdown);
+      if (profileBtn) profileBtn.addEventListener('click', safeSyncDropdown);
+    })();
+  </script>
+
+  <!-- Alert Contacts: Save + Test button logic -->
+  <script>
+    (function () {
+      'use strict';
+
+      function restoreAlertContacts() {
+        var dp = document.getElementById('alertDoctorPhone');
+        var pp = document.getElementById('alertPatientPhone');
+        if (dp) dp.value = localStorage.getItem('ards_doctor_phone') || '';
+        if (pp) pp.value = localStorage.getItem('ards_patient_phone') || '';
+      }
+
+      var saveBtn = document.getElementById('btnSaveAlertContacts');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+          var dp = (document.getElementById('alertDoctorPhone') || {}).value || '';
+          var pp = (document.getElementById('alertPatientPhone') || {}).value || '';
+          localStorage.setItem('ards_doctor_phone', dp.trim());
+          localStorage.setItem('ards_patient_phone', pp.trim());
+          var statusEl = document.getElementById('alertContactsStatus');
+          if (statusEl) {
+            statusEl.textContent = String.fromCharCode(0x2705) + ' Contacts saved!';
+            statusEl.style.color = '#34d399';
+            setTimeout(function () { statusEl.textContent = ''; }, 3000);
+          }
+          if (typeof window.showArdsToast === 'function') {
+            window.showArdsToast('Alert contacts saved to browser storage.', 'success');
+          }
+        });
+      }
+
+      var testBtn = document.getElementById('btnTestAlert');
+      if (testBtn) {
+        testBtn.addEventListener('click', function () {
+          if (window.ardsAlert && typeof window.ardsAlert.dispatch === 'function') {
+            window.ardsAlert.dispatch({
+              riskBand:  'HIGH',
+              riskType:  'Test Alert',
+              riskScore: 75,
+              detail:    'This is a test HIGH-risk alert from the ARDS dashboard. No action required.',
+              patientName: 'Test Patient',
+            });
+          } else if (typeof window.showArdsToast === 'function') {
+            window.showArdsToast('Alert dispatcher not loaded yet. Try again in a moment.', 'warning');
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', restoreAlertContacts);
+      } else {
+        restoreAlertContacts();
+      }
     })();
   </script>
 </body>
