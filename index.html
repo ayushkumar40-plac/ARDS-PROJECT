@@ -816,22 +816,20 @@
         <section id="section-progress" class="tab-section hidden space-y-6">
 
           <div>
-            <h2 class="text-2xl font-bold text-slate-100">Longitudinal Rehabilitation Analytics</h2>
-            <p class="text-sm text-slate-400 mt-1">Multi-session progression trends, score trajectory, and vital
-              biomechanical correlations.</p>
+            <h2 class="text-2xl font-bold text-slate-100">Your Recovery Progress Over Time</h2>
+            <p class="text-sm text-slate-400 mt-1">See how your walking and movement have improved across your sessions.</p>
           </div>
 
           <!-- Primary Score Line Chart -->
           <div class="ards-card p-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
               <div>
-                <h3 class="text-lg font-bold text-slate-100">Rehabilitation Score Trajectory Across Sessions</h3>
-                <p class="text-xs text-slate-400">Formula: <code
-                    class="text-sky-300">0.30×Gait + 0.25×Stab + 0.20×Force + 0.15×Sym + 0.10×(100-Fatigue)</code></p>
+                <h3 class="text-lg font-bold text-slate-100">Your Overall Recovery Score</h3>
+                <p class="text-xs text-slate-400">Higher scores mean better walking and movement. We measure walking speed, balance, strength, and how you feel.</p>
               </div>
               <span
-                class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">S1
-                to S5+ Longitudinal View</span>
+                class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">Progress
+                over time</span>
             </div>
             <div class="relative h-72">
               <canvas id="mainScoreChart"></canvas>
@@ -845,7 +843,7 @@
             <div class="ards-card p-5">
               <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <i data-lucide="gauge" class="w-3.5 h-3.5 text-cyan-400"></i>
-                <span>Gait Velocity & Symmetry</span>
+                <span>Walking Speed & Balance</span>
               </h4>
               <div class="relative h-44">
                 <canvas id="gaitSymmetryChart"></canvas>
@@ -856,7 +854,7 @@
             <div class="ards-card p-5">
               <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-400"></i>
-                <span>Stability & Force Index</span>
+                <span>Stability & Strength</span>
               </h4>
               <div class="relative h-44">
                 <canvas id="stabilityForceChart"></canvas>
@@ -1058,24 +1056,23 @@
 
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h2 class="text-2xl font-bold text-slate-100">Clinical Alerts & Notifications</h2>
-              <p class="text-sm text-slate-400 mt-1">Real-time safety events, threshold breaches, and automated
-                clinician triage feed.</p>
+              <h2 class="text-2xl font-bold text-slate-100">Important Updates & Alerts</h2>
+              <p class="text-sm text-slate-400 mt-1">Safety information and important messages about your recovery.</p>
             </div>
 
             <!-- Filter Tabs -->
             <div id="alertFilterBar" class="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
               <button class="alert-filter-btn px-3 py-1.5 rounded-lg bg-sky-600 text-white font-medium transition"
-                data-filter="all">All Alerts</button>
+                data-filter="all">All Messages</button>
               <button
                 class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition"
-                data-filter="critical">🔴 Critical</button>
+                data-filter="critical">🔴 Needs Attention</button>
               <button
                 class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition"
-                data-filter="warning">🟡 Warning</button>
+                data-filter="warning">🟡 Heads Up</button>
               <button
                 class="alert-filter-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition"
-                data-filter="normal">🟢 Normal</button>
+                data-filter="normal">🟢 Doing Well</button>
             </div>
           </div>
 
@@ -1096,9 +1093,8 @@
         <section id="section-decision" class="tab-section hidden space-y-6">
 
           <div>
-            <h2 class="text-2xl font-bold text-slate-100">Transparent Decision & Safety Governor Log</h2>
-            <p class="text-sm text-slate-400 mt-1">Rule execution engine matrix, physiological constraints, and
-              automated safety override logs.</p>
+            <h2 class="text-2xl font-bold text-slate-100">Safety Decisions & Your Wellbeing</h2>
+            <p class="text-sm text-slate-400 mt-1">How we keep you safe and make recommendations based on your progress.</p>
           </div>
 
           <!-- Active Rule Card -->
@@ -1209,28 +1205,27 @@
 
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
             <div>
-              <h2 class="text-2xl font-bold text-slate-100">Physiotherapy Clinical Session Report</h2>
-              <p class="text-sm text-slate-400 mt-1">Comprehensive printable documentation with XAI interpretability and
-                digital clinical sign-off.</p>
+              <h2 class="text-2xl font-bold text-slate-100">Your Progress Reports</h2>
+              <p class="text-sm text-slate-400 mt-1">Detailed summaries of your recovery journey you can print or share.</p>
             </div>
 
             <div class="flex items-center gap-2 flex-wrap">
               <button id="btnExportCSVReport"
                 class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
                 <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                <span>Export CSV</span>
+                <span>Save as File</span>
               </button>
 
               <button id="btnExportJSONReport"
                 class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
                 <i data-lucide="code" class="w-3.5 h-3.5"></i>
-                <span>Export JSON</span>
+                <span>Save as Data</span>
               </button>
 
               <button id="btnPrintReport"
                 class="px-4 py-2 text-xs font-bold rounded-xl bg-sky-600 hover:bg-sky-500 text-white shadow-lg shadow-sky-500/25 transition flex items-center gap-2">
                 <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>Print / Save PDF</span>
+                <span>Print Report</span>
               </button>
             </div>
           </div>
@@ -1249,8 +1244,8 @@
         <section id="section-about" class="tab-section hidden space-y-6">
 
           <div>
-            <h2 class="text-2xl font-bold text-slate-100">About the Research Prototype</h2>
-            <p class="text-sm text-slate-400 mt-1">System architecture, biomechanical scoring formulation, and
+            <h2 class="text-2xl font-bold text-slate-100">About This Program</h2>
+            <p class="text-sm text-slate-400 mt-1">How this system works and what it measures for your recovery.
               regulatory disclaimers.</p>
           </div>
 
@@ -1553,11 +1548,11 @@
           <!-- Community Members Directory -->
           <div class="ards-card p-6">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-base font-bold text-slate-100">Community Members</h3>
+              <h3 class="text-base font-bold text-slate-100">Find Community Members</h3>
               <div class="flex items-center gap-2">
-                <input type="search" placeholder="Search members..." class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-sky-500">
+                <input type="search" placeholder="Search for people..." class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-sky-500">
                 <select class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-                  <option>All Categories</option>
+                  <option>All Types</option>
                   <option>Above-Knee</option>
                   <option>Below-Knee</option>
                   <option>Upper-Limb</option>
@@ -1573,10 +1568,10 @@
           <!-- Community Posts & Thoughts -->
           <div class="ards-card p-6">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-base font-bold text-slate-100">Community Thoughts & Updates</h3>
+              <h3 class="text-base font-bold text-slate-100">Community Conversations</h3>
               <button id="createPostBtn" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
                 <i data-lucide="plus" class="w-4 h-4"></i>
-                Share Thought
+                Share Your Story
               </button>
             </div>
             
@@ -1587,26 +1582,26 @@
 
           <!-- Score Sharing Section -->
           <div class="ards-card p-6">
-            <h3 class="text-base font-bold text-slate-100 mb-4">Share Your Progress</h3>
+            <h3 class="text-base font-bold text-slate-100 mb-4">Share Your Progress with Others</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="p-4 bg-slate-800/50 border border-slate-700 rounded-lg">
                 <div class="flex items-center gap-2 mb-3">
                   <i data-lucide="trending-up" class="w-5 h-5 text-emerald-400"></i>
-                  <h4 class="text-sm font-bold text-slate-100">Share Rehabilitation Score</h4>
+                  <h4 class="text-sm font-bold text-slate-100">Share Your Recovery Score</h4>
                 </div>
-                <p class="text-xs text-slate-400 mb-3">Share your current rehabilitation score with the community to inspire others.</p>
+                <p class="text-xs text-slate-400 mb-3">Let others know how you're doing and inspire them on their journey.</p>
                 <button id="shareScoreBtn" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition">
-                  Share My Score
+                  Share My Progress
                 </button>
               </div>
               <div class="p-4 bg-slate-800/50 border border-slate-700 rounded-lg">
                 <div class="flex items-center gap-2 mb-3">
                   <i data-lucide="file-text" class="w-5 h-5 text-sky-400"></i>
-                  <h4 class="text-sm font-bold text-slate-100">Share Clinical Report</h4>
+                  <h4 class="text-sm font-bold text-slate-100">Share Your Session Results</h4>
                 </div>
-                <p class="text-xs text-slate-400 mb-3">Share your clinical report (anonymized) to help others understand their journey.</p>
+                <p class="text-xs text-slate-400 mb-3">Share your walking session results (your details stay private) to help others.</p>
                 <button id="shareReportBtn" class="w-full px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold transition">
-                  Share My Report
+                  Share My Results
                 </button>
               </div>
             </div>
@@ -1614,7 +1609,7 @@
 
           <!-- Shared Scores & Reports Feed -->
           <div class="ards-card p-6">
-            <h3 class="text-base font-bold text-slate-100 mb-4">Community Progress & Reports</h3>
+            <h3 class="text-base font-bold text-slate-100 mb-4">Community Progress Stories</h3>
             <div id="sharedContentFeed" class="space-y-4">
               <!-- Shared content will be populated by JavaScript -->
             </div>
