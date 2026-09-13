@@ -21,6 +21,12 @@
      * ------------------------------------------------------- */
     const USERS_KEY = 'ards_users';          // registered accounts
     const SESSION_KEY = 'ards_session';      // active session (session/localStorage)
+    const LOGIN_ATTEMPTS_KEY = 'ards_login_attempts'; // failed login attempts
+    const LOCKED_ACCOUNTS_KEY = 'ards_locked_accounts'; // temporarily locked accounts
+    const MAX_LOGIN_ATTEMPTS = 5;          // maximum failed attempts before lockout
+    const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes lockout
+    const LOGIN_COOLDOWN = 30 * 1000;     // 30 seconds between login attempts
+    
     const DEMO_ACCOUNT = {
         name: 'Dr. Rachel Thorne',
         email: 'clinician@ards.demo',
@@ -57,6 +63,115 @@
 
     function saveUsers(users) {
         safeSet(localStorage, USERS_KEY, JSON.stringify(users));
+    }
+
+    /* ---------------------------------------------------------
+     * Login Attempt Tracking & Account Lockout
+     * ------------------------------------------------------- */
+    function getLoginAttempts() {
+        const raw = safeGet(localStorage, LOGIN_ATTEMPTS_KEY);
+        try { return raw ? JSON.parse(raw) : {}; } catch (e) { return {}; }
+    }
+
+    function saveLoginAttempts(attempts) {
+        safeSet(localStorage, LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+    }
+
+    function getLockedAccounts() {
+        const raw = safeGet(localStorage, LOCKED_ACCOUNTS_KEY);
+        try { return raw ? JSON.parse(raw) : {}; } catch (e) { return {}; }
+    }
+
+    function saveLockedAccounts(locked) {
+        safeSet(localStorage, LOCKED_ACCOUNTS_KEY, JSON.stringify(locked));
+    }
+
+    function isAccountLocked(email) {
+        const locked = getLockedAccounts();
+        const lockInfo = locked[email.toLowerCase()];
+        if (!lockInfo) return false;
+        
+        // Check if lockout has expired
+        if (Date.now() > lockInfo.lockedUntil) {
+            delete locked[email.toLowerCase()];
+            saveLockedAccounts(locked);
+            // Also reset login attempts
+            const attempts = getLoginAttempts();
+            delete attempts[email.toLowerCase()];
+            saveLoginAttempts(attempts);
+            return false;
+        }
+        
+        return true;
+    }
+
+    function recordFailedAttempt(email) {
+        const emailLower = email.toLowerCase();
+        const attempts = getLoginAttempts();
+        const currentAttempts = (attempts[emailLower] || 0) + 1;
+        attempts[emailLower] = currentAttempts;
+        saveLoginAttempts(attempts);
+
+        // Check if should lock account
+        if (currentAttempts >= MAX_LOGIN_ATTEMPTS) {
+            const locked = getLockedAccounts();
+            locked[emailLower] = {
+                lockedAt: Date.now(),
+                lockedUntil: Date.now() + LOCKOUT_DURATION,
+                attempts: currentAttempts
+            };
+            saveLockedAccounts(locked);
+            return true; // Account is now locked
+        }
+
+        return false; // Account not locked yet
+    }
+
+    function resetLoginAttempts(email) {
+        const emailLower = email.toLowerCase();
+        const attempts = getLoginAttempts();
+        delete attempts[emailLower];
+        saveLoginAttempts(attempts);
+    }
+
+    function canAttemptLogin(email) {
+        const emailLower = email.toLowerCase();
+        const attempts = getLoginAttempts();
+        const lastAttempt = attempts[emailLower + '_last_attempt'];
+        
+        // Check if account is locked
+        if (isAccountLocked(email)) {
+            return { allowed: false, reason: 'locked', remainingTime: getRemainingLockoutTime(email) };
+        }
+        
+        // Check cooldown between attempts
+        if (lastAttempt && Date.now() - lastAttempt < LOGIN_COOLDOWN) {
+            return { allowed: false, reason: 'cooldown', remainingTime: LOGIN_COOLDOWN - (Date.now() - lastAttempt) };
+        }
+        
+        return { allowed: true };
+    }
+
+    function recordLoginAttemptTime(email) {
+        const emailLower = email.toLowerCase();
+        const attempts = getLoginAttempts();
+        attempts[emailLower + '_last_attempt'] = Date.now();
+        saveLoginAttempts(attempts);
+    }
+
+    function getRemainingLockoutTime(email) {
+        const locked = getLockedAccounts();
+        const lockInfo = locked[email.toLowerCase()];
+        if (!lockInfo) return 0;
+        const remaining = lockInfo.lockedUntil - Date.now();
+        return Math.max(0, Math.ceil(remaining / 1000)); // return in seconds
+    }
+
+    function getRemainingAttempts(email) {
+        const emailLower = email.toLowerCase();
+        const attempts = getLoginAttempts();
+        const currentAttempts = attempts[emailLower] || 0;
+        return MAX_LOGIN_ATTEMPTS - currentAttempts;
     }
 
     /* ---------------------------------------------------------
@@ -211,6 +326,75 @@
     }
 
     /* ---------------------------------------------------------
+     * Session Timeout & Auto-logout
+     * ------------------------------------------------------- */
+    const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+    let sessionTimer = null;
+
+    function resetSessionTimer() {
+        if (sessionTimer) clearTimeout(sessionTimer);
+        sessionTimer = setTimeout(() => {
+            autoLogout();
+        }, SESSION_TIMEOUT);
+    }
+
+    function autoLogout() {
+        clearSession();
+        lockDashboard(false);
+        showMessage('Session expired. Please log in again for security.', 'error');
+    }
+
+    function setupSessionActivityTracking() {
+        // Reset timer on user activity
+        const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+        events.forEach(event => {
+            document.addEventListener(event, resetSessionTimer);
+        });
+    }
+
+    /* ---------------------------------------------------------
+     * Password Strength & Security
+     * ------------------------------------------------------- */
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+        
+        if (strength <= 2) return { score: 'weak', color: 'red' };
+        if (strength <= 4) return { score: 'medium', color: 'yellow' };
+        return { score: 'strong', color: 'green' };
+    }
+
+    /* ---------------------------------------------------------
+     * Forgot Password Flow
+     * ------------------------------------------------------- */
+    function handleForgotPassword(event) {
+        event.preventDefault();
+        const email = (el('forgotEmail')?.value || '').trim().toLowerCase();
+        
+        if (!email || !isValidEmail(email)) {
+            showMessage('Please enter a valid email address.', 'error');
+            return;
+        }
+
+        // Check if account exists
+        const users = loadUsers();
+        const user = users.find(u => u.email.toLowerCase() === email);
+        
+        if (!user) {
+            showMessage('If an account exists with this email, you will receive password reset instructions.', 'success');
+            return;
+        }
+
+        // Simulate password reset (in production, send email)
+        showMessage('Password reset link sent to your email. Check your inbox for instructions.', 'success');
+    }
+
+    /* ---------------------------------------------------------
      * Auth Mode Tabs (Sign In / Register)
      * ------------------------------------------------------- */
     function switchAuthMode(mode) {
@@ -283,9 +467,25 @@
             return;
         }
 
+        // Check if account is locked
+        const lockCheck = canAttemptLogin(email);
+        if (!lockCheck.allowed) {
+            if (lockCheck.reason === 'locked') {
+                const remainingMinutes = Math.ceil(lockCheck.remainingTime / 60);
+                showMessage(`Account temporarily locked due to too many failed attempts. Please try again in ${remainingMinutes} minutes.`, 'error');
+            } else if (lockCheck.reason === 'cooldown') {
+                const remainingSeconds = Math.ceil(lockCheck.remainingTime / 1000);
+                showMessage(`Please wait ${remainingSeconds} seconds before attempting another login.`, 'error');
+            }
+            return;
+        }
+
         const submitBtn = el('btnLoginSubmit');
         const idleHTML = submitBtn.innerHTML;
         setBusy(submitBtn, true, 'Verifying credentials…', idleHTML);
+
+        // Record login attempt time
+        recordLoginAttemptTime(email);
 
         // Simulated network latency for prototype realism
         setTimeout(() => {
@@ -293,11 +493,21 @@
             const user = users.find(u => u.email.toLowerCase() === email);
 
             if (!user || user.password !== password) {
+                // Record failed attempt
+                const isLocked = recordFailedAttempt(email);
                 setBusy(submitBtn, false, '', idleHTML);
-                showMessage('Invalid credentials. Check your email and password, or use the demo account.', 'error');
+                
+                if (isLocked) {
+                    showMessage(`Account locked due to too many failed attempts. Please try again in 15 minutes.`, 'error');
+                } else {
+                    const remainingAttempts = getRemainingAttempts(email);
+                    showMessage(`Invalid credentials. ${remainingAttempts} attempts remaining before account lockout.`, 'error');
+                }
                 return;
             }
 
+            // Successful login - reset attempts
+            resetLoginAttempts(email);
             storeSession(user, remember);
             setBusy(submitBtn, false, '', idleHTML);
             showMessage('Welcome back, ' + user.name + '. Loading dashboard…', 'success');
@@ -522,9 +732,13 @@
      * Logout Flow
      * ------------------------------------------------------- */
     function handleLogout() {
+        // Clear session timer
+        if (sessionTimer) clearTimeout(sessionTimer);
+        
         clearSession();
         lockDashboard();
         clearMessage();
+        
         // Prefill last used email for convenience
         const lastEmail = safeGet(localStorage, 'ards_last_email');
         if (lastEmail && el('loginEmail')) el('loginEmail').value = lastEmail;
@@ -604,6 +818,9 @@
         if (saved && saved.email) {
             renderUserChip(currentAccount() || saved);
             unlockDashboard();
+            // Start session timeout tracking
+            setupSessionActivityTracking();
+            resetSessionTimer();
         } else {
             lockDashboard();
         }
