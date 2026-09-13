@@ -1,0 +1,23 @@
+[BOOT] {
+ "label": "after-boot",
+ "ardsAuth": "object",
+ "ardsApp": "undefined",
+ "dataStore": "object",
+ "ardsAI": "undefined",
+ "bodyLocked": true,
+ "loginVisible": true,
+ "registerFormHidden": true,
+ "errors": []
+}
+[CLICK register tab] signinHidden=true registerShown=true
+[DISPATCH submit at +322ms]
+[DISPATCH returned cleanly]
+[HB +412ms] alive
+[HB +823ms] alive
+[page] [auth] cb650:start
+[page] [auth] cb650:users-loaded
+[page] [auth] cb650:store-session
+[page] [auth] cb650:set-busy-off
+[page] [auth] cb650:show-message
+[page] [auth] cb650:render-chip
+[page] [auth] cb650:done
