@@ -2039,6 +2039,76 @@ class ARDSApp {
       ? window.ardsClinicalRefs.evaluateSessionTelemetry(patient, session)
       : null;
 
+    // ── HIGH-Risk Alert Dispatch ─────────────────────────────────────────────
+    // When the safety governor or clinical risk engine detects a HIGH-risk
+    // condition, automatically dispatch SMS + WhatsApp alerts via Twilio.
+    const highRisks = [];
+
+    if (decisionLog) {
+      if (decisionLog.safetyFlag === 'HIGH_FATIGUE') {
+        highRisks.push({
+          label: 'High fatigue',
+          detail: `Gait speed ${session.gaitSpeed.toFixed(2)} m/s and fatigue ${session.fatigue.toFixed(1)}% indicate elevated fatigue risk.`,
+        });
+      }
+      if (decisionLog.safetyFlag === 'CRITICAL_UNSAFE' || decisionLog.safetyFlag === 'CRITICAL_PRESSURE') {
+        highRisks.push({
+          label: 'Critical pressure/instability',
+          detail: `Pressure ${session.pressure.toFixed(1)} kPa, stability ${session.stability.toFixed(1)}%, and gait speed ${session.gaitSpeed.toFixed(2)} m/s indicate a critical safety condition.`,
+        });
+      }
+      if (decisionLog.safetyFlag === 'UNSTABLE_ASSIST') {
+        highRisks.push({
+          label: 'Unstable assist',
+          detail: `Stability ${session.stability.toFixed(1)}% indicates that the patient may require immediate assistance.`,
+        });
+      }
+    }
+
+    if (clinicalEval && clinicalEval.safetyAndRiskAssessment) {
+      const assessment = clinicalEval.safetyAndRiskAssessment;
+      if (assessment.structuralFatigueRisk === 'HIGH') {
+        highRisks.push({
+          label: 'Structural fatigue',
+          detail: 'Structural fatigue risk is HIGH; inspect the socket and residual limb condition before continuing activity.',
+        });
+      }
+    }
+
+    const alertContext = {
+      patientName: patient.name,
+      patientId: patient.id,
+      sessionId: session.session,
+      vitals: {
+        gaitSpeed: Number(session.gaitSpeed),
+        symmetry: Number(session.symmetry),
+        force: Number(session.force),
+        pressure: Number(session.pressure),
+        stability: Number(session.stability),
+        fatigue: Number(session.fatigue),
+      },
+    };
+
+    if (highRisks.length && window.ardsAlert && typeof window.ardsAlert.dispatch === 'function') {
+      window.ardsAlert.dispatch({
+        ...alertContext,
+        riskBand: 'HIGH',
+        riskType: highRisks.map((item) => item.label).join(', '),
+        riskScore: score,
+        detail: highRisks.map((item) => item.detail).join(' '),
+      });
+    } else if (window.ardsAlert && typeof window.ardsAlert.observeRisk === 'function') {
+      window.ardsAlert.observeRisk({
+        ...alertContext,
+        riskBand: highRisks.length ? 'HIGH' : 'LOW',
+      });
+    }
+    // ── End HIGH-Risk Alert Dispatch ─────────────────────────────────────────
+
+    // List of alert-worthy safety flags for display
+    const alertableFlags = ['HIGH_FATIGUE', 'CRITICAL_UNSAFE', 'CRITICAL_PRESSURE', 'UNSTABLE_ASSIST'];
+    const hasHighRiskFlag = decisionLog && alertableFlags.includes(decisionLog.safetyFlag);
+
     reportContainer.innerHTML = `
       <div class="printable-report bg-slate-900/90 text-slate-100 p-8 rounded-2xl border border-slate-800 shadow-2xl max-w-4xl mx-auto space-y-6">
         <!-- Header -->
@@ -2202,6 +2272,30 @@ class ARDSApp {
             `}
           </ul>
         </div>
+
+        <!-- HIGH-Risk Alert Status -->
+        ${hasHighRiskFlag ? `
+        <div class="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
+          <div class="flex items-start gap-3">
+            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-rose-500/20 flex-shrink-0">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-400"></i>
+            </span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-bold text-rose-300">HIGH RISK — Emergency Alert Triggered</h4>
+                <span class="text-[10px] font-mono ${hasHighRiskFlag ? 'text-amber-400' : 'text-slate-500'}">${decisionLog.safetyFlag}</span>
+              </div>
+              <p class="text-xs text-slate-300 mt-1">
+                ${highRisks.length ? highRisks.map(r => `• ${r.label}: ${r.detail}`).join('<br>') : 'Immediate clinical attention required.'}
+              </p>
+              <p class="text-[10px] text-slate-400 mt-2">
+                An SMS + WhatsApp alert has been dispatched to the configured emergency contacts via Twilio.
+              </p>
+            </div>
+          </div>
+        </div>
+        ` : ''}
+        <!-- End HIGH-Risk Alert Status -->
 
         <!-- Actionable Clinical Recommendations -->
         <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800 text-xs">
