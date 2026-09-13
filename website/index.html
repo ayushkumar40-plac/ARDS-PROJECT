@@ -398,7 +398,11 @@
         dropZone.querySelector('span.font-label-md').textContent = `Loaded: ${fileInput.files[0].name}`;
       }
     });
+
+    // Patient-hub entrance: mirrors .page-transition used on sub-pages
+    requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('loaded')));
   })();
 </script>
+<script src="js/main.js"></script>
 </body>
 </html>

@@ -7,6 +7,29 @@
   'use strict';
 
   /* ============================================================
+     0. PAGE TRANSITION — reveal .page-transition bodies.
+     stitch.css sets .page-transition { opacity: 0 } and
+     .page-transition.loaded { opacity: 1 }. Without this hook
+     sub-pages would stay invisible. Runs first, always.
+     ============================================================ */
+  function revealPage() {
+    if (document.body) {
+      document.body.classList.add('loaded');
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      requestAnimationFrame(revealPage);
+      setTimeout(revealPage, 60);
+    });
+  } else {
+    requestAnimationFrame(revealPage);
+    setTimeout(revealPage, 60);
+  }
+  window.addEventListener('load', revealPage);
+
+  /* ============================================================
      1. HEADER — scroll state
      ============================================================ */
   const header = document.getElementById('siteHeader');
