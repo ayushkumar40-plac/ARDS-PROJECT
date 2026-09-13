@@ -69,7 +69,7 @@
             saveUsers(users);
         }
         
-        // Seed demo account on first run
+        // Seed demo account on first run (hashed password)
         if (!users.some(u => u.email.toLowerCase() === DEMO_ACCOUNT.email)) {
             const demoAccount = { ...DEMO_ACCOUNT };
             demoAccount.password = hashPasswordSync(DEMO_ACCOUNT.password);
