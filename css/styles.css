@@ -13,6 +13,43 @@
   overflow: hidden;
 }
 
+/* Patient-Friendly Accessibility Improvements */
+body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Enhanced readability for text-heavy sections */
+.ards-card p, .ards-card li {
+  line-height: 1.7;
+  max-width: 80ch;
+}
+
+/* Better contrast for accessibility */
+.text-slate-400 {
+  color: #a8b2c1;
+}
+
+/* Larger touch targets for mobile */
+button, .nav-btn, input, select {
+  min-height: 44px;
+}
+
+/* Focus states for keyboard navigation */
+button:focus, input:focus, select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* --- CSS Variables & Themes --- */
 :root {
   /* Dark Theme (Default) */
