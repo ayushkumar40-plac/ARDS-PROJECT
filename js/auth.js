@@ -26,6 +26,7 @@
     const MAX_LOGIN_ATTEMPTS = 5;          // maximum failed attempts before lockout
     const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes lockout
     const LOGIN_COOLDOWN = 30 * 1000;     // 30 seconds between login attempts
+    const PASSWORD_SALT = 'ARDS_SALT_2024_SECURE_HASH'; // Salt for password hashing
     
     const DEMO_ACCOUNT = {
         name: 'Dr. Rachel Thorne',
@@ -53,9 +54,26 @@
         const raw = safeGet(localStorage, USERS_KEY);
         let users = [];
         try { users = raw ? JSON.parse(raw) : []; } catch (e) { users = []; }
+        
+        // Migrate existing plain-text passwords to hashed passwords
+        let needsMigration = false;
+        for (const user of users) {
+            // Check if password is plain text (short, not hex-like)
+            if (user.password && user.password.length < 64 && !/^[a-f0-9]{64}$/.test(user.password)) {
+                user.password = hashPasswordSync(user.password);
+                needsMigration = true;
+            }
+        }
+        
+        if (needsMigration) {
+            saveUsers(users);
+        }
+        
         // Seed demo account on first run
         if (!users.some(u => u.email.toLowerCase() === DEMO_ACCOUNT.email)) {
-            users.push({ ...DEMO_ACCOUNT });
+            const demoAccount = { ...DEMO_ACCOUNT };
+            demoAccount.password = hashPasswordSync(DEMO_ACCOUNT.password);
+            users.push(demoAccount);
             saveUsers(users);
         }
         return users;
@@ -63,6 +81,42 @@
 
     function saveUsers(users) {
         safeSet(localStorage, USERS_KEY, JSON.stringify(users));
+    }
+
+    /* ---------------------------------------------------------
+     * Password Encryption (SHA-256)
+     * ------------------------------------------------------- */
+    async function hashPassword(password) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password + PASSWORD_SALT);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    async function verifyPassword(password, hashedPassword) {
+        const inputHash = await hashPassword(password);
+        return inputHash === hashedPassword;
+    }
+
+    // Synchronous fallback for environments without crypto API
+    function hashPasswordSync(password) {
+        let hash = 0;
+        const str = password + PASSWORD_SALT;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        // Convert to hex and pad to 64 characters for consistency
+        const hexHash = Math.abs(hash).toString(16).padStart(64, '0');
+        return hexHash.substring(0, 64);
+    }
+
+    function verifyPasswordSync(password, hashedPassword) {
+        const inputHash = hashPasswordSync(password);
+        return inputHash === hashedPassword;
     }
 
     /* ---------------------------------------------------------
@@ -450,7 +504,7 @@
     /* ---------------------------------------------------------
      * Sign In Flow
      * ------------------------------------------------------- */
-    function handleSignIn(event) {
+    async function handleSignIn(event) {
         event.preventDefault();
         clearMessage();
 
@@ -488,11 +542,34 @@
         recordLoginAttemptTime(email);
 
         // Simulated network latency for prototype realism
-        setTimeout(() => {
+        setTimeout(async () => {
             const users = loadUsers();
             const user = users.find(u => u.email.toLowerCase() === email);
 
-            if (!user || user.password !== password) {
+            if (!user) {
+                // Record failed attempt
+                const isLocked = recordFailedAttempt(email);
+                setBusy(submitBtn, false, '', idleHTML);
+                
+                if (isLocked) {
+                    showMessage(`Account locked due to too many failed attempts. Please try again in 15 minutes.`, 'error');
+                } else {
+                    const remainingAttempts = getRemainingAttempts(email);
+                    showMessage(`Invalid credentials. ${remainingAttempts} attempts remaining before account lockout.`, 'error');
+                }
+                return;
+            }
+
+            // Verify password using hash comparison
+            let passwordMatch;
+            try {
+                passwordMatch = await verifyPassword(password, user.password);
+            } catch (e) {
+                // Fallback to sync verification if crypto API not available
+                passwordMatch = verifyPasswordSync(password, user.password);
+            }
+
+            if (!passwordMatch) {
                 // Record failed attempt
                 const isLocked = recordFailedAttempt(email);
                 setBusy(submitBtn, false, '', idleHTML);
@@ -524,7 +601,7 @@
     /* ---------------------------------------------------------
      * Register Flow
      * ------------------------------------------------------- */
-    function handleRegister(event) {
+    async function handleRegister(event) {
         event.preventDefault();
         clearMessage();
 
@@ -561,11 +638,20 @@
         const idleHTML = submitBtn.innerHTML;
         setBusy(submitBtn, true, 'Creating account…', idleHTML);
 
-        setTimeout(() => {
+        setTimeout(async () => {
+            // Hash the password before storing
+            let hashedPassword;
+            try {
+                hashedPassword = await hashPassword(password);
+            } catch (e) {
+                // Fallback to sync hashing if crypto API not available
+                hashedPassword = hashPasswordSync(password);
+            }
+
             const newUser = {
                 name,
                 email,
-                password,
+                password: hashedPassword,
                 role,
                 doctorId: nextDoctorId(users),
                 createdAt: new Date().toISOString(),
