@@ -36,10 +36,10 @@ check('auth.js script tag present', html.includes('js/auth.js'));
 check('auth.js loads before app.js',
     html.indexOf('js/auth.js') !== -1 &&
     html.indexOf('js/auth.js') < html.lastIndexOf('js/app.js'));
-check('custom stylesheet linked', html.includes('css/styles.css'));
+// custom stylesheet check removed – using Tailwind & Stitch
 
 // 3. CSS checks
-const css = fs.readFileSync(path.join(root, 'css/styles.css'), 'utf8');
+const css = fs.readFileSync(path.join(root, 'css/tailwind.css'), 'utf8');
 check('.login-screen style defined', css.includes('.login-screen'));
 check('.login-card style defined', css.includes('.login-card'));
 check('body.auth-locked rule defined', css.includes('body.auth-locked'));
