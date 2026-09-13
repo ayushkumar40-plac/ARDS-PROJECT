@@ -962,10 +962,10 @@ class ARDSApp {
     const gaitNormalized = Math.min(100, session.gaitSpeed * 100);
 
     const metrics = [
-      { label: "Gait Velocity", val: `${session.gaitSpeed.toFixed(2)} m/s`, pct: gaitNormalized, target: "0.75+ m/s", color: "bg-sky-500" },
-      { label: "Movement Stability", val: `${session.stability}%`, pct: session.stability, target: "75%+", color: "bg-emerald-500" },
-      { label: "Force Symmetry & Push-Off", val: `${session.force}%`, pct: session.force, target: "70%+", color: "bg-teal-500" },
-      { label: "Stance Phase Symmetry", val: `${session.symmetry}%`, pct: session.symmetry, target: "75%+", color: "bg-purple-500" }
+      { label: "Walking Speed", val: `${session.gaitSpeed.toFixed(2)} m/s`, pct: gaitNormalized, target: "0.75+ m/s", color: "bg-sky-500" },
+      { label: "Balance & Stability", val: `${session.stability}%`, pct: session.stability, target: "75%+", color: "bg-emerald-500" },
+      { label: "Leg Strength", val: `${session.force}%`, pct: session.force, target: "70%+", color: "bg-teal-500" },
+      { label: "Movement Balance", val: `${session.symmetry}%`, pct: session.symmetry, target: "75%+", color: "bg-purple-500" }
     ];
 
     container.innerHTML = metrics.map(m => `
@@ -997,7 +997,7 @@ class ARDSApp {
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <i data-lucide="battery-charging" class="w-4 h-4 text-slate-400"></i>
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Fatigue Risk Level</span>
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Energy Level</span>
             </div>
             <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${fatigueColor}">${fatigue.level}</span>
           </div>
@@ -1132,7 +1132,7 @@ class ARDSApp {
 
     if (btnDownloadSample) {
       btnDownloadSample.addEventListener('click', () => {
-        const sampleCSV = `Patient,Session,Gait Speed,Symmetry,Force,Pressure,Stability,Fatigue\nP001,1,0.60,61,55,48,58,20\nP001,2,0.63,65,59,47,63,22\nP001,3,0.67,69,64,46,67,19\nP001,4,0.71,73,68,45,72,18\nP001,5,0.74,76,70,44,74,17\n`;
+        const sampleCSV = `Patient,Session,Walking Speed,Balance,Strength,Comfort,Stability,Energy Level\nP001,1,0.60,61,55,48,58,20\nP001,2,0.63,65,59,47,63,22\nP001,3,0.67,69,64,46,67,19\nP001,4,0.71,73,68,45,72,18\nP001,5,0.74,76,70,44,74,17\n`;
         const blob = new Blob([sampleCSV], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");

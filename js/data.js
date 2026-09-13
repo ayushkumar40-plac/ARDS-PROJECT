@@ -24,9 +24,9 @@ const ARDS_INITIAL_DATA = {
         { session: 5, date: "2026-07-30", gaitSpeed: 0.74, symmetry: 76, force: 70, pressure: 44, stability: 74, fatigue: 17 }
       ],
       alerts: [
-        { id: "alt-101", timestamp: "2026-07-30 14:35", session: 5, type: "normal", title: "Milestone Reached", message: "Gait symmetry reached 76% (+15% above S1 baseline). Patient achieved K3 ambulation criteria.", acknowledged: false },
-        { id: "alt-102", timestamp: "2026-07-23 11:10", session: 4, type: "normal", title: "Progressive Load Approved", message: "Stability index reached 72%. AI recommendation: Increase resistance band load slightly.", acknowledged: true },
-        { id: "alt-103", timestamp: "2026-07-09 10:15", session: 2, type: "warning", title: "Minor Asymmetry Detected", message: "Stance phase asymmetry was 35% during initial warm-up trials; stabilized in second set.", acknowledged: true }
+        { id: "alt-101", timestamp: "2026-07-30 14:35", session: 5, type: "normal", title: "Great Progress!", message: "Your walking balance reached 76% - that's 15% better than when you started. You're walking very well!", acknowledged: false },
+        { id: "alt-102", timestamp: "2026-07-23 11:10", session: 4, type: "normal", title: "Ready for Next Step", message: "Your stability reached 72%. You can try walking with a bit more resistance now.", acknowledged: true },
+        { id: "alt-103", timestamp: "2026-07-09 10:15", session: 2, type: "warning", title: "Small Balance Issue", message: "Your walking was a bit uneven during warm-up, but it improved in the second set. Keep practicing!", acknowledged: true }
       ]
     },
     {
@@ -48,8 +48,8 @@ const ARDS_INITIAL_DATA = {
         { session: 5, date: "2026-08-02", gaitSpeed: 0.54, symmetry: 54, force: 48, pressure: 58, stability: 47, fatigue: 72 }
       ],
       alerts: [
-        { id: "alt-201", timestamp: "2026-08-02 15:40", session: 5, type: "warning", title: "Elevated Fatigue Spike (72%)", message: "Patient reported residual limb muscle fatigue. Force control dropped by 6%. Safety Engine enforced difficulty reduction.", acknowledged: false },
-        { id: "alt-202", timestamp: "2026-07-26 14:20", session: 4, type: "warning", title: "Stability Degradation Under Fatigue", message: "Stability index fell below 50% at minute 18 of treadmill session.", acknowledged: true }
+        { id: "alt-201", timestamp: "2026-08-02 15:40", session: 5, type: "warning", title: "High Energy Level", message: "Your energy level is at 72%. Your leg muscles are getting tired. We've made the exercises a bit easier for you.", acknowledged: false },
+        { id: "alt-202", timestamp: "2026-07-26 14:20", session: 4, type: "warning", title: "Balance Concern", message: "Your balance dropped below 50% during the session. Let's take it easier next time until you build more strength.", acknowledged: true }
       ]
     },
     {
