@@ -117,6 +117,17 @@ class ARDSRiskNotifier {
     if (!config.autoNotify && !options.force) {
       return { status: 'skipped', reason: 'Automatic notifications are disabled', risk };
     }
+    return this.deliverAlert(patient, session, risk, options);
+  }
+
+  /**
+   * Shared delivery pipeline for every outbound at-risk alert — used by the
+   * automatic session flow above and by the HIGH-risk dispatcher in
+   * js/alert-dispatcher.js. Validates contacts, applies the client-side
+   * dedupe log, posts to the alert service and records the delivery in the
+   * in-app alerts feed.
+   */
+  async deliverAlert(patient, session, risk, options = {}) {
     if (!this.isValidPhone(patient.phone) || !this.isValidPhone(patient.clinicianPhone)) {
       return { status: 'missing-contacts', reason: 'Patient and clinician phone numbers must be in E.164 format', risk };
     }
@@ -128,8 +139,10 @@ class ARDSRiskNotifier {
 
     try {
       const result = await this.postAlert(this.buildPayload(patient, session, risk));
-      this.markSent(key);
-      this.logDelivery(patient, session, risk, result);
+      if (result.status !== 'duplicate') {
+        this.markSent(key);
+        this.logDelivery(patient, session, risk, result);
+      }
       return { status: result.status, result, risk };
     } catch (error) {
       return { status: 'failed', reason: error.message, risk };

@@ -30,6 +30,7 @@
   
 <link rel="stylesheet" href="css/tailwind.css">
 <link rel="stylesheet" href="css/stitch.css">
+<link rel="stylesheet" href="css/professional.css">
 </head>
 
 <body>
@@ -1255,8 +1256,9 @@
 
           <!-- ═══════════════════════════════════════════════════════════════
                ALERT CONTACTS — SMS & WhatsApp HIGH-risk notification
-               Phone numbers are stored in localStorage and read by
-               js/alert-dispatcher.js whenever any engine flags HIGH risk.
+               Phone numbers are stored on the active patient record (shared
+               with the Alerts tab settings) and dispatched through
+               js/notifications.js whenever any engine flags HIGH risk.
           ═══════════════════════════════════════════════════════════════ -->
           <div class="ards-card p-6 space-y-5" id="alertContactsCard">
             <div class="flex items-center gap-3">
@@ -1265,7 +1267,7 @@
               </span>
               <div>
                 <h3 class="text-base font-bold text-slate-100">🚨 HIGH-Risk Alert Contacts</h3>
-                <p class="text-xs text-slate-400 mt-0.5">When any risk engine flags <strong class="text-rose-400">HIGH</strong>, the system automatically sends an <strong>SMS + WhatsApp</strong> message to the numbers below via Twilio.</p>
+                <p class="text-xs text-slate-400 mt-0.5">When any risk engine flags <strong class="text-rose-400">HIGH</strong>, the system automatically sends an <strong>SMS + WhatsApp</strong> message to the numbers below via Twilio. These are the contacts of the <strong>currently selected patient</strong> — the same numbers used by the Alerts tab.</p>
               </div>
             </div>
 
@@ -2348,42 +2350,75 @@
     (function () {
       'use strict';
 
+      function getStore() {
+        return (window.dataStore && typeof window.dataStore.getActivePatient === 'function')
+          ? window.dataStore
+          : null;
+      }
+
       function restoreAlertContacts() {
         var dp = document.getElementById('alertDoctorPhone');
         var pp = document.getElementById('alertPatientPhone');
-        if (dp) dp.value = localStorage.getItem('ards_doctor_phone') || '';
-        if (pp) pp.value = localStorage.getItem('ards_patient_phone') || '';
+        if (!dp && !pp) return;
+        // Contacts live on the active patient record and are shared with the
+        // Alerts tab. The legacy localStorage keys are only a fallback for
+        // values saved before the two alert paths were unified.
+        var store = getStore();
+        var patient = store ? store.getActivePatient() : null;
+        var docPhone = (patient && patient.clinicianPhone) || localStorage.getItem('ards_doctor_phone') || '';
+        var patPhone = (patient && patient.phone) || localStorage.getItem('ards_patient_phone') || '';
+        if (dp) dp.value = docPhone;
+        if (pp) pp.value = patPhone;
+      }
+
+      function saveAlertContacts() {
+        var dp = ((document.getElementById('alertDoctorPhone') || {}).value || '').trim();
+        var pp = ((document.getElementById('alertPatientPhone') || {}).value || '').trim();
+
+        // Single source of truth: the active patient record (same target the
+        // Alerts tab settings write to).
+        var store = getStore();
+        if (store && store.activePatientId != null) {
+          store.updateContacts(store.activePatientId, {
+            phone: pp,
+            clinicianPhone: dp
+          });
+        }
+        // Keep the legacy keys in sync so nothing reads a stale number.
+        localStorage.setItem('ards_doctor_phone', dp);
+        localStorage.setItem('ards_patient_phone', pp);
+
+        var statusEl = document.getElementById('alertContactsStatus');
+        if (statusEl) {
+          statusEl.textContent = String.fromCharCode(0x2705) + ' Contacts saved!';
+          statusEl.style.color = '#34d399';
+          setTimeout(function () { statusEl.textContent = ''; }, 3000);
+        }
+        if (typeof window.showArdsToast === 'function') {
+          window.showArdsToast('Alert contacts saved for the active patient.', 'success');
+        }
+        return true;
       }
 
       var saveBtn = document.getElementById('btnSaveAlertContacts');
       if (saveBtn) {
-        saveBtn.addEventListener('click', function () {
-          var dp = (document.getElementById('alertDoctorPhone') || {}).value || '';
-          var pp = (document.getElementById('alertPatientPhone') || {}).value || '';
-          localStorage.setItem('ards_doctor_phone', dp.trim());
-          localStorage.setItem('ards_patient_phone', pp.trim());
-          var statusEl = document.getElementById('alertContactsStatus');
-          if (statusEl) {
-            statusEl.textContent = String.fromCharCode(0x2705) + ' Contacts saved!';
-            statusEl.style.color = '#34d399';
-            setTimeout(function () { statusEl.textContent = ''; }, 3000);
-          }
-          if (typeof window.showArdsToast === 'function') {
-            window.showArdsToast('Alert contacts saved to browser storage.', 'success');
-          }
-        });
+        saveBtn.addEventListener('click', saveAlertContacts);
       }
 
       var testBtn = document.getElementById('btnTestAlert');
       if (testBtn) {
         testBtn.addEventListener('click', function () {
+          // Save first so the test uses the numbers currently in the inputs.
+          saveAlertContacts();
           if (window.ardsAlert && typeof window.ardsAlert.dispatch === 'function') {
             window.ardsAlert.dispatch({
               riskBand:  'HIGH',
               riskType:  'Test Alert',
               riskScore: 75,
+              severity:  'warning',
               detail:    'This is a test HIGH-risk alert from the ARDS dashboard. No action required.',
               patientName: 'Test Patient',
+              force:     true
             });
           } else if (typeof window.showArdsToast === 'function') {
             window.showArdsToast('Alert dispatcher not loaded yet. Try again in a moment.', 'warning');

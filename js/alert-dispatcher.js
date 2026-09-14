@@ -1,113 +1,138 @@
 /* ==========================================================================
  * ARDS — High-Risk Alert Dispatcher (js/alert-dispatcher.js)
  * --------------------------------------------------------------------------
- * Sends SMS + WhatsApp alerts via the /api/send-alert Vercel endpoint
- * whenever any risk engine in the dashboard detects a HIGH-risk condition.
+ * Entry point for HIGH-risk alerts raised outside the session pipeline
+ * (safety-governor flags, clinical reference checks and manual tests).
+ *
+ * All deliveries are delegated to window.ardsRiskNotifier (js/notifications.js),
+ * which posts to the alert service's /api/notify/risk endpoint — the same
+ * working path used by the "At-Risk SMS & WhatsApp Notifications" panel in
+ * the Alerts tab. Contact numbers come from the active patient record and
+ * can be edited from either the About tab's Alert Contacts card or the
+ * Alerts tab settings; both write to the same place.
  *
  * Usage:
- *   window.ardsAlert.dispatch({ riskBand, riskType, riskScore, detail, patientName })
- *
- * Contact numbers are read from localStorage (set via settings UI):
- *   ards_doctor_phone   — doctor / clinician E.164 number
- *   ards_patient_phone  — patient / emergency contact E.164 number
+ *   window.ardsAlert.dispatch({
+ *     riskBand,                    — must be 'HIGH' to fire
+ *     riskType, riskScore, detail, patientName, patientId, sessionId,
+ *     severity,                    — 'critical' (default) | 'warning'
+ *     force                        — bypass the per-session dedupe log
+ *   })
  * ========================================================================== */
 (function () {
   'use strict';
 
-  /* The API endpoint — works both on Vercel (production) and locally with
-     `vercel dev`. Falls back gracefully in plain file:// previews. */
-  const ALERT_API = '/api/send-alert';
+  function resolvePatient(patientId, patientName) {
+    const store = window.dataStore;
+    let patient = null;
+    if (store && typeof store.getPatient === 'function' && patientId) {
+      patient = store.getPatient(patientId);
+    }
+    if (!patient && store && typeof store.getActivePatient === 'function') {
+      patient = store.getActivePatient();
+    }
+    if (!patient) return null;
+    // Manual tests may override the display name; contacts stay on the record.
+    return patientName ? { ...patient, name: patientName } : patient;
+  }
+
+  function resolveSession(patient, sessionId) {
+    const store = window.dataStore;
+    if (store && typeof store.getActiveSession === 'function') {
+      const active = store.getActiveSession();
+      if (active) return active;
+    }
+    const listed = patient.sessions && patient.sessions.length
+      ? patient.sessions.find(s => s.session === sessionId) || patient.sessions[patient.sessions.length - 1]
+      : null;
+    if (listed) return listed;
+    return { session: 1, date: new Date().toISOString().slice(0, 10) };
+  }
+
+  function toast(message, tone) {
+    if (typeof window.showArdsToast === 'function') {
+      window.showArdsToast(message, tone);
+    }
+  }
 
   /**
-   * Core dispatch function.
-   * @param {object} opts
-   * @param {string}  opts.riskBand      — Must be 'HIGH' to fire
-   * @param {string}  opts.riskType      — Label, e.g. 'Gait AI' | 'Fall Instability'
-   * @param {number}  [opts.riskScore]   — Numeric score (0-100)
-   * @param {string}  [opts.detail]      — One-line human-readable reason
-   * @param {string}  [opts.patientName] — Override patient display name
+   * Dispatch a HIGH-risk alert through the shared risk-notifier pipeline.
    * @returns {Promise<void>}
    */
   async function dispatch(opts = {}) {
-    const { riskBand, riskType, riskScore, detail, patientName } = opts;
+    const {
+      riskBand, riskType, riskScore, detail,
+      patientName, patientId, sessionId, severity, force
+    } = opts;
 
     // Only fire for HIGH risk
     if (riskBand !== 'HIGH') return;
 
-    // Resolve phone numbers from localStorage
-    const doctorPhone  = (localStorage.getItem('ards_doctor_phone')  || '').trim();
-    const patientPhone = (localStorage.getItem('ards_patient_phone') || '').trim();
-
-    if (!doctorPhone && !patientPhone) {
-      console.warn('[ARDS Alert] No phone numbers configured. Set them in Settings → Alert Contacts.');
-      if (typeof window.showArdsToast === 'function') {
-        window.showArdsToast(
-          '⚠️ HIGH risk detected — no alert contacts configured. Add numbers in Settings.',
-          'warning'
-        );
-      }
+    const notifier = window.ardsRiskNotifier;
+    if (!notifier) {
+      console.warn('[ARDS Alert] Risk notifier not loaded (js/notifications.js).');
+      toast('⚠️ Alert service unavailable — notification module not loaded.', 'warning');
       return;
     }
 
-    // Resolve patient name (try logged-in user first)
-    const resolvedName = patientName ||
-      (() => {
-        try {
-          const u = JSON.parse(localStorage.getItem('ards_current_user') || 'null');
-          return u && u.name ? u.name : null;
-        } catch { return null; }
-      })() || 'Unknown Patient';
-
-    const payload = {
-      patientName:  resolvedName,
-      riskBand:     'HIGH',
-      riskType:     riskType  || 'Unknown',
-      riskScore:    riskScore != null ? riskScore : null,
-      detail:       detail    || 'HIGH risk condition detected — immediate clinical review required.',
-      doctorPhone:  doctorPhone  || null,
-      patientPhone: patientPhone || null,
-      timestamp:    new Date().toISOString(),
-    };
-
-    // Show in-app toast immediately so the user knows an alert is firing
-    if (typeof window.showArdsToast === 'function') {
-      window.showArdsToast(
-        `🚨 HIGH RISK (${riskType || 'Gait'}) — Sending SMS & WhatsApp alert…`,
-        'error'
-      );
+    const patient = resolvePatient(patientId, patientName);
+    if (!patient) {
+      console.warn('[ARDS Alert] No patient record available for dispatch.');
+      return;
     }
 
-    try {
-      const res = await fetch(ALERT_API, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload),
-      });
-      const data = await res.json();
+    if (!notifier.isValidPhone(patient.phone) && !notifier.isValidPhone(patient.clinicianPhone)) {
+      console.warn('[ARDS Alert] No phone numbers configured on the patient record.');
+      toast('⚠️ HIGH risk detected — no alert contacts configured. Add patient and clinician numbers in the Alerts or About tab.', 'warning');
+      return;
+    }
 
-      if (data.ok) {
-        console.info(`[ARDS Alert] ✅ Dispatched ${data.sent} message(s) for ${riskType} HIGH risk.`);
-        if (typeof window.showArdsToast === 'function') {
-          window.showArdsToast(
-            `✅ Alert sent (${data.sent} message${data.sent !== 1 ? 's' : ''} — SMS & WhatsApp)`,
-            'success'
-          );
-        }
-      } else {
-        console.warn('[ARDS Alert] Partial failure:', data);
-        if (typeof window.showArdsToast === 'function') {
-          window.showArdsToast('⚠️ Alert sent with some failures — check console.', 'warning');
-        }
-      }
+    const session = resolveSession(patient, sessionId);
 
-      if (data.errors && data.errors.length) {
-        data.errors.forEach(e => console.warn(`[ARDS Alert] ${e.channel} → ${e.to}: ${e.error}`));
-      }
-    } catch (err) {
-      console.error('[ARDS Alert] Network error dispatching alert:', err);
-      if (typeof window.showArdsToast === 'function') {
-        window.showArdsToast('❌ Alert network error — check connection.', 'error');
-      }
+    const risk = {
+      score: Math.max(0, Math.min(100, Number(riskScore) || 0)),
+      band: 'high',
+      state: 'HIGH_RISK',
+      severity: severity === 'warning' ? 'warning' : 'critical',
+      safetyFlag: riskType || null,
+      reasons: [detail || 'HIGH risk condition detected — immediate clinical review required.'],
+      recommendation: 'Stop the session and review the patient before continuing rehabilitation.',
+      sessionNumber: session.session,
+      date: session.date,
+      atRisk: true
+    };
+
+    toast(`🚨 HIGH RISK (${riskType || 'Safety'}) — Sending SMS & WhatsApp alert…`, 'error');
+
+    const outcome = await notifier.deliverAlert(patient, session, risk, { force: Boolean(force) });
+
+    switch (outcome.status) {
+      case 'sent':
+        toast('✅ Alert sent — SMS & WhatsApp delivered to patient and clinician.', 'success');
+        break;
+      case 'partial':
+        toast('⚠️ Alert sent, but some deliveries failed — check the service logs.', 'warning');
+        break;
+      case 'dry-run':
+        toast('🕵️ Alert service is in dry-run mode — messages composed but not sent (no Twilio credentials).', 'warning');
+        break;
+      case 'duplicate':
+        toast('ℹ️ A matching alert was sent recently — not re-sent (dedupe window).', 'info');
+        break;
+      case 'missing-contacts':
+        toast('⚠️ Could not send: patient and clinician phones must both be valid E.164 numbers (e.g. +14155551234).', 'warning');
+        break;
+      case 'failed':
+        toast(`❌ Alert failed: ${outcome.reason}`, 'error');
+        break;
+      default:
+        if (outcome.reason) console.info(`[ARDS Alert] ${outcome.status}: ${outcome.reason}`);
+    }
+
+    if (outcome.result && Array.isArray(outcome.result.results)) {
+      outcome.result.results
+        .filter(r => r.status === 'failed')
+        .forEach(r => console.warn(`[ARDS Alert] ${r.channel} → ${r.to}: ${r.error}`));
     }
   }
 
